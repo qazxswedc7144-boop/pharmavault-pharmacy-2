@@ -1,12 +1,12 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,55 +17,58 @@ interface PricingCardProps {
   features: string[];
   featured?: boolean;
 }
-export function PricingCard({ 
-  title, 
-  price, 
-  description, 
-  features, 
-  featured = false 
+export function PricingCard({
+  title,
+  price,
+  description,
+  features,
+  featured = false
 }: PricingCardProps) {
+  const isCustom = price === 'اتصل بنا' || price === 'Custom';
   return (
     <Card className={cn(
-      "relative overflow-hidden transition-all duration-300 hover:shadow-xl",
-      featured 
-        ? "border-pharmav-primary shadow-neon-blue md:scale-105 z-10 bg-card" 
+      "relative overflow-hidden transition-all duration-500 hover:shadow-2xl flex flex-col h-full rounded-[2rem]",
+      featured
+        ? "border-pharmav-primary shadow-neon-blue border-2 z-10 bg-card transform md:-translate-y-4"
         : "border-border bg-card/50"
     )}>
       {featured && (
-        <div className="absolute top-0 right-0 px-4 py-1 bg-pharmav-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-xl">
-          Most Popular
+        <div className="absolute top-0 right-0 px-6 py-2 bg-pharmav-primary text-white text-xs font-bold uppercase tracking-widest rounded-bl-3xl">
+          الأكثر شيوعاً
         </div>
       )}
-      <CardHeader className="p-8">
-        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
-        <div className="mt-4 flex items-baseline gap-1">
-          <span className="text-4xl font-bold tracking-tight">{price}</span>
-          {price !== 'Custom' && <span className="text-muted-foreground text-sm">/month</span>}
+      <CardHeader className="p-8 text-right">
+        <CardTitle className="text-2xl font-display font-bold mb-2">{title}</CardTitle>
+        <div className="mt-4 flex items-baseline gap-2 flex-row-reverse">
+          <span className="text-5xl font-display font-bold tracking-tight text-pharmav-primary">{price}</span>
+          {!isCustom && <span className="text-muted-foreground text-sm font-medium">/ شهرياً</span>}
         </div>
-        <CardDescription className="mt-4 leading-relaxed">
+        <CardDescription className="mt-6 text-base leading-relaxed text-pretty">
           {description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-8 pt-0">
-        <ul className="space-y-4">
+      <CardContent className="p-8 pt-0 flex-grow text-right" dir="rtl">
+        <div className="space-y-5">
           {features.map((feature, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm">
-              <Check className="h-5 w-5 text-pharmav-secondary shrink-0" />
-              <span>{feature}</span>
-            </li>
+            <div key={i} className="flex items-start gap-4 flex-row-reverse">
+              <div className="mt-1 p-0.5 rounded-full bg-pharmav-secondary/10 text-pharmav-secondary">
+                <Check className="h-4 w-4 shrink-0" />
+              </div>
+              <span className="text-sm font-medium leading-tight">{feature}</span>
+            </div>
           ))}
-        </ul>
+        </div>
       </CardContent>
-      <CardFooter className="p-8 border-t border-border/40">
-        <Button 
+      <CardFooter className="p-8 pt-0">
+        <Button
           className={cn(
-            "w-full rounded-full h-12 font-semibold transition-all",
-            featured 
-              ? "bg-pharmav-primary hover:bg-pharmav-primary/90 text-white shadow-lg" 
-              : "variant-outline border-2 hover:bg-muted"
+            "w-full rounded-2xl h-14 text-lg font-bold transition-all duration-300",
+            featured
+              ? "bg-pharmav-primary hover:bg-pharmav-primary/90 text-white shadow-lg shadow-pharmav-primary/20"
+              : "variant-outline border-2 hover:bg-muted hover:border-pharmav-primary/40"
           )}
         >
-          {price === 'Custom' ? 'Contact Sales' : 'Get Started'}
+          {isCustom ? 'تواصل معنا الآن' : 'ابدأ التجربة الآن'}
         </Button>
       </CardFooter>
     </Card>

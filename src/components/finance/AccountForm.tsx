@@ -15,7 +15,7 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
-  balance: z.coerce.number(),
+  balance: z.coerce.number({ invalid_type_error: 'يجب إدخال رقم صحيح' }),
   description: z.string().optional().or(z.literal(''))
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -44,11 +44,11 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         : api<Account>('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success(account ? 'تم تحديث الحساب' : 'تم إنشاء الحساب');
+      toast.success(account ? 'تم تحديث الحساب بنجاح' : 'تم إنشاء الحساب بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('فشل في حفظ الحساب')
+    onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الحساب')
   });
   React.useEffect(() => {
     if (open && account) {
@@ -66,36 +66,94 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right" dir="rtl">
-        <DialogHeader><DialogTitle className="text-right font-display">{account ? 'تعديل حساب' : 'إضافة حساب جديد'}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle className="text-right font-display text-xl font-bold">
+            {account ? 'تعديل الحساب المالي' : 'إضافة حساب مالي جديد'}
+          </DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
-            <FormField<AccountFormValues, 'name'> control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>اسم الحساب (مثلاً: البنك، عهدة نقدية)</FormLabel>
+                  <FormControl><Input {...field} className="text-right" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues, 'code'> control={form.control} name="code" render={({ field }) => (
-                <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField<AccountFormValues, 'type'> control={form.control} name="type" render={({ field }) => (
-                <FormItem><FormLabel>نوع الحساب</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">
-                    {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                      <SelectItem key={val} value={val}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage /></FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>كود الحساب</FormLabel>
+                    <FormControl><Input {...field} className="text-right font-mono" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>نوع الحساب</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="اختر النوع" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="text-right">
+                        {Object.entries(TYPE_LABELS).map(([val, label]) => (
+                          <SelectItem key={val} value={val}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField<AccountFormValues, 'balance'> control={form.control} name="balance" render={({ field }) => (
-              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField<AccountFormValues, 'description'> control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>الوصف (اختياري)</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full font-bold bg-pharmav-primary">حفظ بيانات الحساب</Button></DialogFooter>
+            <FormField
+              control={form.control}
+              name="balance"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      value={field.value} 
+                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
+                      className="text-left font-bold"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ملاحظات إضافية</FormLabel>
+                  <FormControl><Input {...field} value={field.value || ''} className="text-right" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-8">
+              <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-12 bg-pharmav-primary shadow-neon-blue">
+                حفظ بيانات الحساب المالي
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

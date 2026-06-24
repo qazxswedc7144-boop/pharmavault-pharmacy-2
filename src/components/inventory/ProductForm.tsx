@@ -62,8 +62,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       name: '', tradeName: '', scientificName: '', barcode: '',
       sku: '', categoryId: '', supplierId: '',
       price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
-      stockQuantity: 0, unit: 'tablet',
-      expiryDate: '', batchNumber: '', minStockLevel: 5
+      stockQuantity: 0, unit: 'قرص',
+      expiryDate: '', batchNumber: '', minStockLevel: 10
     }
   });
   const { data: categories } = useQuery<{ items: Category[] }>({
@@ -81,11 +81,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         : api<Product>('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(product ? 'تم تحديث المنتج' : 'تمت إضافة المنتج بنجاح');
+      toast.success(product ? 'تم تحديث بيانات الدواء' : 'تمت إضافة الدواء للمخزن بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('حدث خطأ ما')
+    onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الدواء')
   });
   React.useEffect(() => {
     if (open && product) {
@@ -112,8 +112,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         name: '', tradeName: '', scientificName: '', barcode: '',
         sku: '', categoryId: '', supplierId: '',
         price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
-        stockQuantity: 0, unit: 'tablet',
-        expiryDate: '', batchNumber: '', minStockLevel: 5
+        stockQuantity: 0, unit: 'قرص',
+        expiryDate: '', batchNumber: '', minStockLevel: 10
       });
     }
   }, [product, open, form]);
@@ -121,44 +121,44 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh] text-right" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right font-display">{product ? 'تعديل دواء' : 'تسجيل دواء جديد'}</DialogTitle>
+          <DialogTitle className="text-right font-display text-2xl font-bold">{product ? 'تعديل بيانات الدواء' : 'تسجيل دواء جديد في النظام'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ProductFormValues, 'name'> control={form.control} name="name" render={({ field }) => (
-                <FormItem><FormLabel>الاسم الأساسي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>الاسم الأساسي</FormLabel><FormControl><Input {...field} className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'tradeName'> control={form.control} name="tradeName" render={({ field }) => (
-                <FormItem><FormLabel>الاسم التجاري</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="tradeName" render={({ field }) => (
+                <FormItem><FormLabel>الاسم التجاري</FormLabel><FormControl><Input {...field} value={field.value || ''} className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ProductFormValues, 'scientificName'> control={form.control} name="scientificName" render={({ field }) => (
-                <FormItem><FormLabel>الاسم العلمي</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="scientificName" render={({ field }) => (
+                <FormItem><FormLabel>الاسم العلمي</FormLabel><FormControl><Input {...field} value={field.value || ''} className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'barcode'> control={form.control} name="barcode" render={({ field }) => (
-                <FormItem><FormLabel>الباركود</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
-              )} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField<ProductFormValues, 'sku'> control={form.control} name="sku" render={({ field }) => (
-                <FormItem><FormLabel>كود المنتج (SKU)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField<ProductFormValues, 'unit'> control={form.control} name="unit" render={({ field }) => (
-                <FormItem><FormLabel>وحدة الصرف</FormLabel><FormControl><Input placeholder="قرص، أمبولة، إلخ" {...field} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="barcode" render={({ field }) => (
+                <FormItem><FormLabel>الباركود</FormLabel><FormControl><Input {...field} value={field.value || ''} className="text-right font-mono" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ProductFormValues, 'categoryId'> control={form.control} name="categoryId" render={({ field }) => (
-                <FormItem><FormLabel>التصنيف</FormLabel>
+              <FormField control={form.control} name="sku" render={({ field }) => (
+                <FormItem><FormLabel>كود المنتج (SKU)</FormLabel><FormControl><Input {...field} className="text-right font-mono" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="unit" render={({ field }) => (
+                <FormItem><FormLabel>وحدة الصرف</FormLabel><FormControl><Input placeholder="مثال: قرص، أمبولة، عبوة" {...field} className="text-right" /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="categoryId" render={({ field }) => (
+                <FormItem><FormLabel>التصنيف العلاجي</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
                   <SelectContent className="text-right">{categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                 </Select>
                 <FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'supplierId'> control={form.control} name="supplierId" render={({ field }) => (
+              <FormField control={form.control} name="supplierId" render={({ field }) => (
                 <FormItem><FormLabel>المورد الافتراضي</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
@@ -168,36 +168,36 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               )} />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <FormField<ProductFormValues, 'price'> control={form.control} name="price" render={({ field }) => (
-                <FormItem><FormLabel>سعر البيع</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="price" render={({ field }) => (
+                <FormItem><FormLabel>سعر البيع</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'costPrice'> control={form.control} name="costPrice" render={({ field }) => (
-                <FormItem><FormLabel>سعر التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="costPrice" render={({ field }) => (
+                <FormItem><FormLabel>سعر التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'taxRate'> control={form.control} name="taxRate" render={({ field }) => (
-                <FormItem><FormLabel>الضريبة (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="taxRate" render={({ field }) => (
+                <FormItem><FormLabel>الضريبة (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="text-left" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'discountRate'> control={form.control} name="discountRate" render={({ field }) => (
-                <FormItem><FormLabel>الخصم (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="discountRate" render={({ field }) => (
+                <FormItem><FormLabel>الخصم (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="text-left" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <FormField<ProductFormValues, 'stockQuantity'> control={form.control} name="stockQuantity" render={({ field }) => (
-                <FormItem><FormLabel>الكمية</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="stockQuantity" render={({ field }) => (
+                <FormItem><FormLabel>الكمية المتوفرة</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={e => field.onChange(parseInt(e.target.value) || 0)} className="text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'minStockLevel'> control={form.control} name="minStockLevel" render={({ field }) => (
-                <FormItem><FormLabel>حد الطلب</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="minStockLevel" render={({ field }) => (
+                <FormItem><FormLabel>حد إعادة الطلب</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={e => field.onChange(parseInt(e.target.value) || 0)} className="text-left" /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<ProductFormValues, 'batchNumber'> control={form.control} name="batchNumber" render={({ field }) => (
-                <FormItem><FormLabel>رقم الدفعة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="batchNumber" render={({ field }) => (
+                <FormItem><FormLabel>رقم التشغيلة/الدفعة</FormLabel><FormControl><Input {...field} className="text-right font-mono" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
-            <FormField<ProductFormValues, 'expiryDate'> control={form.control} name="expiryDate" render={({ field }) => (
-              <FormItem><FormLabel>تاريخ الانتهاء</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField control={form.control} name="expiryDate" render={({ field }) => (
+              <FormItem><FormLabel>تاريخ انتهاء الصلاحية</FormLabel><FormControl><Input type="date" {...field} className="text-left" /></FormControl><FormMessage /></FormItem>
             )} />
-            <DialogFooter className="mt-6">
-              <Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">
-                {product ? 'تحديث بيانات الدواء' : 'تسجيل الدواء في المخزن'}
+            <DialogFooter className="mt-8">
+              <Button type="submit" disabled={mutation.isPending} className="w-full h-12 bg-pharmav-primary font-bold shadow-neon-blue">
+                {product ? 'تحديث بيانات الدواء' : 'تأكيد تسجيل الدواء في المخزون'}
               </Button>
             </DialogFooter>
           </form>

@@ -12,11 +12,11 @@ import { api } from '@/lib/api-client';
 import type { Expense, Account } from '@shared/types';
 import { toast } from 'sonner';
 const expenseSchema = z.object({
-  accountId: z.string().min(1, 'تصنيف المصروف مطلوب'),
-  paymentAccountId: z.string().min(1, 'حساب الدفع مطلوب'),
-  amount: z.coerce.number().min(0.01, 'يجب أن يكون المبلغ أكبر من صفر'),
-  category: z.string().min(1, 'الوسم مطلوب'),
-  description: z.string().min(3, 'الوصف مطلوب'),
+  accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
+  paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
+  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر'),
+  category: z.string().min(1, 'الوسم/النوع مطلوب'),
+  description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending']),
   date: z.string()
 });
@@ -30,7 +30,15 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
-    defaultValues: { status: 'paid', amount: 0, date: new Date().toISOString().split('T')[0], category: '', description: '', accountId: '', paymentAccountId: '' }
+    defaultValues: { 
+      status: 'paid', 
+      amount: 0, 
+      date: new Date().toISOString().split('T')[0], 
+      category: '', 
+      description: '', 
+      accountId: '', 
+      paymentAccountId: '' 
+    }
   });
   const { data: accounts } = useQuery<{ items: Account[] }>({
     queryKey: ['accounts'],
@@ -44,11 +52,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('تم تسجيل المصروف بنجاح');
+      toast.success('تم تسجيل المصروف بنجاح وتحديث الحسابات');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('فشل في تسجيل المصروف')
+    onError: () => toast.error('حدث خطأ أثناء تسجيل المصروف')
   });
   React.useEffect(() => {
     if (open && expense) {
@@ -62,60 +70,141 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         date: new Date(expense.date).toISOString().split('T')[0]
       });
     } else if (open) {
-      form.reset({ status: 'paid', amount: 0, date: new Date().toISOString().split('T')[0], category: '', description: '', accountId: '', paymentAccountId: '' });
+      form.reset({ 
+        status: 'paid', 
+        amount: 0, 
+        date: new Date().toISOString().split('T')[0], 
+        category: '', 
+        description: '', 
+        accountId: '', 
+        paymentAccountId: '' 
+      });
     }
   }, [open, expense, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-right" dir="rtl">
-        <DialogHeader><DialogTitle className="text-right font-display">تسجيل مصروفات الصيدلية</DialogTitle></DialogHeader>
+      <DialogContent className="text-right max-w-lg" dir="rtl">
+        <DialogHeader>
+          <DialogTitle className="text-right font-display text-xl font-bold">تسجيل مصروفات الصيدلية التشغيلية</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues, 'accountId'> control={form.control} name="accountId" render={({ field }) => (
-                <FormItem><FormLabel>تصنيف المصروف</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">
-                    {accounts?.items.filter(a => a.type === 'expense').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <FormMessage /></FormItem>
-              )} />
-              <FormField<ExpenseFormValues, 'paymentAccountId'> control={form.control} name="paymentAccountId" render={({ field }) => (
-                <FormItem><FormLabel>حساب الدفع</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر المصدر" /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">
-                    {accounts?.items.filter(a => a.type === 'asset').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <FormMessage /></FormItem>
-              )} />
+            <div className="grid grid-cols-2 gap-4 text-right">
+              <FormField
+                control={form.control}
+                name="accountId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>تصنيف المصروف</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="اختر التصنيف" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="text-right">
+                        {accounts?.items.filter(a => a.type === 'expense').map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="paymentAccountId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>حساب الدفع</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="اختر المصدر النقد" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="text-right">
+                        {accounts?.items.filter(a => a.type === 'asset').map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues, 'amount'> control={form.control} name="amount" render={({ field }) => (
-                <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField<ExpenseFormValues, 'status'> control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>الحالة</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">
-                    <SelectItem value="paid">تم الدفع</SelectItem>
-                    <SelectItem value="pending">قيد الانتظار</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage /></FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>المبلغ (ر.س)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        value={field.value} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
+                        className="text-left font-bold text-red-600"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>حالة الدفع</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="text-right">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="text-right">
+                        <SelectItem value="paid">تم السداد</SelectItem>
+                        <SelectItem value="pending">قيد الانتظار</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField<ExpenseFormValues, 'description'> control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>الوصف</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField<ExpenseFormValues, 'category'> control={form.control} name="category" render={({ field }) => (
-              <FormItem><FormLabel>الوسم (إيجار، رواتب، إلخ)</FormLabel><FormControl><Input placeholder="مثال: فاتورة كهرباء" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">تسجيل العملية</Button></DialogFooter>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>بيان المصروف (الوصف)</FormLabel>
+                  <FormControl><Input {...field} className="text-right" placeholder="مثلاً: إيجار المحل لشهر يونيو" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>الوسم (النوع)</FormLabel>
+                  <FormControl><Input {...field} className="text-right" placeholder="مثلاً: كهرباء، رواتب، صيانة" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-8">
+              <Button type="submit" disabled={mutation.isPending} className="w-full h-12 bg-pharmav-primary font-bold shadow-glow">
+                تسجيل العملية المالية
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
