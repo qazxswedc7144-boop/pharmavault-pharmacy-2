@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Pill, Lock, Delete, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Pill, Delete } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/offline-store';
 export function PinLock({ children }: { children: React.ReactNode }) {
@@ -39,8 +39,8 @@ export function PinLock({ children }: { children: React.ReactNode }) {
   const handleBackspace = () => setInput(input.slice(0, -1));
   if (!isLocked) return <>{children}</>;
   return (
-    <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-2xl flex flex-col items-center justify-center">
-      <motion.div 
+    <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-2xl flex flex-col items-center justify-center" dir="rtl">
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full p-8 text-center"
@@ -50,35 +50,35 @@ export function PinLock({ children }: { children: React.ReactNode }) {
             <Pill className="size-12" />
           </div>
         </div>
-        <h1 className="text-3xl font-display font-bold mb-2">Pharmacy Secure</h1>
-        <p className="text-muted-foreground mb-12">Enter your secure PIN to access PharmaVault</p>
-        <motion.div 
+        <h1 className="text-3xl font-display font-bold mb-2">أمان الصيدلية</h1>
+        <p className="text-muted-foreground mb-12">أدخل الرمز السري المكون من 4 أرقام للدخول</p>
+        <motion.div
           animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
-          className="flex justify-center gap-4 mb-12"
+          className="flex justify-center gap-4 mb-12 flex-row-reverse"
         >
           {[0, 1, 2, 3].map((idx) => (
-            <div 
+            <div
               key={idx}
               className={`size-4 rounded-full border-2 transition-all duration-200 ${
-                input.length > idx 
-                  ? 'bg-pharmav-primary border-pharmav-primary scale-125' 
+                input.length > idx
+                  ? 'bg-pharmav-primary border-pharmav-primary scale-125'
                   : 'border-muted-foreground/30'
               }`}
             />
           ))}
         </motion.div>
         <div className="grid grid-cols-3 gap-4 max-w-[280px] mx-auto">
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((key, i) => {
+          {['3', '2', '1', '6', '5', '4', '9', '8', '7', 'del', '0', ''].map((key, i) => {
             if (key === '') return <div key={i} />;
             if (key === 'del') {
               return (
-                <Button 
-                  key={i} 
-                  variant="ghost" 
-                  className="size-16 rounded-full" 
+                <Button
+                  key={i}
+                  variant="ghost"
+                  className="size-16 rounded-full"
                   onClick={handleBackspace}
                 >
-                  <Delete className="size-6" />
+                  <Delete className="size-6 scale-x-[-1]" />
                 </Button>
               );
             }
@@ -86,7 +86,7 @@ export function PinLock({ children }: { children: React.ReactNode }) {
               <Button
                 key={i}
                 variant="outline"
-                className="size-16 rounded-full text-2xl font-bold bg-background/50 border-border/60 hover:border-pharmav-primary/40 hover:text-pharmav-primary"
+                className="size-16 rounded-full text-2xl font-bold bg-background/50 border-border/60 hover:border-pharmav-primary/40 hover:text-pharmav-primary font-display"
                 onClick={() => handleKeyPress(key)}
               >
                 {key}
@@ -95,8 +95,8 @@ export function PinLock({ children }: { children: React.ReactNode }) {
           })}
         </div>
         <div className="mt-12">
-          <Button variant="link" className="text-muted-foreground text-xs" onClick={() => window.location.reload()}>
-            Trouble logging in? Reload app
+          <Button variant="link" className="text-muted-foreground text-sm font-sans" onClick={() => window.location.reload()}>
+            تواجه مشكلة في الدخول؟ أعد تحميل التطبيق
           </Button>
         </div>
       </motion.div>

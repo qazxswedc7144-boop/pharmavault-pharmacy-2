@@ -1,7 +1,7 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
 import React, { StrictMode, useEffect } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
   { path: "/accounts", element: <AccountsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/expenses", element: <ExpensesPage />, errorElement: <RouteErrorBoundary /> },
 ]);
-function AppRoot() {
+function OnlineStatusManager() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);
   useEffect(() => {
     const handleOnline = () => setOnlineStatus(true);
@@ -56,21 +56,19 @@ function AppRoot() {
       window.removeEventListener('offline', handleOffline);
     };
   }, [setOnlineStatus]);
+  return null;
+}
+function AppRoot() {
   return (
     <PinLock>
+      <OnlineStatusManager />
       <RouterProvider router={router} />
     </PinLock>
   );
 }
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  // Use a stable identifier to check for existing root in DEV (Singleton-ish pattern for HMR)
-  const rootKey = '__reactRoot';
-  let root = (window as any)[rootKey] as Root | undefined;
-  if (!root) {
-    root = createRoot(rootElement);
-    (window as any)[rootKey] = root;
-  }
+  const root = createRoot(rootElement);
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
