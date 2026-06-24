@@ -24,8 +24,8 @@ export function PosProductGrid({ onSelect, isReturn }: PosProductGridProps) {
     queryKey: ['categories'],
     queryFn: () => api<{ items: Category[] }>('/api/categories')
   });
-  const products = useMemo(() => productsData?.items ?? [], [productsData?.items]);
-  const categories = useMemo(() => categoriesData?.items ?? [], [categoriesData?.items]);
+  const products = productsData?.items ?? [];
+  const categories = categoriesData?.items ?? [];
   const filtered = useMemo(() => {
     let result = products;
     if (activeCategory !== 'all') {

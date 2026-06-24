@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RotateCcw, Loader2, Printer, CheckCircle2 } from 'lucide-react';
+import { CreditCard, Banknote, User, Receipt, Calculator, AlertTriangle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,6 @@ import { api } from '@/lib/api-client';
 import type { Customer, SaleItem, Transaction } from '@shared/types';
 import type { PosTransactionType, PosPaymentMode } from '@/pages/PosPage';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 interface PosPaymentSectionProps {
   cart: SaleItem[];
   paymentMode: PosPaymentMode;
@@ -18,20 +17,16 @@ interface PosPaymentSectionProps {
   customer: Customer | null;
   onCustomerChange: (c: Customer | null) => void;
   onSuccess: () => void;
-  onTransactionComplete?: (data: any) => void;
 }
-export function PosPaymentSection({
-  cart,
-  paymentMode,
-  transactionType,
-  customer,
+export function PosPaymentSection({ 
+  cart, 
+  paymentMode, 
+  transactionType, 
+  customer, 
   onCustomerChange,
-  onSuccess,
-  onTransactionComplete
+  onSuccess 
 }: PosPaymentSectionProps) {
   const [cashReceived, setCashReceived] = useState<string>('');
-  const [isPrinting, setIsPrinting] = useState(false);
-  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const queryClient = useQueryClient();
   const isReturn = transactionType === 'return';
   const isCredit = paymentMode === 'credit';
@@ -40,79 +35,35 @@ export function PosPaymentSection({
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
   const totals = useMemo(() => {
-    const subtotal = cart.reduce((acc, i) => acc + (Number(i.unitPrice) * Number(i.quantity)), 0);
-    const tax = cart.reduce((acc, i) => acc + (Number(i.taxAmount) * Number(i.quantity)), 0);
-    const discount = cart.reduce((acc, i) => acc + (Number(i.discountAmount) * Number(i.quantity)), 0);
-    return {
-      subtotal: Number(subtotal),
-      tax: Number(tax),
-      discount: Number(discount),
-      total: Number(subtotal + tax - discount)
-    };
+    const subtotal = cart.reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0);
+    const tax = cart.reduce((acc, i) => acc + (i.taxAmount * i.quantity), 0);
+    const discount = cart.reduce((acc, i) => acc + (i.discountAmount * i.quantity), 0);
+    return { subtotal, tax, discount, total: subtotal + tax - discount };
   }, [cart]);
   const change = useMemo(() => {
     const received = parseFloat(cashReceived) || 0;
-    const diff = received - totals.total;
-    return diff > 0 ? diff : 0;
+    return Math.max(0, received - totals.total);
   }, [cashReceived, totals.total]);
   const mutation = useMutation({
-    mutationFn: (tx: Transaction) => api<any>('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
-    onSuccess: (data) => {
-      setIsPrinting(true);
-      queryClient.invalidateQueries({ queryKey: ['report-data'] });
-      setTimeout(() => {
-        setIsPrinting(false);
-        toast.success(isReturn ? 'تمت عملية الاسترجاع بنجاح' : 'تمت عملية البيع بنجاح');
-        if (onTransactionComplete) onTransactionComplete(data);
-        onSuccess();
-        setCashReceived('');
-        queryClient.invalidateQueries({ queryKey: ['products'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      }, 1500);
+    mutationFn: (tx: Transaction) => api('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
+    onSuccess: () => {
+      toast.success(isReturn ? 'تمت عملية الاسترجاع بنجاح' : 'تمت عملية البيع بنجاح');
+      onSuccess();
+      setCashReceived('');
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: () => toast.error('فشل في إتمام العملية')
   });
-  const handleConfirm = async () => {
-    if (cart.length === 0) {
-      toast.error('السلة فارغة');
-      return;
-    }
-    let finalCustomerId = customer?.id;
-    const existingByName = customersData?.items.find(c => c.name === customer?.name);
-    if (!finalCustomerId && customer?.name && !existingByName) {
-      try {
-        setIsCreatingCustomer(true);
-        const newCustomer = await api<Customer>('/api/customers', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: customer.name,
-            phone: '',
-            email: '',
-            creditLimit: 0,
-            currentBalance: 0
-          })
-        });
-        finalCustomerId = newCustomer.id;
-        queryClient.invalidateQueries({ queryKey: ['customers'] });
-        toast.success(`تم تسجيل العميل الجديد ${newCustomer.name}`);
-      } catch (err) {
-        toast.error('فشل في إنشاء سجل العميل');
-        setIsCreatingCustomer(false);
-        return;
-      } finally {
-        setIsCreatingCustomer(false);
-      }
-    } else if (existingByName) {
-      finalCustomerId = existingByName.id;
-    }
-    if (isCredit && !finalCustomerId) {
-      toast.warning('يرجى اختيار عميل لإتمام البيع الآجل');
+  const handleConfirm = () => {
+    if (cart.length === 0) return;
+    if (isCredit && !customer) {
+      toast.error('يرجى اختيار عميل للبيع الآجل');
       return;
     }
     const tx: Transaction = {
       id: crypto.randomUUID(),
-      userId: 'u1',
-      customerId: finalCustomerId || undefined,
+      userId: 'u1', // In real app, from auth
+      customerId: customer?.id,
       items: cart,
       subtotal: totals.subtotal,
       taxTotal: totals.tax,
@@ -125,19 +76,17 @@ export function PosPaymentSection({
     mutation.mutate(tx);
   };
   return (
-    <Card className={cn(
-      "border-none shadow-glow overflow-hidden transition-colors duration-500",
-      isReturn ? "bg-rose-600 text-white" : "bg-card"
-    )}>
+    <Card className={`border-none shadow-glow overflow-hidden ${isReturn ? 'bg-rose-500 text-white' : 'bg-card'}`}>
       <CardContent className="p-6 space-y-6">
+        {/* Customer Selection */}
         <div className="space-y-2 text-right">
-          <Label className={cn("text-xs font-bold", isReturn ? "text-white/80" : "text-muted-foreground")}>العميل / المريض</Label>
-          <Select
-            value={customer?.id || ''}
+          <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>العميل (مطلوب للآجل)</Label>
+          <Select 
+            value={customer?.id} 
             onValueChange={(id) => onCustomerChange(customersData?.items.find(c => c.id === id) || null)}
           >
-            <SelectTrigger className={cn("text-right h-12 rounded-xl", isReturn ? "bg-white/10 border-white/20 text-white" : "bg-muted border-none")}>
-              <SelectValue placeholder="اختر العميل (اختياري)..." />
+            <SelectTrigger className={`text-right h-12 rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50' : 'bg-muted border-none'}`}>
+              <SelectValue placeholder="اختر العميل..." />
             </SelectTrigger>
             <SelectContent className="text-right">
               {customersData?.items?.map(c => (
@@ -145,79 +94,85 @@ export function PosPaymentSection({
               ))}
             </SelectContent>
           </Select>
+          {isCredit && customer && customer.currentBalance >= customer.creditLimit && (
+            <div className="flex items-center gap-2 text-[10px] font-bold text-orange-200 mt-1 justify-end">
+              <span>تجاوز الحد الائتماني ({customer.creditLimit})</span>
+              <AlertTriangle className="size-3" />
+            </div>
+          )}
         </div>
-        {!isCredit && !isReturn && (
+        {/* Cash Calculation */}
+        {!isCredit && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 text-right">
-              <Label className="text-xs font-bold text-muted-foreground">المبلغ المستلم</Label>
-              <Input
-                type="number"
+              <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>المبلغ المستلم</Label>
+              <Input 
+                type="number" 
                 value={cashReceived}
                 onChange={e => setCashReceived(e.target.value)}
-                className="h-12 text-center text-xl font-bold bg-muted border-none"
+                className={`h-12 text-center text-xl font-bold rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white' : 'bg-muted border-none'}`}
                 placeholder="0.00"
               />
             </div>
             <div className="space-y-2 text-right">
-              <Label className="text-xs font-bold text-muted-foreground">المتبقي</Label>
-              <div className="h-12 flex items-center justify-center text-2xl font-display font-bold bg-green-500/10 text-green-600 rounded-xl">
+              <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>المتبقي (الفكة)</Label>
+              <div className={`h-12 flex items-center justify-center text-2xl font-display font-bold rounded-xl ${isReturn ? 'bg-white/20' : 'bg-green-500/10 text-green-600'}`}>
                 {change.toFixed(2)}
               </div>
             </div>
           </div>
         )}
-        <div className={cn("p-4 rounded-2xl space-y-2", isReturn ? "bg-black/10" : "bg-muted/50")}>
-          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
-            <span className="opacity-80">المجموع</span>
-            <span dir="ltr">{totals.subtotal.toFixed(2)} ر.س</span>
+        {/* Totals Summary */}
+        <div className={`p-4 rounded-2xl space-y-2 ${isReturn ? 'bg-black/10' : 'bg-muted/50'}`}>
+          <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
+            <span>المجموع:</span>
+            <span>{totals.subtotal.toFixed(2)} ر.س</span>
           </div>
-          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
-            <span className="opacity-80">الضريبة المضافة</span>
-            <span dir="ltr">+{totals.tax.toFixed(2)} ر.س</span>
+          <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
+            <span>الضريبة:</span>
+            <span>+{totals.tax.toFixed(2)} ر.س</span>
           </div>
-          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
-            <span className={cn(isReturn ? "text-white" : "text-rose-400")}>إجمالي الخصم</span>
-            <span className={cn(isReturn ? "text-white" : "text-rose-400")} dir="ltr">-{totals.discount.toFixed(2)} ر.س</span>
+          <div className="flex justify-between items-center text-sm text-rose-400 flex-row-reverse">
+            <span>الخصم:</span>
+            <span>-{totals.discount.toFixed(2)} ر.س</span>
           </div>
-          <div className={cn(
-            "pt-3 mt-1 border-t flex justify-between items-center flex-row-reverse",
-            isReturn ? "border-white/20" : "border-border"
-          )}>
-            <span className="text-xl font-display font-bold">صافي الفاتورة:</span>
-            <div className={cn(
-              "text-3xl font-display font-bold tracking-tighter",
-              isReturn ? "text-white" : "text-pharmav-primary"
-            )}>
+          <div className="pt-2 border-t border-current/10 flex justify-between items-center flex-row-reverse">
+            <span className="text-xl font-display font-bold">الإجمالي النهائي:</span>
+            <div className="text-3xl font-display font-bold tracking-tighter">
               {totals.total.toFixed(2)} <span className="text-sm font-normal">ر.س</span>
             </div>
           </div>
         </div>
-        <Button
+        <Button 
           id="process-payment-btn"
-          disabled={cart.length === 0 || mutation.isPending || isPrinting || isCreatingCustomer}
+          disabled={cart.length === 0 || mutation.isPending}
           onClick={handleConfirm}
-          className={cn(
-            "w-full h-16 text-xl font-display font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3",
-            isReturn
-              ? "bg-white text-rose-600 hover:bg-rose-50"
-              : "bg-pharmav-primary hover:bg-pharmav-primary/90 shadow-neon-blue text-white"
-          )}
+          className={`w-full h-16 text-xl font-display font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center gap-3 ${
+            isReturn 
+              ? 'bg-white text-rose-500 hover:bg-rose-50' 
+              : 'bg-pharmav-primary hover:bg-pharmav-primary/90 shadow-neon-blue'
+          }`}
         >
-          {isPrinting ? (
-            <>
-              <Printer className="size-6 animate-bounce" />
-              جاري الطباعة...
-            </>
-          ) : mutation.isPending || isCreatingCustomer ? (
-            <Loader2 className="size-6 animate-spin" />
+          {mutation.isPending ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current" />
           ) : (
             <>
               {isReturn ? <RotateCcw className="size-6" /> : <CheckCircle2 className="size-6" />}
-              {isReturn ? 'تأكيد المرتجع' : 'إتمام العملية (F1)'}
+              {isReturn ? 'تأكيد المرتجع وطباعة' : 'تأكيد البيع وطباعة (F1)'}
             </>
           )}
         </Button>
-      </CardContent>
+      </div>
     </Card>
   );
 }
+// Minimal CSS for PosHeader animation logic
+const rotateCcwAnimation = `
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+`;

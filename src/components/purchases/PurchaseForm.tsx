@@ -18,7 +18,7 @@ const purchaseSchema = z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
     quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
     costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
-  })).min(1, 'أضف صنفاً واحداً على الأقل للطلب'),
+  })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'])
 });
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
@@ -53,159 +53,62 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('حدث خطأ أثناء إرسال طلب الشراء')
+    onError: () => toast.error('فشل في إرسال طلب الشراء')
   });
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-right font-display text-2xl font-bold">إنشاء طلبية شراء جديدة</DialogTitle>
-        </DialogHeader>
+        <DialogHeader><DialogTitle className="text-right font-display text-2xl font-bold">طلبية شراء جديدة</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <FormField<PurchaseFormValues>
-                control={form.control}
-                name="supplierId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>المورد</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="text-right">
-                          <SelectValue placeholder="اختر المورد المعتمد" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        {suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<PurchaseFormValues>
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>حالة الطلبية</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="text-right">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        <SelectItem value="pending">قيد الطلب (مسودة)</SelectItem>
-                        <SelectItem value="received">تم الاستلام (تحديث المخزون)</SelectItem>
-                        <SelectItem value="cancelled">ملغي</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField<PurchaseFormValues> control={form.control} name="supplierId" render={({ field }) => (
+                <FormItem><FormLabel>المورد</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
+                  <SelectContent className="text-right">{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                </Select></FormItem>
+              )} />
+              <FormField<PurchaseFormValues> control={form.control} name="status" render={({ field }) => (
+                <FormItem><FormLabel>حالة الطلبية</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
+                  <SelectContent className="text-right">
+                    <SelectItem value="pending">قيد الانتظار</SelectItem>
+                    <SelectItem value="received">تم الاستلام</SelectItem>
+                    <SelectItem value="cancelled">ملغي</SelectItem>
+                  </SelectContent>
+                </Select></FormItem>
+              )} />
             </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3 flex-row-reverse">
-                <div className="flex items-center gap-2 font-bold text-pharmav-primary">
-                  <span>أصناف الطلبية</span>
-                  <Package className="size-4" />
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}
-                  className="gap-2 border-dashed border-2 hover:bg-pharmav-primary/5"
-                >
-                  <PlusCircle className="size-4" /> إضافة دواء للطلبية
-                </Button>
-              </div>
-              {fields.map((itemField, index) => (
-                <div key={itemField.id} className="grid grid-cols-12 gap-2 items-end bg-muted/30 p-3 rounded-xl border border-border/40">
-                  <div className="col-span-6 text-right">
-                    <FormField<PurchaseFormValues>
-                      control={form.control}
-                      name={`items.${index}.productId`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">اسم الدواء</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="text-right">
-                                <SelectValue placeholder="اختر الدواء" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="text-right">
-                              {products?.items.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
+              <div className="flex items-center justify-between flex-row-reverse"><span className="font-bold flex items-center gap-2"><Package className="size-4" /> الأصناف</span>
+              <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}>إضافة صنف</Button></div>
+              {fields.map((item, index) => (
+                <div key={item.id} className="grid grid-cols-12 gap-2 items-end bg-muted/20 p-2 rounded-xl">
+                  <div className="col-span-6">
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.productId`} render={({ field }) => (
+                      <FormItem><Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر الدواء" /></SelectTrigger></FormControl>
+                        <SelectContent className="text-right">{products?.items.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                      </Select></FormItem>
+                    )} />
                   </div>
                   <div className="col-span-2">
-                    <FormField<PurchaseFormValues>
-                      control={form.control}
-                      name={`items.${index}.quantity`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">الكمية</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value}
-                              onChange={e => field.onChange(parseInt(e.target.value) || 0)}
-                              className="text-left font-bold"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
+                      <FormItem><FormControl><Input type="number" {...field} value={field.value} onChange={e => field.onChange(parseInt(e.target.value) || 0)} className="text-left" /></FormControl></FormItem>
+                    )} />
                   </div>
                   <div className="col-span-3">
-                    <FormField<PurchaseFormValues>
-                      control={form.control}
-                      name={`items.${index}.costPrice`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground">التكلفة (ر.س)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              {...field}
-                              value={field.value}
-                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                              className="text-left font-bold"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.costPrice`} render={({ field }) => (
+                      <FormItem><FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="text-left" /></FormControl></FormItem>
+                    )} />
                   </div>
-                  <div className="col-span-1 pb-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+                  <div className="col-span-1"><Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="size-4" /></Button></div>
                 </div>
               ))}
             </div>
-            <DialogFooter className="mt-8">
-              <Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold py-7 text-xl shadow-neon-blue">
-                تأكيد واعتماد أمر الشراء
-              </Button>
-            </DialogFooter>
+            <DialogFooter className="mt-8"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">تأكيد طلب الشراء</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>

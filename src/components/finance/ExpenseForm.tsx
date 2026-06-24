@@ -85,11 +85,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right max-w-lg" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right font-display text-xl font-bold">تسجيل مصروفات الصيدلية التشغيلية</DialogTitle>
+          <DialogTitle className="text-right font-display text-xl font-bold">تسجيل مصروفات الصيدلية</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-right">
+            <div className="grid grid-cols-2 gap-4">
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="accountId"
@@ -108,7 +108,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -121,7 +120,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="text-right">
-                          <SelectValue placeholder="اختر المصدر النقد" />
+                          <SelectValue placeholder="اختر المصدر" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="text-right">
@@ -130,7 +129,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -152,7 +150,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         className="text-left font-bold text-red-600"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -173,7 +170,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         <SelectItem value="pending">قيد الانتظار</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -183,9 +179,8 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>بيان المصروف (الوصف)</FormLabel>
-                  <FormControl><Input {...field} className="text-right" placeholder="مثلاً: إيجار المحل لشهر يونيو" /></FormControl>
-                  <FormMessage />
+                  <FormLabel>بيان المصروف</FormLabel>
+                  <FormControl><Input {...field} className="text-right" /></FormControl>
                 </FormItem>
               )}
             />
@@ -194,9 +189,8 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>الوسم (النوع)</FormLabel>
-                  <FormControl><Input {...field} className="text-right" placeholder="مثلاً: كهرباء، رواتب، صيانة" /></FormControl>
-                  <FormMessage />
+                  <FormLabel>الوسم</FormLabel>
+                  <FormControl><Input {...field} className="text-right" /></FormControl>
                 </FormItem>
               )}
             />
@@ -207,7 +201,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormItem>
                   <FormLabel>التاريخ</FormLabel>
                   <FormControl><Input type="date" {...field} className="text-left" /></FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

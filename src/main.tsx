@@ -14,6 +14,7 @@ import { PricingPage } from '@/pages/PricingPage';
 import { SuppliersPage } from '@/pages/SuppliersPage';
 import { CategoriesPage } from '@/pages/CategoriesPage';
 import { SalesPage } from '@/pages/SalesPage';
+import { PosPage } from '@/pages/PosPage';
 import { PurchasesPage } from '@/pages/PurchasesPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
   { path: "/suppliers", element: <SuppliersPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/categories", element: <CategoriesPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/sales", element: <SalesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/pos", element: <PosPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/purchases", element: <PurchasesPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/reports", element: <ReportsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/settings", element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
