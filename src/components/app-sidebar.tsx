@@ -4,7 +4,7 @@ import {
   ClipboardList,
   ShoppingCart,
   Truck,
-  FileText,
+  BarChart,
   Settings,
   Pill,
   Users,
@@ -30,15 +30,16 @@ import { cn } from "@/lib/utils";
 export function AppSidebar(): JSX.Element {
   const location = useLocation();
   const isOnline = useAppStore(s => s.isOnline);
-  const offlineQueueCount = useAppStore(s => s.offlineQueue.length);
+  const offlineQueue = useAppStore(s => s.offlineQueue);
+  const offlineQueueCount = offlineQueue.length;
   const navItems = [
     { name: "Dashboard", icon: <Home className="size-4" />, href: "/dashboard" },
     { name: "Inventory", icon: <ClipboardList className="size-4" />, href: "/inventory" },
     { name: "Categories", icon: <Layers className="size-4" />, href: "/categories" },
     { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "/sales" },
-    { name: "Suppliers", icon: <Truck className="size-4" />, href: "/suppliers" },
-    { name: "Staff", icon: <Users className="size-4" />, href: "#" },
-    { name: "Reports", icon: <FileText className="size-4" />, href: "#" },
+    { name: "Purchases", icon: <Truck className="size-4" />, href: "/purchases" },
+    { name: "Suppliers", icon: <Users className="size-4" />, href: "/suppliers" },
+    { name: "Reports", icon: <BarChart className="size-4" />, href: "/reports" },
   ];
   return (
     <Sidebar className="border-r border-border/50">
@@ -72,7 +73,6 @@ export function AppSidebar(): JSX.Element {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-4 space-y-4">
-        {/* Sync Status Badge */}
         <div className={cn(
           "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
           isOnline ? "bg-green-500/5 border-green-500/20" : "bg-orange-500/5 border-orange-500/20"
@@ -107,7 +107,7 @@ export function AppSidebar(): JSX.Element {
           </SidebarMenuItem>
         </SidebarMenu>
         <div className="text-[10px] text-muted-foreground/60 font-mono text-center">
-          V2.1.0-STABLE
+          V2.2.0-STABLE
         </div>
       </SidebarFooter>
     </Sidebar>

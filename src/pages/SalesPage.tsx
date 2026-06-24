@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   ShoppingCart, 
-  Trash2, 
   Plus, 
   Minus, 
   CreditCard, 
@@ -33,7 +32,7 @@ export function SalesPage() {
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
   });
-  const products = productsData?.items ?? [];
+  const products = useMemo(() => productsData?.items ?? [], [productsData]);
   const filteredProducts = useMemo(() => {
     if (!search) return products;
     const s = search.toLowerCase();
@@ -82,7 +81,7 @@ export function SalesPage() {
       setCart([]);
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (err) => {
+    onError: () => {
       toast.error('Server error. Sale saved to offline queue.');
     }
   });
@@ -90,7 +89,7 @@ export function SalesPage() {
     if (cart.length === 0) return;
     const transaction: Transaction = {
       id: crypto.randomUUID(),
-      userId: 'u1', // Mock admin for now
+      userId: 'u1', 
       items: cart,
       totalAmount: total,
       paymentMethod,
@@ -108,7 +107,6 @@ export function SalesPage() {
   return (
     <AppLayout container contentClassName="max-w-full lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]">
-        {/* Product Selection Pane */}
         <div className="flex-1 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -147,7 +145,6 @@ export function SalesPage() {
             </div>
           </ScrollArea>
         </div>
-        {/* Checkout Sidebar */}
         <div className="w-full lg:w-96 flex flex-col gap-4">
           <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
             <CardHeader className="border-b pb-4">
@@ -174,21 +171,11 @@ export function SalesPage() {
                             <div className="text-xs text-muted-foreground">${item.unitPrice.toFixed(2)} / {product?.unit}</div>
                           </div>
                           <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="size-7 h-7 w-7" 
-                              onClick={() => updateQuantity(item.productId, -1)}
-                            >
+                            <Button variant="ghost" size="icon" className="size-7 h-7 w-7" onClick={() => updateQuantity(item.productId, -1)}>
                               <Minus className="size-3" />
                             </Button>
                             <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="size-7 h-7 w-7" 
-                              onClick={() => updateQuantity(item.productId, 1)}
-                            >
+                            <Button variant="ghost" size="icon" className="size-7 h-7 w-7" onClick={() => updateQuantity(item.productId, 1)}>
                               <Plus className="size-3" />
                             </Button>
                           </div>
@@ -215,19 +202,15 @@ export function SalesPage() {
                   <span className="text-pharmav-primary">${total.toFixed(2)}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'cash', icon: <Banknote className="size-4" />, label: 'Cash' },
-                    { id: 'card', icon: <CreditCard className="size-4" />, label: 'Card' },
-                    { id: 'transfer', icon: <Receipt className="size-4" />, label: 'Transfer' },
-                  ].map(method => (
+                  {(['cash', 'card', 'transfer'] as const).map(method => (
                     <Button
-                      key={method.id}
-                      variant={paymentMethod === method.id ? 'default' : 'outline'}
+                      key={method}
+                      variant={paymentMethod === method ? 'default' : 'outline'}
                       className="flex-col h-16 gap-1"
-                      onClick={() => setPaymentMethod(method.id as any)}
+                      onClick={() => setPaymentMethod(method)}
                     >
-                      {method.icon}
-                      <span className="text-[10px]">{method.label}</span>
+                      {method === 'cash' ? <Banknote className="size-4" /> : method === 'card' ? <CreditCard className="size-4" /> : <Receipt className="size-4" />}
+                      <span className="text-[10px] capitalize">{method}</span>
                     </Button>
                   ))}
                 </div>

@@ -57,10 +57,29 @@ export interface Transaction {
   status: 'completed' | 'pending' | 'cancelled';
   timestamp: number;
 }
+export interface PurchaseItem {
+  productId: string;
+  quantity: number;
+  costPrice: number;
+}
+export interface PurchaseOrder {
+  id: string;
+  supplierId: string;
+  items: PurchaseItem[];
+  totalCost: number;
+  status: 'pending' | 'received' | 'cancelled';
+  timestamp: number;
+}
 export interface DashboardStats {
   totalSales: number;
   totalOrders: number;
   lowStockItems: number;
   expiredSoonCount: number;
   recentSales: Transaction[];
+}
+export interface AnalyticsReport {
+  inventoryValue: number;
+  revenueByDay: { date: string; amount: number }[];
+  categoryDistribution: { category: string; count: number; value: number }[];
+  profitSummary: { revenue: number; cost: number; profit: number };
 }

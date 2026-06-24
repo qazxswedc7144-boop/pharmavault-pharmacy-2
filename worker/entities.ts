@@ -1,11 +1,11 @@
 import { IndexedEntity } from "./core-utils";
-import type { Product, Supplier, Category, User, Transaction } from "@shared/types";
-import { 
-  MOCK_PRODUCTS, 
-  MOCK_SUPPLIERS, 
-  MOCK_CATEGORIES, 
+import type { Product, Supplier, Category, User, Transaction, PurchaseOrder } from "@shared/types";
+import {
+  MOCK_PRODUCTS,
+  MOCK_SUPPLIERS,
+  MOCK_CATEGORIES,
   MOCK_USERS,
-  MOCK_TRANSACTIONS 
+  MOCK_TRANSACTIONS
 } from "@shared/mock-data";
 export class UserEntity extends IndexedEntity<User> {
   static readonly entityName = "user";
@@ -45,4 +45,11 @@ export class TransactionEntity extends IndexedEntity<Transaction> {
     status: 'pending', timestamp: 0
   };
   static seedData = MOCK_TRANSACTIONS;
+}
+export class PurchaseOrderEntity extends IndexedEntity<PurchaseOrder> {
+  static readonly entityName = "purchase_order";
+  static readonly indexName = "purchase_orders";
+  static readonly initialState: PurchaseOrder = {
+    id: "", supplierId: "", items: [], totalCost: 0, status: 'pending', timestamp: 0
+  };
 }

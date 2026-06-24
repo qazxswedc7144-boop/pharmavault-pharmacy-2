@@ -18,6 +18,8 @@ import { PricingPage } from '@/pages/PricingPage'
 import { SuppliersPage } from '@/pages/SuppliersPage'
 import { CategoriesPage } from '@/pages/CategoriesPage'
 import { SalesPage } from '@/pages/SalesPage'
+import { PurchasesPage } from '@/pages/PurchasesPage'
+import { ReportsPage } from '@/pages/ReportsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { PinLock } from '@/components/auth/PinLock'
 import { useAppStore } from '@/lib/offline-store'
@@ -59,6 +61,16 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "/purchases",
+    element: <PurchasesPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/reports",
+    element: <ReportsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
     path: "/settings",
     element: <SettingsPage />,
     errorElement: <RouteErrorBoundary />,
@@ -82,12 +94,15 @@ function AppRoot() {
     </PinLock>
   );
 }
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <AppRoot />
-      </ErrorBoundary>
-    </QueryClientProvider>
-  </StrictMode>,
-)
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <AppRoot />
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </StrictMode>
+  );
+}

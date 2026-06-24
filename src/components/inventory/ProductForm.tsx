@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { api } from '@/lib/api-client';
-import { Product, Category, Supplier } from '@shared/types';
+import type { Product, Category, Supplier } from '@shared/types';
 import { toast } from 'sonner';
 const productSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -54,16 +54,16 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: '', 
-      sku: '', 
-      categoryId: '', 
+      name: '',
+      sku: '',
+      categoryId: '',
       supplierId: '',
-      price: 0, 
-      costPrice: 0, 
-      stockQuantity: 0, 
+      price: 0,
+      costPrice: 0,
+      stockQuantity: 0,
       unit: 'tablet',
-      expiryDate: '', 
-      batchNumber: '', 
+      expiryDate: '',
+      batchNumber: '',
       minStockLevel: 5
     }
   });
@@ -156,12 +156,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 <FormItem><FormLabel>Cost Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="unit" render={({ field }) => (
-                <FormItem><FormLabel>Unit (e.g. tablet)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Unit</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField control={form.control} name="stockQuantity" render={({ field }) => (
-                <FormItem><FormLabel>Initial Stock</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Stock</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="minStockLevel" render={({ field }) => (
                 <FormItem><FormLabel>Min Stock Alert</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>

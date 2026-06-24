@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/offline-store';
 import { useTheme } from '@/hooks/use-theme';
 import { toast } from 'sonner';
@@ -28,7 +29,6 @@ export function SettingsPage() {
           <h1 className="text-3xl font-display font-bold">Settings</h1>
           <p className="text-muted-foreground">Configure PharmaVault security and preferences.</p>
         </div>
-        {/* Security Section */}
         <Card className="glass-card overflow-hidden">
           <CardHeader className="bg-muted/30">
             <div className="flex items-center gap-2">
@@ -43,32 +43,31 @@ export function SettingsPage() {
                 <Label className="text-base">Enable Login Lock</Label>
                 <p className="text-sm text-muted-foreground">Require a PIN every time the app starts.</p>
               </div>
-              <Switch 
-                checked={loginLockEnabled} 
+              <Switch
+                checked={loginLockEnabled}
                 onCheckedChange={setLoginLockEnabled}
               />
             </div>
             {loginLockEnabled && (
-              <div className="animate-in slide-in-from-top-2 duration-200">
+              <div className="animate-in slide-in-from-top-2 duration-200 p-4 bg-muted/30 rounded-xl border border-dashed">
                 <Label className="text-base mb-2 block">Set 4-Digit PIN</Label>
                 <div className="flex items-center gap-4">
-                  <Input 
-                    type="password" 
-                    placeholder="Enter 4 digits" 
-                    className="max-w-[200px] text-center tracking-[1rem] font-bold text-xl"
+                  <Input
+                    type="password"
+                    placeholder="Enter 4 digits"
+                    className="max-w-[200px] text-center tracking-[1rem] font-bold text-xl h-12"
                     value={pin || ''}
                     onChange={handlePinChange}
                     maxLength={4}
                   />
                   <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Lock className="size-4" /> Changes are saved automatically
+                    <Lock className="size-4" /> Auto-saved
                   </div>
                 </div>
               </div>
             )}
           </CardContent>
         </Card>
-        {/* Offline & Sync Section */}
         <Card className="glass-card">
           <CardHeader className="bg-muted/30">
             <div className="flex items-center gap-2">
@@ -83,17 +82,17 @@ export function SettingsPage() {
                 <div className={`size-3 rounded-full ${isOnline ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-orange-500'}`} />
                 <div>
                   <div className="font-bold">{isOnline ? 'Online' : 'Offline'}</div>
-                  <div className="text-xs text-muted-foreground">{isOnline ? 'Connected to PharmaVault Cloud' : 'Using cached local storage'}</div>
+                  <div className="text-xs text-muted-foreground">{isOnline ? 'Connected to Cloud' : 'Using local cache'}</div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => toast.info('Checking for updates...')}>Check Connection</Button>
+              <Button variant="outline" size="sm" onClick={() => toast.info('Checking for updates...')}>Refresh</Button>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Database className="size-5 text-muted-foreground" />
                 <div className="space-y-0.5">
-                  <Label className="text-base">Pending Offline Sales</Label>
-                  <p className="text-sm text-muted-foreground">Transactions waiting to be synced to the cloud.</p>
+                  <Label className="text-base">Pending Sync</Label>
+                  <p className="text-sm text-muted-foreground">Transactions waiting for cloud sync.</p>
                 </div>
               </div>
               <Badge variant="secondary" className="text-lg px-4 py-1">
@@ -102,7 +101,6 @@ export function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-        {/* General Section */}
         <Card className="glass-card">
           <CardHeader className="bg-muted/30">
             <div className="flex items-center gap-2">
