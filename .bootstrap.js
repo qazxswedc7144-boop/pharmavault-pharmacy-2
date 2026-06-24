@@ -85,7 +85,15 @@ function updateWranglerJsonc() {
 }
 
 function runSetupCommands() {
-    const commandArgvs = [];
+    const commandArgvs = [
+    [
+        "bun",
+        "add",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "zod"
+    ]
+];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
     
     if (commandArgvs.length === 0) {
