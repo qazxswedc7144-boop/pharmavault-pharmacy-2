@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,6 +43,7 @@ const productSchema = z.object({
   batchNumber: z.string().min(1, 'Batch number is required'),
   minStockLevel: z.coerce.number().min(0),
 });
+type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -50,12 +51,20 @@ interface ProductFormProps {
 }
 export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const queryClient = useQueryClient();
-  const form = useForm<z.infer<typeof productSchema>>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: product || {
-      name: '', sku: '', categoryId: '', supplierId: '',
-      price: 0, costPrice: 0, stockQuantity: 0, unit: 'tablet',
-      expiryDate: '', batchNumber: '', minStockLevel: 5
+    defaultValues: {
+      name: '', 
+      sku: '', 
+      categoryId: '', 
+      supplierId: '',
+      price: 0, 
+      costPrice: 0, 
+      stockQuantity: 0, 
+      unit: 'tablet',
+      expiryDate: '', 
+      batchNumber: '', 
+      minStockLevel: 5
     }
   });
   const { data: categories } = useQuery<{ items: Category[] }>({
@@ -67,8 +76,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
   const mutation = useMutation({
-    mutationFn: (values: z.infer<typeof productSchema>) => 
-      product 
+    mutationFn: (values: ProductFormValues) =>
+      product
         ? api(`/api/products/${product.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
@@ -80,14 +89,31 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     onError: () => toast.error('Something went wrong')
   });
   React.useEffect(() => {
-    if (product) form.reset(product);
-    else form.reset({
-      name: '', sku: '', categoryId: '', supplierId: '',
-      price: 0, costPrice: 0, stockQuantity: 0, unit: 'tablet',
-      expiryDate: '', batchNumber: '', minStockLevel: 5
-    });
-  }, [product, form]);
-  const onSubmit = (values: z.infer<typeof productSchema>) => mutation.mutate(values);
+    if (open) {
+      if (product) {
+        form.reset({
+          name: product.name,
+          sku: product.sku,
+          categoryId: product.categoryId,
+          supplierId: product.supplierId,
+          price: product.price,
+          costPrice: product.costPrice,
+          stockQuantity: product.stockQuantity,
+          unit: product.unit,
+          expiryDate: product.expiryDate,
+          batchNumber: product.batchNumber,
+          minStockLevel: product.minStockLevel,
+        });
+      } else {
+        form.reset({
+          name: '', sku: '', categoryId: '', supplierId: '',
+          price: 0, costPrice: 0, stockQuantity: 0, unit: 'tablet',
+          expiryDate: '', batchNumber: '', minStockLevel: 5
+        });
+      }
+    }
+  }, [product, form, open]);
+  const onSubmit: SubmitHandler<ProductFormValues> = (values) => mutation.mutate(values);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
@@ -107,7 +133,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="categoryId" render={({ field }) => (
                 <FormItem><FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl>
                     <SelectContent>{categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                   </Select>
@@ -115,7 +141,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               )} />
               <FormField control={form.control} name="supplierId" render={({ field }) => (
                 <FormItem><FormLabel>Supplier</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger></FormControl>
                     <SelectContent>{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                   </Select>
@@ -124,10 +150,10 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField control={form.control} name="price" render={({ field }) => (
-                <FormItem><FormLabel>Selling Price</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Selling Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="costPrice" render={({ field }) => (
-                <FormItem><FormLabel>Cost Price</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Cost Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="unit" render={({ field }) => (
                 <FormItem><FormLabel>Unit (e.g. tablet)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

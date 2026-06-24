@@ -8,7 +8,10 @@ import {
   Settings,
   Pill,
   Users,
-  Layers
+  Layers,
+  Wifi,
+  WifiOff,
+  CloudUpload
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -22,13 +25,17 @@ import {
   SidebarMenuButton,
   SidebarInput,
 } from "@/components/ui/sidebar";
+import { useAppStore } from "@/lib/offline-store";
+import { cn } from "@/lib/utils";
 export function AppSidebar(): JSX.Element {
   const location = useLocation();
+  const isOnline = useAppStore(s => s.isOnline);
+  const offlineQueueCount = useAppStore(s => s.offlineQueue.length);
   const navItems = [
     { name: "Dashboard", icon: <Home className="size-4" />, href: "/dashboard" },
     { name: "Inventory", icon: <ClipboardList className="size-4" />, href: "/inventory" },
     { name: "Categories", icon: <Layers className="size-4" />, href: "/categories" },
-    { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "#" },
+    { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "/sales" },
     { name: "Suppliers", icon: <Truck className="size-4" />, href: "/suppliers" },
     { name: "Staff", icon: <Users className="size-4" />, href: "#" },
     { name: "Reports", icon: <FileText className="size-4" />, href: "#" },
@@ -64,17 +71,43 @@ export function AppSidebar(): JSX.Element {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-6">
+      <SidebarFooter className="p-4 space-y-4">
+        {/* Sync Status Badge */}
+        <div className={cn(
+          "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
+          isOnline ? "bg-green-500/5 border-green-500/20" : "bg-orange-500/5 border-orange-500/20"
+        )}>
+          {isOnline ? (
+            <Wifi className="size-4 text-green-500" />
+          ) : (
+            <WifiOff className="size-4 text-orange-500" />
+          )}
+          <div className="flex-1 text-[10px]">
+            <div className="font-bold flex items-center justify-between">
+              {isOnline ? 'CLOUD SYNCED' : 'OFFLINE MODE'}
+              {offlineQueueCount > 0 && (
+                <span className="flex items-center gap-1 animate-pulse text-pharmav-primary">
+                  <CloudUpload className="size-3" /> {offlineQueueCount}
+                </span>
+              )}
+            </div>
+            <div className="text-muted-foreground/70 uppercase tracking-tighter">
+              {isOnline ? 'All records secure' : `${offlineQueueCount} items pending`}
+            </div>
+          </div>
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="hover:bg-muted">
-              <Settings className="size-4" />
-              <span>Settings</span>
+            <SidebarMenuButton asChild isActive={location.pathname === '/settings'} className="hover:bg-muted">
+              <Link to="/settings">
+                <Settings className="size-4" />
+                <span>Settings</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="mt-4 text-[10px] text-muted-foreground/60 font-mono text-center">
-          V2.0.4-STABLE
+        <div className="text-[10px] text-muted-foreground/60 font-mono text-center">
+          V2.1.0-STABLE
         </div>
       </SidebarFooter>
     </Sidebar>

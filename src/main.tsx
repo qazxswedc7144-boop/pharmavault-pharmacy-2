@@ -1,7 +1,7 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
 enableMapSet();
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -17,6 +17,10 @@ import { InventoryPage } from '@/pages/InventoryPage'
 import { PricingPage } from '@/pages/PricingPage'
 import { SuppliersPage } from '@/pages/SuppliersPage'
 import { CategoriesPage } from '@/pages/CategoriesPage'
+import { SalesPage } from '@/pages/SalesPage'
+import { SettingsPage } from '@/pages/SettingsPage'
+import { PinLock } from '@/components/auth/PinLock'
+import { useAppStore } from '@/lib/offline-store'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
@@ -49,12 +53,40 @@ const router = createBrowserRouter([
     element: <CategoriesPage />,
     errorElement: <RouteErrorBoundary />,
   },
+  {
+    path: "/sales",
+    element: <SalesPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/settings",
+    element: <SettingsPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
 ]);
+function AppRoot() {
+  const setOnlineStatus = useAppStore(s => s.setOnlineStatus);
+  useEffect(() => {
+    const handleOnline = () => setOnlineStatus(true);
+    const handleOffline = () => setOnlineStatus(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [setOnlineStatus]);
+  return (
+    <PinLock>
+      <RouterProvider router={router} />
+    </PinLock>
+  );
+}
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
-        <RouterProvider router={router} />
+        <AppRoot />
       </ErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,
