@@ -75,7 +75,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -87,7 +87,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
                 render={({ field }) => (
@@ -98,7 +98,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="type"
                 render={({ field }) => (
@@ -112,7 +112,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       </FormControl>
                       <SelectContent className="text-right">
                         {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                          <SelectItem key={val} value={val}>{label}</SelectItem>
+                          <SelectItem key={val} value={val as any}>{label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -121,7 +121,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 )}
               />
             </div>
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="balance"
               render={({ field }) => (
@@ -138,7 +138,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="description"
               render={({ field }) => (

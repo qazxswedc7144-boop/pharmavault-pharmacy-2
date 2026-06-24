@@ -18,7 +18,7 @@ const expenseSchema = z.object({
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending']),
-  date: z.string()
+  date: z.string().min(1, 'تاريخ المصروف مطلوب')
 });
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
 interface ExpenseFormProps {
@@ -94,7 +94,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="accountId"
                 render={({ field }) => (
@@ -116,7 +116,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="paymentAccountId"
                 render={({ field }) => (
@@ -140,7 +140,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
@@ -158,7 +158,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -180,35 +180,35 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 )}
               />
             </div>
-            <FormField
+            <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>بيان المصروف</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right bg-white" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField<ExpenseFormValues>
               control={form.control}
               name="category"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>الوسم</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right bg-white" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField<ExpenseFormValues>
               control={form.control}
               name="date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>التاريخ</FormLabel>
-                  <FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl>
+                  <FormControl><Input type="date" {...field} className="h-12 text-left bg-white" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
