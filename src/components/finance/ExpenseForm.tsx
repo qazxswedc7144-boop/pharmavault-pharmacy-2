@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
   paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
-  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر'),
+  amount: z.preprocess((val) => Number(val), z.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر')),
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending']),
@@ -90,7 +90,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues>
+              <FormField
                 control={form.control}
                 name="accountId"
                 render={({ field }) => (
@@ -98,7 +98,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <FormLabel>تصنيف المصروف</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="text-right">
+                        <SelectTrigger className="h-12 text-right">
                           <SelectValue placeholder="اختر التصنيف" />
                         </SelectTrigger>
                       </FormControl>
@@ -108,10 +108,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField<ExpenseFormValues>
+              <FormField
                 control={form.control}
                 name="paymentAccountId"
                 render={({ field }) => (
@@ -119,7 +120,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <FormLabel>حساب الدفع</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="text-right">
+                        <SelectTrigger className="h-12 text-right">
                           <SelectValue placeholder="اختر المصدر" />
                         </SelectTrigger>
                       </FormControl>
@@ -129,12 +130,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues>
+              <FormField
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
@@ -145,15 +147,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         type="number"
                         step="0.01"
                         {...field}
-                        value={field.value}
-                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="text-left font-bold text-red-600"
+                        className="h-12 text-left font-bold text-red-600"
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField<ExpenseFormValues>
+              <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -161,7 +162,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <FormLabel>حالة الدفع</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="text-right">
+                        <SelectTrigger className="h-12 text-right">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
@@ -170,42 +171,46 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         <SelectItem value="pending">قيد الانتظار</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <FormField<ExpenseFormValues>
+            <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>بيان المصروف</FormLabel>
-                  <FormControl><Input {...field} className="text-right" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField<ExpenseFormValues>
+            <FormField
               control={form.control}
               name="category"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>الوسم</FormLabel>
-                  <FormControl><Input {...field} className="text-right" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField<ExpenseFormValues>
+            <FormField
               control={form.control}
               name="date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>التاريخ</FormLabel>
-                  <FormControl><Input type="date" {...field} className="text-left" /></FormControl>
+                  <FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className="mt-8">
-              <Button type="submit" disabled={mutation.isPending} className="w-full h-12 bg-pharmav-primary font-bold shadow-glow">
+              <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow">
                 تسجيل العملية المالية
               </Button>
             </DialogFooter>

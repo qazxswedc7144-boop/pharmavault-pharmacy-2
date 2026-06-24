@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { PosHeader } from '@/components/pos/PosHeader';
+import { PosInvoiceHeader } from '@/components/pos/PosInvoiceHeader';
 import { PosProductGrid } from '@/components/pos/PosProductGrid';
 import { PosCart } from '@/components/pos/PosCart';
 import { PosPaymentSection } from '@/components/pos/PosPaymentSection';
@@ -70,36 +71,46 @@ export function PosPage() {
     setCart([]);
     setSelectedCustomer(null);
   }, []);
+  const handleCustomerChange = (customerId: string) => {
+    // In a real app we'd fetch the customer object
+    setSelectedCustomer({ id: customerId, name: 'عميل مختار', phone: '', email: '', creditLimit: 1000, currentBalance: 0 } as Customer);
+  };
   const isReturn = transactionType === 'return';
-  const themeColor = isReturn ? 'text-rose-500 border-rose-500/20' : 'text-pharmav-primary border-pharmav-primary/20';
   return (
     <div className={`min-h-screen bg-background flex flex-col overflow-hidden transition-colors duration-500 ${isReturn ? 'bg-rose-50/10 dark:bg-rose-950/10' : ''}`} dir="rtl">
-      <PosHeader 
-        type={transactionType} 
+      <PosHeader
+        type={transactionType}
         onTypeChange={setTransactionType}
         mode={paymentMode}
         onModeChange={setPaymentMode}
       />
-      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-        {/* Cart & Payment Area (Left for RTL) */}
-        <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2 lg:order-1">
-          <PosCart 
-            items={cart} 
-            onUpdateQuantity={updateCartItem} 
-            isReturn={isReturn}
-          />
-          <PosPaymentSection 
-            cart={cart}
-            paymentMode={paymentMode}
-            transactionType={transactionType}
-            customer={selectedCustomer}
-            onCustomerChange={setSelectedCustomer}
-            onSuccess={clearCart}
-          />
-        </div>
-        {/* Product Selection (Right for RTL) */}
-        <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
-          <PosProductGrid onSelect={addToCart} isReturn={isReturn} />
+      <main className="flex-1 flex flex-col p-4 overflow-hidden">
+        <PosInvoiceHeader 
+          isReturn={isReturn} 
+          selectedCustomerId={selectedCustomer?.id}
+          onCustomerChange={handleCustomerChange}
+        />
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
+          {/* Cart & Payment Area (Left for RTL) */}
+          <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2 lg:order-1">
+            <PosCart
+              items={cart}
+              onUpdateQuantity={updateCartItem}
+              isReturn={isReturn}
+            />
+            <PosPaymentSection
+              cart={cart}
+              paymentMode={paymentMode}
+              transactionType={transactionType}
+              customer={selectedCustomer}
+              onCustomerChange={setSelectedCustomer}
+              onSuccess={clearCart}
+            />
+          </div>
+          {/* Product Selection (Right for RTL) */}
+          <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
+            <PosProductGrid onSelect={addToCart} isReturn={isReturn} />
+          </div>
         </div>
       </main>
       {/* Shortcuts Help Bar */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, Twitter, Github, Linkedin, Mail, ArrowLeft } from 'lucide-react';
+import { Pill, Globe, Github, Linkedin, Mail, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 export function Footer() {
@@ -19,7 +19,7 @@ export function Footer() {
               نحن نمكّن الصيدليات الحديثة من خلال حلول آمنة، فعالة، وبديهية لإدارة المخزون والمحاسبة المالية.
             </p>
             <div className="flex gap-4 justify-end">
-              <Twitter className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
+              <Globe className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
               <Github className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
               <Linkedin className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
             </div>

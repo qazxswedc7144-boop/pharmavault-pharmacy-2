@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import React, { useState, useCallback } from "react";
+import { Check, ChevronsUpDown, Search, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,7 +70,7 @@ export function Autocomplete({
                       key={option.value}
                       value={option.label}
                       onSelect={() => {
-                        onValueChange(option.value);
+                        onValueChange(option.value === value ? "" : option.value);
                         setOpen(false);
                       }}
                       className="flex-row-reverse justify-between text-right cursor-pointer"
