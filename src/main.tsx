@@ -44,7 +44,7 @@ const router = createBrowserRouter([
   { path: "/accounts", element: <AccountsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/expenses", element: <ExpensesPage />, errorElement: <RouteErrorBoundary /> },
 ]);
-function OnlineStatusManager() {
+export function OnlineStatusManager() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);
   useEffect(() => {
     const handleOnline = () => setOnlineStatus(true);
@@ -58,7 +58,7 @@ function OnlineStatusManager() {
   }, [setOnlineStatus]);
   return null;
 }
-function AppRoot() {
+export function AppRoot() {
   return (
     <PinLock>
       <OnlineStatusManager />
