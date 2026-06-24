@@ -1,0 +1,137 @@
+import React, { useState, useMemo } from 'react';
+import { Camera, Calendar, User, Hash, FileText, Lock, CheckCircle2, UserPlus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Autocomplete } from '@/components/ui/autocomplete';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
+import type { Customer } from '@shared/types';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+interface PosInvoiceHeaderProps {
+  selectedCustomerId?: string;
+  onCustomerChange: (idOrName: string) => void;
+  isReturn?: boolean;
+}
+export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isReturn = false }: PosInvoiceHeaderProps) {
+  const [isFileAttached, setIsFileAttached] = useState(false);
+  const { data: customersData, isLoading } = useQuery<{ items: Customer[] }>({
+    queryKey: ['customers'],
+    queryFn: () => api<{ items: Customer[] }>('/api/customers')
+  });
+  const customerOptions = useMemo(() =>
+    (customersData?.items || []).map(c => ({
+      label: `${c.name} (${c.phone})`,
+      value: c.id
+    })), [customersData]);
+  const today = new Date().toISOString().split('T')[0];
+  const autoInvoiceNum = useMemo(() => {
+    const now = new Date();
+    return `PHV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }, []);
+  const handleSimulateUpload = () => {
+    setIsFileAttached(true);
+    toast.success('تم إرفاق الملف/الصورة بنجاح بالفاتورة');
+  };
+  // Determine if the selected value is a new name (not in options list)
+  const isNewCustomer = selectedCustomerId && !customerOptions.some(opt => opt.value === selectedCustomerId);
+  return (
+    <div className={cn(
+      "grid grid-cols-10 gap-4 mb-4 p-4 rounded-3xl border bg-card/50 shadow-sm transition-colors duration-500",
+      isReturn ? "border-rose-500/20 bg-rose-50/30" : "border-border"
+    )}>
+      {/* Customer Field - Searchable/Creatable */}
+      <div className="col-span-10 lg:col-span-3 space-y-2 text-right">
+        <div className="flex items-center justify-between flex-row-reverse">
+          <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
+            <User className="size-3" /> العميل المختار
+          </Label>
+          {isNewCustomer && (
+            <Badge variant="outline" className="bg-pharmav-primary/10 text-pharmav-primary border-pharmav-primary/20 text-[10px] py-0 h-4 flex items-center gap-1">
+              <UserPlus className="size-2" /> جديد
+            </Badge>
+          )}
+        </div>
+        <Autocomplete
+          options={customerOptions}
+          value={selectedCustomerId}
+          onValueChange={onCustomerChange}
+          placeholder="اختر عميل أو اكتب اسم جديد..."
+          isLoading={isLoading}
+          className="h-12 bg-white text-right"
+          emptyText="اضغط ENTER لإضافة هذا العميل الجديد"
+        />
+      </div>
+      <div className="col-span-10 lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2 text-right">
+          <div className="flex items-center justify-between flex-row-reverse">
+            <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
+              <Hash className="size-3" /> رقم الفاتورة
+            </Label>
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] py-0 h-4">تلقائي</Badge>
+          </div>
+          <div className="relative group">
+            <Input
+              readOnly
+              value={autoInvoiceNum}
+              className="h-12 bg-gray-100 dark:bg-gray-900 font-mono text-center border-none cursor-not-allowed pr-10"
+            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent className="text-right">يتم توليد رقم الفاتورة تسلسلياً بواسطة النظام</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+        <div className="space-y-2 text-right">
+          <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
+            <Calendar className="size-3" /> تاريخ اليوم
+          </Label>
+          <div className="relative">
+            <Input
+              type="date"
+              defaultValue={today}
+              className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary"
+            />
+          </div>
+        </div>
+        <div className="space-y-2 text-right">
+          <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
+            <FileText className="size-3" /> ملاحظات ومرفقات
+          </Label>
+          <div className="relative">
+            <Input
+              placeholder="أضف ملاحظات..."
+              className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary"
+            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSimulateUpload}
+                    className={cn(
+                      "absolute left-1 top-1/2 -translate-y-1/2 size-10 transition-colors",
+                      isFileAttached ? "text-green-600" : "text-muted-foreground hover:text-pharmav-primary"
+                    )}
+                  >
+                    {isFileAttached ? <CheckCircle2 className="size-5" /> : <Camera className="size-5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="text-right">إرفاق صورة الوصفة الطبية أو الهوية</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
