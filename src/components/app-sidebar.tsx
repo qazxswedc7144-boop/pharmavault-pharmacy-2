@@ -1,13 +1,14 @@
 import React from "react";
-import { 
-  Home, 
-  ClipboardList, 
-  ShoppingCart, 
-  Truck, 
-  FileText, 
+import {
+  Home,
+  ClipboardList,
+  ShoppingCart,
+  Truck,
+  FileText,
   Settings,
   Pill,
-  Users
+  Users,
+  Layers
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -26,8 +27,9 @@ export function AppSidebar(): JSX.Element {
   const navItems = [
     { name: "Dashboard", icon: <Home className="size-4" />, href: "/dashboard" },
     { name: "Inventory", icon: <ClipboardList className="size-4" />, href: "/inventory" },
+    { name: "Categories", icon: <Layers className="size-4" />, href: "/categories" },
     { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "#" },
-    { name: "Suppliers", icon: <Truck className="size-4" />, href: "#" },
+    { name: "Suppliers", icon: <Truck className="size-4" />, href: "/suppliers" },
     { name: "Staff", icon: <Users className="size-4" />, href: "#" },
     { name: "Reports", icon: <FileText className="size-4" />, href: "#" },
   ];
@@ -47,8 +49,8 @@ export function AppSidebar(): JSX.Element {
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton 
-                  asChild 
+                <SidebarMenuButton
+                  asChild
                   isActive={location.pathname === item.href}
                   className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors"
                 >

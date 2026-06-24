@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
-import { 
-  ProductEntity, 
-  SupplierEntity, 
-  CategoryEntity, 
+import {
+  ProductEntity,
+  SupplierEntity,
+  CategoryEntity,
   UserEntity,
-  TransactionEntity 
+  TransactionEntity
 } from "./entities";
-import { ok, bad, isStr } from './core-utils';
+import { ok, bad, notFound } from './core-utils';
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
-  // HEALTH & BASE
+  // DASHBOARD STATS
   app.get('/api/stats', async (c) => {
     await ProductEntity.ensureSeed(c.env);
     await TransactionEntity.ensureSeed(c.env);
@@ -21,7 +21,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       totalSales,
       totalOrders: transactions.items.length,
       lowStockItems: lowStock,
-      expiredSoonCount: 0, // Placeholder
+      expiredSoonCount: 0,
       recentSales: transactions.items
     });
   });
@@ -34,19 +34,70 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   app.post('/api/products', async (c) => {
     const data = await c.req.json();
-    if (!data.name) return bad(c, 'name required');
+    if (!data.name || !data.sku) return bad(c, 'name and sku are required');
     const product = await ProductEntity.create(c.env, { ...data, id: crypto.randomUUID() });
     return ok(c, product);
+  });
+  app.put('/api/products/:id', async (c) => {
+    const id = c.req.param('id');
+    const data = await c.req.json();
+    const entity = new ProductEntity(c.env, id);
+    if (!(await entity.exists())) return notFound(c);
+    await entity.patch(data);
+    return ok(c, await entity.getState());
+  });
+  app.delete('/api/products/:id', async (c) => {
+    const id = c.req.param('id');
+    const deleted = await ProductEntity.delete(c.env, id);
+    return ok(c, { deleted });
   });
   // SUPPLIERS
   app.get('/api/suppliers', async (c) => {
     await SupplierEntity.ensureSeed(c.env);
     return ok(c, await SupplierEntity.list(c.env));
   });
+  app.post('/api/suppliers', async (c) => {
+    const data = await c.req.json();
+    if (!data.name) return bad(c, 'name required');
+    const supplier = await SupplierEntity.create(c.env, { ...data, id: crypto.randomUUID() });
+    return ok(c, supplier);
+  });
+  app.put('/api/suppliers/:id', async (c) => {
+    const id = c.req.param('id');
+    const data = await c.req.json();
+    const entity = new SupplierEntity(c.env, id);
+    if (!(await entity.exists())) return notFound(c);
+    await entity.patch(data);
+    return ok(c, await entity.getState());
+  });
+  app.delete('/api/suppliers/:id', async (c) => {
+    const id = c.req.param('id');
+    const deleted = await SupplierEntity.delete(c.env, id);
+    return ok(c, { deleted });
+  });
   // CATEGORIES
   app.get('/api/categories', async (c) => {
     await CategoryEntity.ensureSeed(c.env);
     return ok(c, await CategoryEntity.list(c.env));
+  });
+  app.post('/api/categories', async (c) => {
+    const data = await c.req.json();
+    if (!data.name) return bad(c, 'name required');
+    const category = await CategoryEntity.create(c.env, { ...data, id: crypto.randomUUID() });
+    return ok(c, category);
+  });
+  app.put('/api/categories/:id', async (c) => {
+    const id = c.req.param('id');
+    const data = await c.req.json();
+    const entity = new CategoryEntity(c.env, id);
+    if (!(await entity.exists())) return notFound(c);
+    await entity.patch(data);
+    return ok(c, await entity.getState());
+  });
+  app.delete('/api/categories/:id', async (c) => {
+    const id = c.req.param('id');
+    const deleted = await CategoryEntity.delete(c.env, id);
+    return ok(c, { deleted });
   });
   // USERS
   app.get('/api/users', async (c) => {

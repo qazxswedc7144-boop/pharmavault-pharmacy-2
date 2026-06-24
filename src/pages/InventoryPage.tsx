@@ -1,38 +1,66 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Search,
+  Filter,
+  Plus,
   MoreVertical,
-  ArrowUpDown,
-  FileText
+  FileText,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { api } from '@/lib/api-client';
-import type { Product, ApiResponse } from '@shared/types';
+import type { Product } from '@shared/types';
+import { ProductForm } from '@/components/inventory/ProductForm';
+import { toast } from 'sonner';
 export function InventoryPage() {
   const [search, setSearch] = useState('');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+  const queryClient = useQueryClient();
   const { data: productsData, isLoading } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
   });
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api(`/api/products/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Product deleted successfully');
+    },
+    onError: () => toast.error('Failed to delete product')
+  });
   const products = productsData?.items ?? [];
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.sku.toLowerCase().includes(search.toLowerCase())
   );
+  const handleEdit = (product: Product) => {
+    setSelectedProduct(product);
+    setIsFormOpen(true);
+  };
+  const handleAdd = () => {
+    setSelectedProduct(undefined);
+    setIsFormOpen(true);
+  };
   return (
     <AppLayout container>
       <div className="space-y-6">
@@ -45,7 +73,7 @@ export function InventoryPage() {
             <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" /> Export
             </Button>
-            <Button className="gap-2 bg-pharmav-primary">
+            <Button onClick={handleAdd} className="gap-2 bg-pharmav-primary">
               <Plus className="h-4 w-4" /> Add Product
             </Button>
           </div>
@@ -53,8 +81,8 @@ export function InventoryPage() {
         <div className="flex flex-col md:flex-row gap-4 items-center bg-muted/30 p-4 rounded-xl border border-border/40">
           <div className="relative w-full md:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search by name or SKU..." 
+            <Input
+              placeholder="Search by name or SKU..."
               className="pl-9 bg-background border-none ring-1 ring-border"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -120,9 +148,26 @@ export function InventoryPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(p)}>
+                          <Pencil className="h-4 w-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => {
+                            if(confirm('Are you sure?')) deleteMutation.mutate(p.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -130,6 +175,11 @@ export function InventoryPage() {
           </Table>
         </div>
       </div>
+      <ProductForm 
+        open={isFormOpen} 
+        onOpenChange={setIsFormOpen} 
+        product={selectedProduct}
+      />
     </AppLayout>
   );
 }

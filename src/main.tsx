@@ -15,6 +15,8 @@ import { HomePage } from '@/pages/HomePage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { InventoryPage } from '@/pages/InventoryPage'
 import { PricingPage } from '@/pages/PricingPage'
+import { SuppliersPage } from '@/pages/SuppliersPage'
+import { CategoriesPage } from '@/pages/CategoriesPage'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
@@ -35,6 +37,16 @@ const router = createBrowserRouter([
   {
     path: "/pricing",
     element: <PricingPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/suppliers",
+    element: <SuppliersPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/categories",
+    element: <CategoriesPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);
