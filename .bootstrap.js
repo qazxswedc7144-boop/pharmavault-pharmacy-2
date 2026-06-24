@@ -100,6 +100,11 @@ function runSetupCommands() {
         "framer-motion",
         "clsx",
         "tailwind-merge"
+    ],
+    [
+        "bun",
+        "add",
+        "cmdk"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
