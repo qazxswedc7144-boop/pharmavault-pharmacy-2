@@ -15,8 +15,8 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
-  balance: z.preprocess((val) => Number(val), z.number().min(0, { message: 'يجب إدخال رقم صحيح' })),
-  description: z.string().optional().or(z.literal(''))
+  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
+  description: z.string().optional()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -51,16 +51,18 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
     onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الحساب')
   });
   React.useEffect(() => {
-    if (open && account) {
-      form.reset({
-        name: account.name,
-        code: account.code,
-        type: account.type,
-        balance: account.balance,
-        description: account.description || ''
-      });
-    } else if (open) {
-      form.reset({ name: '', code: '', type: 'asset', balance: 0, description: '' });
+    if (open) {
+      if (account) {
+        form.reset({
+          name: account.name,
+          code: account.code,
+          type: account.type,
+          balance: account.balance,
+          description: account.description || ''
+        });
+      } else {
+        form.reset({ name: '', code: '', type: 'asset', balance: 0, description: '' });
+      }
     }
   }, [open, account, form]);
   return (

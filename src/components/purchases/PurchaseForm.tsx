@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm, useFieldArray, Control } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,14 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, Package, Camera, CalendarIcon } from 'lucide-react';
+import { Trash2, PlusCircle, Package, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.preprocess((val) => Number(val), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل')),
-    costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة'))
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled']),
   notes: z.string().optional(),
@@ -83,9 +83,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="p-6 space-y-8">
-            {/* 70/30 Grid Header */}
             <div className="grid grid-cols-10 gap-6">
-              {/* 70% Side */}
               <div className="col-span-10 lg:col-span-7 space-y-6">
                 <FormField
                   control={form.control}
@@ -131,7 +129,6 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                   )}
                 />
               </div>
-              {/* 30% Side */}
               <div className="col-span-10 lg:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
                 <FormItem>
                   <FormLabel className="text-sm font-bold">رقم الفاتورة (تلقائي)</FormLabel>
@@ -172,7 +169,6 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                 />
               </div>
             </div>
-            {/* Invoice Items */}
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-row-reverse border-b pb-2">
                 <span className="font-bold flex items-center gap-2 text-lg">
@@ -189,20 +185,20 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                 </Button>
               </div>
               <div className="space-y-3">
-                {fields.map((item, index) => (
-                  <div key={item.id} className="grid grid-cols-12 gap-3 items-end bg-card border p-4 rounded-2xl shadow-sm hover:shadow-soft transition-all">
+                {fields.map((fieldItem, index) => (
+                  <div key={fieldItem.id} className="grid grid-cols-12 gap-3 items-end bg-card border p-4 rounded-2xl shadow-sm">
                     <div className="col-span-12 lg:col-span-6">
                       <FormField
                         control={form.control}
                         name={`items.${index}.productId`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">اسم الدواء / المنتج</FormLabel>
+                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">اسم المنتج</FormLabel>
                             <Autocomplete
                               options={productOptions}
                               value={field.value}
                               onValueChange={field.onChange}
-                              placeholder="اختر الدواء..."
+                              placeholder="اختر المنتج..."
                               className="h-10"
                             />
                           </FormItem>
@@ -229,9 +225,9 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                         name={`items.${index}.costPrice`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">سعر التكلفة (ر.س)</FormLabel>
+                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">التكلفة</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" {...field} className="h-10 text-center font-bold text-green-600" />
+                              <Input type="number" step="0.01" {...field} className="h-10 text-center font-bold" />
                             </FormControl>
                           </FormItem>
                         )}
@@ -242,7 +238,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:bg-destructive/10 rounded-full"
+                        className="text-destructive"
                         onClick={() => remove(index)}
                       >
                         <Trash2 className="size-5" />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, Globe, Github, Linkedin, Mail, ArrowLeft } from 'lucide-react';
+import { Pill, Globe, Mail, ArrowLeft, Info, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 export function Footer() {
@@ -20,8 +20,8 @@ export function Footer() {
             </p>
             <div className="flex gap-4 justify-end">
               <Globe className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
-              <Github className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
-              <Linkedin className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
+              <Info className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
+              <Users className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
             </div>
           </div>
           <div className="text-right">

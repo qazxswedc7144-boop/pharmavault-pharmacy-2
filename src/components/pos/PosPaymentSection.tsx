@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreditCard, Banknote, User, Receipt, Calculator, AlertTriangle, CheckCircle2, RotateCcw } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,13 +18,13 @@ interface PosPaymentSectionProps {
   onCustomerChange: (c: Customer | null) => void;
   onSuccess: () => void;
 }
-export function PosPaymentSection({ 
-  cart, 
-  paymentMode, 
-  transactionType, 
-  customer, 
+export function PosPaymentSection({
+  cart,
+  paymentMode,
+  transactionType,
+  customer,
   onCustomerChange,
-  onSuccess 
+  onSuccess
 }: PosPaymentSectionProps) {
   const [cashReceived, setCashReceived] = useState<string>('');
   const queryClient = useQueryClient();
@@ -42,7 +42,8 @@ export function PosPaymentSection({
   }, [cart]);
   const change = useMemo(() => {
     const received = parseFloat(cashReceived) || 0;
-    return Math.max(0, received - totals.total);
+    const diff = received - totals.total;
+    return diff > 0 ? diff : 0;
   }, [cashReceived, totals.total]);
   const mutation = useMutation({
     mutationFn: (tx: Transaction) => api('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
@@ -62,7 +63,7 @@ export function PosPaymentSection({
     }
     const tx: Transaction = {
       id: crypto.randomUUID(),
-      userId: 'u1', // In real app, from auth
+      userId: 'u1',
       customerId: customer?.id,
       items: cart,
       subtotal: totals.subtotal,
@@ -76,16 +77,15 @@ export function PosPaymentSection({
     mutation.mutate(tx);
   };
   return (
-    <Card className={`border-none shadow-glow overflow-hidden ${isReturn ? 'bg-rose-500 text-white' : 'bg-card'}`}>
+    <Card className={`border-none shadow-glow overflow-hidden ${isReturn ? 'bg-rose-600 text-white' : 'bg-card'}`}>
       <CardContent className="p-6 space-y-6">
-        {/* Customer Selection */}
         <div className="space-y-2 text-right">
-          <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>العميل (مطلوب للآجل)</Label>
-          <Select 
-            value={customer?.id} 
+          <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>العميل المختار</Label>
+          <Select
+            value={customer?.id}
             onValueChange={(id) => onCustomerChange(customersData?.items.find(c => c.id === id) || null)}
           >
-            <SelectTrigger className={`text-right h-12 rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50' : 'bg-muted border-none'}`}>
+            <SelectTrigger className={`text-right h-12 rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white' : 'bg-muted border-none'}`}>
               <SelectValue placeholder="اختر العميل..." />
             </SelectTrigger>
             <SelectContent className="text-right">
@@ -101,13 +101,12 @@ export function PosPaymentSection({
             </div>
           )}
         </div>
-        {/* Cash Calculation */}
         {!isCredit && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 text-right">
               <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>المبلغ المستلم</Label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 value={cashReceived}
                 onChange={e => setCashReceived(e.target.value)}
                 className={`h-12 text-center text-xl font-bold rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white' : 'bg-muted border-none'}`}
@@ -115,14 +114,13 @@ export function PosPaymentSection({
               />
             </div>
             <div className="space-y-2 text-right">
-              <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>المتبقي (الفكة)</Label>
+              <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>المتبقي</Label>
               <div className={`h-12 flex items-center justify-center text-2xl font-display font-bold rounded-xl ${isReturn ? 'bg-white/20' : 'bg-green-500/10 text-green-600'}`}>
                 {change.toFixed(2)}
               </div>
             </div>
           </div>
         )}
-        {/* Totals Summary */}
         <div className={`p-4 rounded-2xl space-y-2 ${isReturn ? 'bg-black/10' : 'bg-muted/50'}`}>
           <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
             <span>المجموع:</span>
@@ -143,14 +141,14 @@ export function PosPaymentSection({
             </div>
           </div>
         </div>
-        <Button 
+        <Button
           id="process-payment-btn"
           disabled={cart.length === 0 || mutation.isPending}
           onClick={handleConfirm}
           className={`w-full h-16 text-xl font-display font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center gap-3 ${
-            isReturn 
-              ? 'bg-white text-rose-500 hover:bg-rose-50' 
-              : 'bg-pharmav-primary hover:bg-pharmav-primary/90 shadow-neon-blue'
+            isReturn
+              ? 'bg-white text-rose-600 hover:bg-rose-50'
+              : 'bg-pharmav-primary hover:bg-pharmav-primary/90 shadow-neon-blue text-white'
           }`}
         >
           {mutation.isPending ? (
@@ -166,13 +164,3 @@ export function PosPaymentSection({
     </Card>
   );
 }
-// Minimal CSS for PosHeader animation logic
-const rotateCcwAnimation = `
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(-360deg); }
-  }
-  .animate-spin-slow {
-    animation: spin-slow 8s linear infinite;
-  }
-`;

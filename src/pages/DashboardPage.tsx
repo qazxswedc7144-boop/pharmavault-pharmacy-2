@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
   ShoppingBag,
   AlertTriangle,
   PackageCheck,
   TrendingUp,
   Clock,
-  ArrowLeft
+  ArrowLeft,
+  Plus,
+  Receipt,
+  ShoppingCart
 } from 'lucide-react';
 import {
   LineChart,
@@ -20,8 +24,11 @@ import {
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api-client';
 import type { DashboardStats } from '@shared/types';
+import { ProductForm } from '@/components/inventory/ProductForm';
+import { ExpenseForm } from '@/components/finance/ExpenseForm';
 const chartData = [
   { name: 'الإثنين', sales: 4000 },
   { name: 'الثلاثاء', sales: 3000 },
@@ -32,6 +39,8 @@ const chartData = [
   { name: 'الأحد', sales: 3490 },
 ];
 export function DashboardPage() {
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
     queryFn: () => api<DashboardStats>('/api/stats')
@@ -65,9 +74,22 @@ export function DashboardPage() {
   return (
     <AppLayout container>
       <div className="space-y-8" dir="rtl">
-        <div className="text-right">
-          <h1 className="text-3xl font-display font-bold">لوحة التحكم</h1>
-          <p className="text-muted-foreground">أهلاً بك مجدداً د. سارة. إليك نظرة سريعة على أداء اليوم.</p>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="text-right">
+            <h1 className="text-3xl font-display font-bold">لوحة التحكم</h1>
+            <p className="text-muted-foreground">أهلاً بك مجدداً. إليك نظرة سريعة على أداء اليوم.</p>
+          </div>
+          <div className="flex gap-2 flex-row-reverse">
+            <Button asChild className="rounded-xl h-12 px-6 bg-pharmav-primary shadow-neon-blue font-bold">
+              <Link to="/pos"><ShoppingCart className="ml-2 size-4" /> بيع سريع</Link>
+            </Button>
+            <Button variant="outline" onClick={() => setIsProductFormOpen(true)} className="rounded-xl h-12 px-6 border-2 font-bold">
+              <Plus className="ml-2 size-4" /> دواء جديد
+            </Button>
+            <Button variant="ghost" onClick={() => setIsExpenseFormOpen(true)} className="rounded-xl h-12 px-6 font-bold">
+              <Receipt className="ml-2 size-4" /> مصروف
+            </Button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {cards.map((card, i) => (
@@ -80,7 +102,7 @@ export function DashboardPage() {
                 {isLoading ? (
                   <div className="h-8 w-24 bg-muted animate-pulse rounded" />
                 ) : (
-                  <div className="text-2xl font-bold">{card.value}</div>
+                  <div className="text-2xl font-display font-bold">{card.value}</div>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
               </CardContent>
@@ -112,32 +134,38 @@ export function DashboardPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="space-y-4">
-              {stats?.recentSales?.map((sale) => (
-                <div key={sale.id} className="flex flex-row-reverse items-center justify-between group">
-                  <div className="flex flex-row-reverse items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-xs">
-                      #{sale.id.slice(0, 2).toUpperCase()}
+              {stats?.recentSales && stats.recentSales.length > 0 ? (
+                stats.recentSales.map((sale) => (
+                  <div key={sale.id} className="flex flex-row-reverse items-center justify-between group">
+                    <div className="flex flex-row-reverse items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-xs">
+                        #{sale.id.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">{sale.paymentMethod === 'card' ? 'بطاقة' : 'نقداً'}</div>
+                        <div className="text-xs text-muted-foreground">منذ دقيقتين</div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium">{sale.paymentMethod === 'card' ? 'بطاقة' : 'نقداً'}</div>
-                      <div className="text-xs text-muted-foreground">منذ دقيقتين</div>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-green-600 dark:text-green-400">+{sale.totalAmount.toFixed(2)} ر.س</div>
+                      <Badge variant="outline" className="text-[10px] py-0">مكتمل</Badge>
                     </div>
                   </div>
-                  <div className="text-left">
-                    <div className="text-sm font-bold text-green-600 dark:text-green-400">+{sale.totalAmount.toFixed(2)} ر.س</div>
-                    <Badge variant="outline" className="text-[10px] py-0">مكتمل</Badge>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="py-10 text-center text-muted-foreground italic text-sm">لا توجد عمليات بيع حديثة.</div>
+              )}
               <div className="pt-4 border-t">
-                <button className="text-sm font-medium text-pharmav-primary flex flex-row-reverse items-center gap-1 hover:underline">
+                <Link to="/sales" className="text-sm font-medium text-pharmav-primary flex flex-row-reverse items-center gap-1 hover:underline">
                   عرض كل العمليات <ArrowLeft className="h-3 w-3" />
-                </button>
+                </Link>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+      <ProductForm open={isProductFormOpen} onOpenChange={setIsProductFormOpen} />
+      <ExpenseForm open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen} />
     </AppLayout>
   );
 }

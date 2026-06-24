@@ -75,9 +75,8 @@
   }
 }
 @layer components {
-  /* Standardization to 48px height for main form controls */
   .standard-input {
-    @apply h-12 px-4 rounded-xl border border-input bg-muted/50 focus:bg-background focus:ring-2 focus:ring-pharmav-primary/20 transition-all duration-200;
+    @apply h-12 px-4 rounded-xl border border-input bg-muted/50 focus:bg-background focus:ring-2 focus:ring-pharmav-primary/20 transition-all duration-200 text-right;
   }
   .text-gradient-pharmav {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-pharmav-primary to-pharmav-secondary;
@@ -88,11 +87,21 @@
   .glass-card {
     @apply bg-background/60 backdrop-blur-lg border border-border shadow-soft;
   }
+  .rtl-flip {
+    @apply scale-x-[-1];
+  }
 }
-/* Fix cmdk styles for popover consistency */
+/* Custom RTL animations */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
 [cmdk-root] {
-  @apply flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground;
+  @apply flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground text-right;
 }
 [cmdk-input] {
-  @apply flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50;
+  @apply flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-right;
 }

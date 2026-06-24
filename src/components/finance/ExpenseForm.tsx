@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
   paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
-  amount: z.preprocess((val) => Number(val), z.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر')),
+  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر'),
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending']),
@@ -45,10 +45,12 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     queryFn: () => api<{ items: Account[] }>('/api/accounts')
   });
   const mutation = useMutation({
-    mutationFn: (values: ExpenseFormValues) =>
-      expense
-        ? api<Expense>(`/api/expenses/${expense.id}`, { method: 'PUT', body: JSON.stringify(values) })
-        : api<Expense>('/api/expenses', { method: 'POST', body: JSON.stringify(values) }),
+    mutationFn: (values: ExpenseFormValues) => {
+      const payload = { ...values, date: new Date(values.date).getTime() };
+      return expense
+        ? api<Expense>(`/api/expenses/${expense.id}`, { method: 'PUT', body: JSON.stringify(payload) })
+        : api<Expense>('/api/expenses', { method: 'POST', body: JSON.stringify(payload) });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
@@ -59,26 +61,28 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onError: () => toast.error('حدث خطأ أثناء تسجيل المصروف')
   });
   React.useEffect(() => {
-    if (open && expense) {
-      form.reset({
-        accountId: expense.accountId,
-        paymentAccountId: expense.paymentAccountId,
-        amount: expense.amount,
-        category: expense.category,
-        description: expense.description,
-        status: expense.status,
-        date: new Date(expense.date).toISOString().split('T')[0]
-      });
-    } else if (open) {
-      form.reset({
-        status: 'paid',
-        amount: 0,
-        date: new Date().toISOString().split('T')[0],
-        category: '',
-        description: '',
-        accountId: '',
-        paymentAccountId: ''
-      });
+    if (open) {
+      if (expense) {
+        form.reset({
+          accountId: expense.accountId,
+          paymentAccountId: expense.paymentAccountId,
+          amount: expense.amount,
+          category: expense.category,
+          description: expense.description,
+          status: expense.status,
+          date: new Date(expense.date).toISOString().split('T')[0]
+        });
+      } else {
+        form.reset({
+          status: 'paid',
+          amount: 0,
+          date: new Date().toISOString().split('T')[0],
+          category: '',
+          description: '',
+          accountId: '',
+          paymentAccountId: ''
+        });
+      }
     }
   }, [open, expense, form]);
   return (

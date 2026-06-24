@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm, Control } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,21 +32,21 @@ import type { Product, Category, Supplier } from '@shared/types';
 import { toast } from 'sonner';
 const productSchema = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
-  tradeName: z.string().optional().or(z.literal('')),
-  scientificName: z.string().optional().or(z.literal('')),
-  barcode: z.string().optional().or(z.literal('')),
+  tradeName: z.string().optional(),
+  scientificName: z.string().optional(),
+  barcode: z.string().optional(),
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
-  price: z.preprocess((val) => Number(val), z.number().min(0.01, 'السعر مطلوب')),
-  costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة')),
-  taxRate: z.preprocess((val) => Number(val), z.number().min(0).max(100)),
-  discountRate: z.preprocess((val) => Number(val), z.number().min(0).max(100)),
-  stockQuantity: z.preprocess((val) => Number(val), z.number().min(0)),
+  price: z.coerce.number().min(0.01, 'السعر مطلوب'),
+  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
+  taxRate: z.coerce.number().min(0).max(100),
+  discountRate: z.coerce.number().min(0).max(100),
+  stockQuantity: z.coerce.number().min(0),
   unit: z.string().min(1, 'الوحدة مطلوبة'),
   expiryDate: z.string().min(1, 'تاريخ الانتهاء مطلوب'),
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
-  minStockLevel: z.preprocess((val) => Number(val), z.number().min(0)),
+  minStockLevel: z.coerce.number().min(0),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
@@ -59,11 +59,22 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: '', tradeName: '', scientificName: '', barcode: '',
-      sku: '', categoryId: '', supplierId: '',
-      price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
-      stockQuantity: 0, unit: 'قرص',
-      expiryDate: '', batchNumber: '', minStockLevel: 10
+      name: '',
+      tradeName: '',
+      scientificName: '',
+      barcode: '',
+      sku: '',
+      categoryId: '',
+      supplierId: '',
+      price: 0,
+      costPrice: 0,
+      taxRate: 0,
+      discountRate: 0,
+      stockQuantity: 0,
+      unit: 'قرص',
+      expiryDate: '',
+      batchNumber: '',
+      minStockLevel: 10
     }
   });
   const { data: categories } = useQuery<{ items: Category[] }>({
@@ -88,40 +99,44 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الدواء')
   });
   React.useEffect(() => {
-    if (open && product) {
-      form.reset({
-        name: product.name,
-        tradeName: product.tradeName || '',
-        scientificName: product.scientificName || '',
-        barcode: product.barcode || '',
-        sku: product.sku,
-        categoryId: product.categoryId,
-        supplierId: product.supplierId,
-        price: product.price,
-        costPrice: product.costPrice,
-        taxRate: product.taxRate || 0,
-        discountRate: product.discountRate || 0,
-        stockQuantity: product.stockQuantity,
-        unit: product.unit,
-        expiryDate: product.expiryDate,
-        batchNumber: product.batchNumber,
-        minStockLevel: product.minStockLevel,
-      });
-    } else if (open) {
-      form.reset({
-        name: '', tradeName: '', scientificName: '', barcode: '',
-        sku: '', categoryId: '', supplierId: '',
-        price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
-        stockQuantity: 0, unit: 'قرص',
-        expiryDate: '', batchNumber: '', minStockLevel: 10
-      });
+    if (open) {
+      if (product) {
+        form.reset({
+          name: product.name,
+          tradeName: product.tradeName || '',
+          scientificName: product.scientificName || '',
+          barcode: product.barcode || '',
+          sku: product.sku,
+          categoryId: product.categoryId,
+          supplierId: product.supplierId,
+          price: product.price,
+          costPrice: product.costPrice,
+          taxRate: product.taxRate ?? 0,
+          discountRate: product.discountRate ?? 0,
+          stockQuantity: product.stockQuantity,
+          unit: product.unit,
+          expiryDate: product.expiryDate,
+          batchNumber: product.batchNumber,
+          minStockLevel: product.minStockLevel,
+        });
+      } else {
+        form.reset({
+          name: '', tradeName: '', scientificName: '', barcode: '',
+          sku: '', categoryId: '', supplierId: '',
+          price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
+          stockQuantity: 0, unit: 'قرص',
+          expiryDate: '', batchNumber: '', minStockLevel: 10
+        });
+      }
     }
   }, [product, open, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh] text-right" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right font-display text-2xl font-bold">{product ? 'تعديل دواء' : 'دواء جديد'}</DialogTitle>
+          <DialogTitle className="text-right font-display text-2xl font-bold">
+            {product ? 'تعديل دواء' : 'دواء جديد'}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
@@ -151,18 +166,28 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="categoryId" render={({ field }) => (
-                <FormItem><FormLabel>التصنيف</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">{categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-                </Select><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>التصنيف</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      {categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )} />
               <FormField control={form.control} name="supplierId" render={({ field }) => (
-                <FormItem><FormLabel>المورد</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
-                  <SelectContent className="text-right">{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-                </Select><FormMessage /></FormItem>
+                <FormItem>
+                  <FormLabel>المورد</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      {suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )} />
             </div>
             <div className="grid grid-cols-4 gap-4">
