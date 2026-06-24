@@ -115,6 +115,18 @@ function runSetupCommands() {
         "bun",
         "add",
         "lucide-react@latest"
+    ],
+    [
+        "bun",
+        "add",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "zod",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge",
+        "cmdk"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
