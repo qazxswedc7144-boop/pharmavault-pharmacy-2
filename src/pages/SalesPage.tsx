@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  ShoppingCart, 
-  Plus, 
-  Minus, 
-  CreditCard, 
-  Banknote, 
+import {
+  Search,
+  ShoppingCart,
+  Plus,
+  Minus,
+  CreditCard,
+  Banknote,
   Receipt,
   AlertCircle
 } from 'lucide-react';
@@ -25,6 +25,7 @@ export function SalesPage() {
   const [search, setSearch] = useState('');
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'transfer'>('cash');
+  const [discountPercent, setDiscountPercent] = useState(0);
   const isOnline = useAppStore(s => s.isOnline);
   const addToOfflineQueue = useAppStore(s => s.addToOfflineQueue);
   const queryClient = useQueryClient();
@@ -36,9 +37,10 @@ export function SalesPage() {
   const filteredProducts = useMemo(() => {
     if (!search) return products;
     const s = search.toLowerCase();
-    return products.filter(p => 
-      p.name.toLowerCase().includes(s) || 
-      p.sku.toLowerCase().includes(s)
+    return products.filter(p =>
+      p.name.toLowerCase().includes(s) ||
+      p.sku.toLowerCase().includes(s) ||
+      p.barcode?.includes(s)
     );
   }, [products, search]);
   const addToCart = (product: Product) => {
@@ -48,10 +50,16 @@ export function SalesPage() {
     }
     setCart(prev => {
       const existing = prev.find(item => item.productId === product.id);
+      const tax = product.price * (product.taxRate / 100);
+      const discount = product.price * (product.discountRate / 100);
       if (existing) {
-        return prev.map(item => 
-          item.productId === product.id 
-            ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.unitPrice }
+        return prev.map(item =>
+          item.productId === product.id
+            ? { 
+                ...item, 
+                quantity: item.quantity + 1, 
+                subtotal: (item.quantity + 1) * (item.unitPrice + tax - discount)
+              }
             : item
         );
       }
@@ -59,7 +67,9 @@ export function SalesPage() {
         productId: product.id,
         quantity: 1,
         unitPrice: product.price,
-        subtotal: product.price
+        taxAmount: tax,
+        discountAmount: discount,
+        subtotal: product.price + tax - discount
       }];
     });
   };
@@ -67,30 +77,42 @@ export function SalesPage() {
     setCart(prev => prev.map(item => {
       if (item.productId === productId) {
         const newQty = Math.max(0, item.quantity + delta);
-        return { ...item, quantity: newQty, subtotal: newQty * item.unitPrice };
+        return { 
+          ...item, 
+          quantity: newQty, 
+          subtotal: newQty * (item.unitPrice + item.taxAmount - item.discountAmount) 
+        };
       }
       return item;
     }).filter(item => item.quantity > 0));
   };
-  const total = cart.reduce((acc, item) => acc + item.subtotal, 0);
+  // Calculations
+  const subtotal = cart.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  const totalTax = cart.reduce((acc, item) => acc + (item.taxAmount * item.quantity), 0);
+  const productDiscounts = cart.reduce((acc, item) => acc + (item.discountAmount * item.quantity), 0);
+  const cartDiscount = (subtotal + totalTax - productDiscounts) * (discountPercent / 100);
+  const total = subtotal + totalTax - productDiscounts - cartDiscount;
   const saleMutation = useMutation({
-    mutationFn: (transaction: Transaction) => 
+    mutationFn: (transaction: Transaction) =>
       api('/api/transactions', { method: 'POST', body: JSON.stringify(transaction) }),
     onSuccess: () => {
       toast.success('Sale processed successfully');
       setCart([]);
+      setDiscountPercent(0);
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: () => {
-      toast.error('Server error. Sale saved to offline queue.');
-    }
+    onError: () => toast.error('Server error. Transaction failed.')
   });
   const handleProcessSale = async () => {
     if (cart.length === 0) return;
     const transaction: Transaction = {
       id: crypto.randomUUID(),
-      userId: 'u1', 
+      userId: 'u1',
       items: cart,
+      subtotal: subtotal,
+      taxTotal: totalTax,
+      discountTotal: productDiscounts + cartDiscount,
       totalAmount: total,
       paymentMethod,
       status: 'completed',
@@ -98,8 +120,9 @@ export function SalesPage() {
     };
     if (!isOnline) {
       addToOfflineQueue(transaction);
-      toast.info('Offline: Sale queued for sync');
+      toast.info('Offline: Transaction saved locally');
       setCart([]);
+      setDiscountPercent(0);
     } else {
       saleMutation.mutate(transaction);
     }
@@ -111,8 +134,8 @@ export function SalesPage() {
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Search products by name or SKU..." 
+              <Input
+                placeholder="Search products or scan barcode..."
                 className="pl-10 h-12 text-lg glass-card"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -136,7 +159,10 @@ export function SalesPage() {
                   onClick={() => addToCart(product)}
                   className="flex flex-col items-start p-4 bg-card border rounded-xl hover:border-pharmav-primary/40 hover:shadow-soft transition-all text-left group"
                 >
-                  <Badge variant="outline" className="mb-2 text-[10px] opacity-70">{product.sku}</Badge>
+                  <div className="w-full flex justify-between items-start mb-2">
+                    <Badge variant="outline" className="text-[10px] opacity-70">{product.sku}</Badge>
+                    {product.taxRate > 0 && <Badge variant="secondary" className="text-[10px]">Tax {product.taxRate}%</Badge>}
+                  </div>
                   <span className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-pharmav-primary">{product.name}</span>
                   <span className="text-xs text-muted-foreground mb-4">{product.stockQuantity} {product.unit}s left</span>
                   <span className="mt-auto text-lg font-display font-bold text-pharmav-primary">${product.price.toFixed(2)}</span>
@@ -149,7 +175,7 @@ export function SalesPage() {
           <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
             <CardHeader className="border-b pb-4">
               <CardTitle className="flex items-center gap-2">
-                <ShoppingCart className="size-5" /> Current Order
+                <ShoppingCart className="size-5" /> Checkout
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
@@ -168,16 +194,12 @@ export function SalesPage() {
                         >
                           <div className="flex-1">
                             <div className="text-sm font-bold line-clamp-1">{product?.name}</div>
-                            <div className="text-xs text-muted-foreground">${item.unitPrice.toFixed(2)} / {product?.unit}</div>
+                            <div className="text-[10px] text-muted-foreground">Base: ${item.unitPrice.toFixed(2)}</div>
                           </div>
                           <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                            <Button variant="ghost" size="icon" className="size-7 h-7 w-7" onClick={() => updateQuantity(item.productId, -1)}>
-                              <Minus className="size-3" />
-                            </Button>
-                            <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
-                            <Button variant="ghost" size="icon" className="size-7 h-7 w-7" onClick={() => updateQuantity(item.productId, 1)}>
-                              <Plus className="size-3" />
-                            </Button>
+                            <Button variant="ghost" size="icon" className="size-6 h-6 w-6" onClick={() => updateQuantity(item.productId, -1)}><Minus className="size-3" /></Button>
+                            <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
+                            <Button variant="ghost" size="icon" className="size-6 h-6 w-6" onClick={() => addToCart(product!)}><Plus className="size-3" /></Button>
                           </div>
                           <div className="text-sm font-bold w-16 text-right">${item.subtotal.toFixed(2)}</div>
                         </motion.div>
@@ -187,17 +209,27 @@ export function SalesPage() {
                   {cart.length === 0 && (
                     <div className="h-40 flex flex-col items-center justify-center text-muted-foreground gap-2">
                       <ShoppingCart className="size-8 opacity-20" />
-                      <p className="text-sm">Cart is empty</p>
+                      <p className="text-sm">Pharmacy cart is empty</p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
-              <div className="p-4 bg-muted/30 border-t space-y-4">
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span>${total.toFixed(2)}</span>
+              <div className="p-4 bg-muted/30 border-t space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Input 
+                    type="number" 
+                    placeholder="Extra Discount %" 
+                    className="h-8 text-xs" 
+                    value={discountPercent || ''} 
+                    onChange={e => setDiscountPercent(Number(e.target.value))}
+                  />
                 </div>
-                <div className="flex items-center justify-between text-xl font-display font-bold">
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span>Tax</span><span>+${totalTax.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-red-500"><span>Discounts</span><span>-${(productDiscounts + cartDiscount).toFixed(2)}</span></div>
+                </div>
+                <div className="flex items-center justify-between text-2xl font-display font-bold border-t pt-2">
                   <span>Total</span>
                   <span className="text-pharmav-primary">${total.toFixed(2)}</span>
                 </div>
@@ -206,20 +238,20 @@ export function SalesPage() {
                     <Button
                       key={method}
                       variant={paymentMethod === method ? 'default' : 'outline'}
-                      className="flex-col h-16 gap-1"
+                      className="flex-col h-14 gap-1 p-0"
                       onClick={() => setPaymentMethod(method)}
                     >
-                      {method === 'cash' ? <Banknote className="size-4" /> : method === 'card' ? <CreditCard className="size-4" /> : <Receipt className="size-4" />}
+                      {method === 'cash' ? <Banknote className="size-3" /> : method === 'card' ? <CreditCard className="size-3" /> : <Receipt className="size-3" />}
                       <span className="text-[10px] capitalize">{method}</span>
                     </Button>
                   ))}
                 </div>
-                <Button 
-                  className="w-full h-14 text-lg font-bold shadow-neon-blue" 
+                <Button
+                  className="w-full h-14 text-lg font-bold shadow-neon-blue bg-pharmav-primary"
                   disabled={cart.length === 0 || saleMutation.isPending}
                   onClick={handleProcessSale}
                 >
-                  Process Sale
+                  Confirm Transaction
                 </Button>
               </div>
             </CardContent>

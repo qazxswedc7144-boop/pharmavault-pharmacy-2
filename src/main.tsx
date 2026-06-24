@@ -21,60 +21,24 @@ import { SalesPage } from '@/pages/SalesPage'
 import { PurchasesPage } from '@/pages/PurchasesPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { AccountsPage } from '@/pages/AccountsPage'
+import { ExpensesPage } from '@/pages/ExpensesPage'
 import { PinLock } from '@/components/auth/PinLock'
 import { useAppStore } from '@/lib/offline-store'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/dashboard",
-    element: <DashboardPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/inventory",
-    element: <InventoryPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/pricing",
-    element: <PricingPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/suppliers",
-    element: <SuppliersPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/categories",
-    element: <CategoriesPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/sales",
-    element: <SalesPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/purchases",
-    element: <PurchasesPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/reports",
-    element: <ReportsPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/settings",
-    element: <SettingsPage />,
-    errorElement: <RouteErrorBoundary />,
-  },
+  { path: "/", element: <HomePage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/dashboard", element: <DashboardPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/inventory", element: <InventoryPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/pricing", element: <PricingPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/suppliers", element: <SuppliersPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/categories", element: <CategoriesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/sales", element: <SalesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/purchases", element: <PurchasesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/reports", element: <ReportsPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/settings", element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/accounts", element: <AccountsPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/expenses", element: <ExpensesPage />, errorElement: <RouteErrorBoundary /> },
 ]);
 function AppRoot() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);

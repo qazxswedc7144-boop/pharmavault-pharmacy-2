@@ -11,7 +11,9 @@ import {
   Layers,
   Wifi,
   WifiOff,
-  CloudUpload
+  CloudUpload,
+  BookOpen,
+  Receipt
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -35,11 +37,15 @@ export function AppSidebar(): JSX.Element {
   const navItems = [
     { name: "Dashboard", icon: <Home className="size-4" />, href: "/dashboard" },
     { name: "Inventory", icon: <ClipboardList className="size-4" />, href: "/inventory" },
-    { name: "Categories", icon: <Layers className="size-4" />, href: "/categories" },
     { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "/sales" },
     { name: "Purchases", icon: <Truck className="size-4" />, href: "/purchases" },
-    { name: "Suppliers", icon: <Users className="size-4" />, href: "/suppliers" },
     { name: "Reports", icon: <BarChart className="size-4" />, href: "/reports" },
+  ];
+  const accountingItems = [
+    { name: "Accounts", icon: <BookOpen className="size-4" />, href: "/accounts" },
+    { name: "Expenses", icon: <Receipt className="size-4" />, href: "/expenses" },
+    { name: "Suppliers", icon: <Users className="size-4" />, href: "/suppliers" },
+    { name: "Categories", icon: <Layers className="size-4" />, href: "/categories" },
   ];
   return (
     <Sidebar className="border-r border-border/50">
@@ -54,8 +60,28 @@ export function AppSidebar(): JSX.Element {
       </SidebarHeader>
       <SidebarContent className="px-4">
         <SidebarGroup className="mt-4">
+          <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Main</div>
           <SidebarMenu>
             {navItems.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === item.href}
+                  className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors"
+                >
+                  <Link to={item.href}>
+                    {item.icon}
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup className="mt-4">
+          <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Finance & Setup</div>
+          <SidebarMenu>
+            {accountingItems.map((item) => (
               <SidebarMenuItem key={item.name}>
                 <SidebarMenuButton
                   asChild
@@ -106,9 +132,6 @@ export function AppSidebar(): JSX.Element {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="text-[10px] text-muted-foreground/60 font-mono text-center">
-          V2.2.0-STABLE
-        </div>
       </SidebarFooter>
     </Sidebar>
   );

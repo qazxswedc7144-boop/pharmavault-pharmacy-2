@@ -21,30 +21,40 @@ export interface Supplier {
   phone: string;
   address: string;
 }
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  creditLimit: number;
+  currentBalance: number;
+}
 export interface Product {
   id: string;
   name: string;
+  tradeName?: string;
+  scientificName?: string;
+  barcode?: string;
   sku: string;
   categoryId: string;
   supplierId: string;
   price: number;
   costPrice: number;
+  taxRate: number;
+  discountRate: number;
   stockQuantity: number;
   unit: string;
   expiryDate: string;
   batchNumber: string;
   minStockLevel: number;
 }
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
 export interface SaleItem {
   productId: string;
   quantity: number;
   unitPrice: number;
+  taxAmount: number;
+  discountAmount: number;
   subtotal: number;
 }
 export interface Transaction {
@@ -52,6 +62,9 @@ export interface Transaction {
   customerId?: string;
   userId: string;
   items: SaleItem[];
+  subtotal: number;
+  taxTotal: number;
+  discountTotal: number;
   totalAmount: number;
   paymentMethod: 'cash' | 'card' | 'transfer';
   status: 'completed' | 'pending' | 'cancelled';
@@ -68,6 +81,47 @@ export interface PurchaseOrder {
   items: PurchaseItem[];
   totalCost: number;
   status: 'pending' | 'received' | 'cancelled';
+  timestamp: number;
+}
+// Accounting Entities
+export type AccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense';
+export interface Account {
+  id: string;
+  name: string;
+  code: string;
+  type: AccountType;
+  balance: number;
+  description?: string;
+}
+export interface JournalEntryItem {
+  accountId: string;
+  debit: number;
+  credit: number;
+}
+export interface JournalEntry {
+  id: string;
+  date: number;
+  description: string;
+  referenceId: string; // ID of the Sale, Purchase, or Expense
+  items: JournalEntryItem[];
+}
+export interface Expense {
+  id: string;
+  date: number;
+  accountId: string; // The expense category account
+  paymentAccountId: string; // Cash or Bank account
+  amount: number;
+  category: string;
+  description: string;
+  status: 'paid' | 'pending';
+}
+export interface Alert {
+  id: string;
+  type: 'expiry' | 'stock';
+  productId: string;
+  message: string;
+  severity: 'low' | 'medium' | 'high';
+  status: 'active' | 'resolved';
   timestamp: number;
 }
 export interface DashboardStats {
