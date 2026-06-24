@@ -75,8 +75,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
   const mutation = useMutation({
-    mutationFn: (values: ProductFormValues) => 
-      product 
+    mutationFn: (values: ProductFormValues) =>
+      product
         ? api(`/api/products/${product.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
@@ -98,15 +98,15 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           sku: product.sku,
           categoryId: product.categoryId,
           supplierId: product.supplierId,
-          price: product.price,
-          costPrice: product.costPrice,
-          taxRate: product.taxRate || 0,
-          discountRate: product.discountRate || 0,
-          stockQuantity: product.stockQuantity,
+          price: Number(product.price),
+          costPrice: Number(product.costPrice),
+          taxRate: Number(product.taxRate || 0),
+          discountRate: Number(product.discountRate || 0),
+          stockQuantity: Number(product.stockQuantity),
           unit: product.unit,
           expiryDate: product.expiryDate,
           batchNumber: product.batchNumber,
-          minStockLevel: product.minStockLevel,
+          minStockLevel: Number(product.minStockLevel),
         });
       } else {
         form.reset({

@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { useForm, useFieldArray, SubmitHandler, Resolver } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -7,206 +7,110 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Autocomplete } from '@/components/ui/autocomplete';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, Package, PlusCircle, ShoppingBag } from 'lucide-react';
+import { Trash2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { PurchaseAddItemModal } from './PurchaseAddItemModal';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 const purchaseSchema = z.object({
-  invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
-  supplierId: z.string().min(1, 'يجب اختيار المورد'),
+  supplierId: z.string().min(1, 'Supplier required'),
   items: z.array(z.object({
-    productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
-    costPrice: z.coerce.number().min(0, 'التكلفة يجب أن تكون 0 أو أكثر').default(0)
-  })).min(1, 'أضف صنفاً واحداً على الأقل'),
-  notes: z.string().default(''),
-  date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
+    productId: z.string().min(1, 'Product required'),
+    quantity: z.coerce.number().min(1),
+    costPrice: z.coerce.number().min(0)
+  })).min(1, 'Add at least one item'),
+  status: z.enum(['pending', 'received', 'cancelled']).default('pending')
 });
-type PurchaseFormValues = z.output<typeof purchaseSchema>;
+type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 interface PurchaseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  order?: PurchaseOrder;
 }
-export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
+export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
   const queryClient = useQueryClient();
-  const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const form = useForm<PurchaseFormValues>({
-    resolver: zodResolver(purchaseSchema) as Resolver<PurchaseFormValues>,
-    defaultValues: {
-      invoiceNumber: '',
-      supplierId: '',
-      items: [],
-      notes: '',
-      date: new Date().toISOString().split('T')[0]
-    }
+    resolver: zodResolver(purchaseSchema),
+    defaultValues: { supplierId: '', status: 'pending', items: [{ productId: '', quantity: 1, costPrice: 0 }] }
   });
-  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
-    control: form.control,
-    name: 'items'
-  });
-  const { data: productsData } = useQuery<{ items: Product[] }>({
-    queryKey: ['products'],
-    queryFn: () => api<{ items: Product[] }>('/api/products')
-  });
-  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery<{ items: Supplier[] }>({
-    queryKey: ['suppliers'],
-    queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
-  });
-  const formItems = form.watch('items');
-  const totals = useMemo(() => {
-    const items = formItems || [];
-    return items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
-  }, [formItems]);
+  const { fields, append, remove } = useFieldArray({ control: form.control, name: 'items' });
+  const { data: products } = useQuery<{ items: Product[] }>({ queryKey: ['products'], queryFn: () => api<{ items: Product[] }>('/api/products') });
+  const { data: suppliers } = useQuery<{ items: Supplier[] }>({ queryKey: ['suppliers'], queryFn: () => api<{ items: Supplier[] }>('/api/suppliers') });
   const mutation = useMutation({
     mutationFn: (values: PurchaseFormValues) => {
-      return api<PurchaseOrder>(order ? `/api/purchases/${order.id}` : '/api/purchases', {
-        method: order ? 'PUT' : 'POST',
-        body: JSON.stringify({
-          ...values,
-          status: 'received',
-          totalCost: totals,
-          timestamp: new Date(values.date).getTime()
-        })
-      });
+      const total = values.items.reduce((sum, i) => sum + (i.quantity * i.costPrice), 0);
+      return api('/api/purchases', { method: 'POST', body: JSON.stringify({ ...values, totalCost: total }) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
-      queryClient.invalidateQueries({ queryKey: ['report-data'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      toast.success(order ? 'تم تحديث فاتورة المشتريات' : 'تم إنشاء فاتورة مشتريات جديدة بنجاح');
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Purchase order created');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('فشل في حفظ الطلب')
+    onError: () => toast.error('Failed to create order')
   });
-  const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
-  useEffect(() => {
-    if (open) {
-      if (order) {
-        form.reset({
-          invoiceNumber: order.invoiceNumber || '',
-          supplierId: order.supplierId,
-          items: order.items,
-          date: new Date(order.timestamp).toISOString().split('T')[0],
-          notes: ''
-        });
-      } else {
-        form.reset({
-          invoiceNumber: '',
-          supplierId: '',
-          items: [],
-          notes: '',
-          date: new Date().toISOString().split('T')[0]
-        });
-      }
-    }
-  }, [open, order, form]);
-  const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
-  const onSubmit: SubmitHandler<PurchaseFormValues> = (values) => {
-    mutation.mutate(values);
-  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-right font-display text-2xl font-bold flex items-center gap-3">
-            <Package className="size-6 text-pharmav-primary" />
-            {order ? 'تعديل فاتورة مشتريات' : 'فاتورة مشتريات جديدة'}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>Create Purchase Order</DialogTitle></DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField<PurchaseFormValues>
-                control={form.control}
-                name="supplierId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>المورد</FormLabel>
-                    <Autocomplete options={supplierOptions} value={String(field.value)} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<PurchaseFormValues>
-                control={form.control}
-                name="invoiceNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>رقم فاتورة المورد</FormLabel>
-                    <FormControl>
-                      <Input {...field} value={String(field.value)} className="h-12 font-mono text-center text-lg border-2" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="supplierId" render={({ field }) => (
+                <FormItem><FormLabel>Supplier</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl><SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger></FormControl>
+                  <SelectContent>{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                </Select><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="status" render={({ field }) => (
+                <FormItem><FormLabel>Order Status</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="received">Received (Stock Updated)</SelectItem>
+                  </SelectContent>
+                </Select><FormMessage /></FormItem>
+              )} />
             </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between flex-row-reverse">
-                <h4 className="font-bold flex items-center gap-2">
-                  <ShoppingBag className="size-4" /> أصناف الفاتورة
-                </h4>
-                <Button type="button" size="sm" variant="outline" onClick={() => setIsAddItemOpen(true)} className="gap-1 border-2 font-bold">
-                  <PlusCircle className="size-4" /> إضافة صنف
+              <div className="flex items-center justify-between border-b pb-2">
+                <h3 className="text-sm font-bold uppercase">Order Items</h3>
+                <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}>
+                  <PlusCircle className="size-4 mr-2" /> Add Item
                 </Button>
               </div>
-              <div className="border rounded-2xl overflow-hidden bg-muted/10">
-                <Table className="text-right">
-                  <TableHeader className="bg-muted/50">
-                    <TableRow>
-                      <TableHead className="text-right">المنتج</TableHead>
-                      <TableHead className="text-center">الكمية</TableHead>
-                      <TableHead className="text-center">التكلفة</TableHead>
-                      <TableHead className="text-left">الإجمالي</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fields.map((field, index) => (
-                      <TableRow key={field.id}>
-                        <TableCell className="font-medium">{getProductName(field.productId)}</TableCell>
-                        <TableCell className="text-center font-bold">{field.quantity}</TableCell>
-                        <TableCell className="text-center">{field.costPrice.toFixed(2)} ر.س</TableCell>
-                        <TableCell className="text-left font-bold">{(field.quantity * field.costPrice).toFixed(2)} ر.س</TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon" onClick={() => remove(index)} className="text-destructive">
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {fields.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5} className="py-10 text-center text-muted-foreground italic">
-                          لم يتم إضافة أي أصناف بعد.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+              {fields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-12 gap-2 items-end bg-muted/20 p-2 rounded-lg">
+                  <div className="col-span-6">
+                    <FormField control={form.control} name={`items.${index}.productId`} render={({ field }) => (
+                      <FormItem><FormLabel className="sr-only">Product</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger></FormControl>
+                        <SelectContent>{products?.items.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                      </Select></FormItem>
+                    )} />
+                  </div>
+                  <div className="col-span-2">
+                    <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
+                      <FormItem><FormLabel className="sr-only">Qty</FormLabel><FormControl><Input type="number" {...field} placeholder="Qty" /></FormControl></FormItem>
+                    )} />
+                  </div>
+                  <div className="col-span-3">
+                    <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field }) => (
+                      <FormItem><FormLabel className="sr-only">Cost</FormLabel><FormControl><Input type="number" step="0.01" {...field} placeholder="Cost" /></FormControl></FormItem>
+                    )} />
+                  </div>
+                  <div className="col-span-1">
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => remove(index)}><Trash2 className="size-4" /></Button>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="bg-pharmav-primary/10 p-6 rounded-3xl flex items-center justify-between">
-              <span className="font-display font-bold text-xl">إجمالي قيمة الفاتورة:</span>
-              <div className="text-3xl font-display font-bold text-pharmav-primary">{totals.toLocaleString()} <span className="text-sm font-normal">ر.س</span></div>
-            </div>
-            <DialogFooter className="mt-8">
-              <Button type="submit" disabled={mutation.isPending || fields.length === 0} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-neon-blue">
-                {mutation.isPending ? "جاري الحفظ..." : "حفظ فاتورة المشتريات"}
-              </Button>
-            </DialogFooter>
+            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full">Create Order</Button></DialogFooter>
           </form>
         </Form>
-        <PurchaseAddItemModal 
-          open={isAddItemOpen} 
-          onOpenChange={setIsAddItemOpen} 
-          onAdd={(item) => append(item)} 
-        />
       </DialogContent>
     </Dialog>
   );

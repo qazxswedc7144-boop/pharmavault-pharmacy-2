@@ -12,10 +12,9 @@ import { api } from '@/lib/api-client';
 import type { Category } from '@shared/types';
 import { toast } from 'sonner';
 const categorySchema = z.object({
-  name: z.string().min(2, 'اسم التصنيف مطلوب'),
+  name: z.string().min(2, 'Category name required'),
   description: z.string().optional()
 });
-type CategoryFormValues = z.infer<typeof categorySchema>;
 interface CategoryFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,22 +22,22 @@ interface CategoryFormProps {
 }
 export function CategoryForm({ open, onOpenChange, category }: CategoryFormProps) {
   const queryClient = useQueryClient();
-  const form = useForm<CategoryFormValues>({
+  const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: { name: '', description: '' }
   });
   const mutation = useMutation({
-    mutationFn: (values: CategoryFormValues) =>
+    mutationFn: (values: z.infer<typeof categorySchema>) =>
       category
         ? api(`/api/categories/${category.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api('/api/categories', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      toast.success('تم حفظ التصنيف بنجاح');
+      toast.success('Category saved');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('فشل في حفظ التصنيف')
+    onError: () => toast.error('Failed to save category')
   });
   React.useEffect(() => {
     if (open && category) form.reset(category);
@@ -46,17 +45,17 @@ export function CategoryForm({ open, onOpenChange, category }: CategoryFormProps
   }, [open, category, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-right" dir="rtl">
-        <DialogHeader><DialogTitle className="text-right font-display">{category ? 'تعديل التصنيف' : 'إضافة تصنيف جديد'}</DialogTitle></DialogHeader>
+      <DialogContent>
+        <DialogHeader><DialogTitle>{category ? 'Edit Category' : 'New Category'}</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>اسم الصنف/المجموعة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Category Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>الوصف</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">حفظ التصنيف</Button></DialogFooter>
+            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full">Save Category</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>

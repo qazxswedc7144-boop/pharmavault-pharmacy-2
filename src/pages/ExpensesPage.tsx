@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Receipt, Plus, Search, Calendar, CreditCard, Tag } from 'lucide-react';
+import { Receipt, Plus, Search, Calendar, Tag } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { Expense, Account } from '@shared/types';
 import { format } from 'date-fns';
+import { ExpenseForm } from '@/components/finance/ExpenseForm';
 export function ExpensesPage() {
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const { data: expensesData, isLoading } = useQuery<{ items: Expense[] }>({
     queryKey: ['expenses'],
     queryFn: () => api<{ items: Expense[] }>('/api/expenses')
@@ -26,31 +28,19 @@ export function ExpensesPage() {
   return (
     <AppLayout container>
       <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold">Expenses</h1>
             <p className="text-muted-foreground">Track pharmacy overheads and operating costs.</p>
           </div>
-          <Button className="gap-2 bg-pharmav-primary">
+          <Button onClick={() => setIsFormOpen(true)} className="gap-2 bg-pharmav-primary">
             <Plus className="h-4 w-4" /> Log Expense
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="glass-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">Monthly Spending</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalMonthly.toLocaleString()}</div>
-            </CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">Fixed Costs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-muted-foreground">$0</div>
-            </CardContent>
+            <CardHeader className="pb-2"><CardTitle className="text-xs uppercase tracking-wider text-muted-foreground">Monthly Spending</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold">${totalMonthly.toLocaleString()}</div></CardContent>
           </Card>
         </div>
         <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border">
@@ -58,7 +48,6 @@ export function ExpensesPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search expenses..." className="pl-9 bg-background border-none ring-1 ring-border" />
           </div>
-          <Button variant="outline" className="gap-2"><Calendar className="size-4" /> Date Range</Button>
         </div>
         <Card className="glass-card border-none overflow-hidden">
           <Table>
@@ -79,38 +68,23 @@ export function ExpensesPage() {
                 ))
               ) : expenses.map((exp) => (
                 <TableRow key={exp.id}>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {format(new Date(exp.date), 'MMM dd, yyyy')}
-                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{format(new Date(exp.date), 'MMM dd, yyyy')}</TableCell>
                   <TableCell className="font-medium">{exp.description}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Tag className="size-3 text-muted-foreground" />
-                      {exp.category}
-                    </div>
-                  </TableCell>
+                  <TableCell><div className="flex items-center gap-2 text-xs"><Tag className="size-3 text-muted-foreground" /> {exp.category}</div></TableCell>
                   <TableCell className="text-sm">{getAccountName(exp.accountId)}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={exp.status === 'paid' ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600'}>
                       {exp.status.toUpperCase()}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-red-500">
-                    -${exp.amount.toFixed(2)}
-                  </TableCell>
+                  <TableCell className="text-right font-bold text-red-500">-${exp.amount.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
-              {!isLoading && expenses.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                    No expense records found.
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </Card>
       </div>
+      <ExpenseForm open={isFormOpen} onOpenChange={setIsFormOpen} />
     </AppLayout>
   );
 }

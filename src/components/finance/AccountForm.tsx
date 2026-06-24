@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,122 +12,83 @@ import { api } from '@/lib/api-client';
 import type { Account, AccountType } from '@shared/types';
 import { toast } from 'sonner';
 const accountSchema = z.object({
-  name: z.string().min(2, 'اسم الحساب مطلوب'),
-  code: z.string().min(1, 'كود الحساب مطلوب'),
-  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
-  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح').default(0),
-  description: z.string().default(''),
+  name: z.string().min(2, 'Account name required'),
+  code: z.string().min(1, 'Account code required'),
+  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
+  balance: z.coerce.number().default(0),
+  description: z.string().optional()
 });
-type AccountFormValues = z.output<typeof accountSchema>;
+type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   account?: Account;
 }
-const TYPE_LABELS: Record<AccountType, string> = {
-  asset: 'أصول', liability: 'خصوم', equity: 'حقوق ملكية', revenue: 'إيرادات', expense: 'مصاريف'
-};
 export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountSchema) as Resolver<AccountFormValues>,
+    resolver: zodResolver(accountSchema),
     defaultValues: { name: '', code: '', type: 'asset', balance: 0, description: '' }
   });
   const mutation = useMutation({
     mutationFn: (values: AccountFormValues) =>
       account
-        ? api<Account>(`/api/accounts/${account.id}`, { method: 'PUT', body: JSON.stringify(values) })
-        : api<Account>('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
+        ? api(`/api/accounts/${account.id}`, { method: 'PUT', body: JSON.stringify(values) })
+        : api('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success(account ? 'تم التحديث بنجاح' : 'تم الإنشاء بنجاح');
+      toast.success(account ? 'Account updated' : 'Account created');
       onOpenChange(false);
       form.reset();
-    }
+    },
+    onError: () => toast.error('Failed to save account')
   });
-  useEffect(() => {
-    if (open && account) form.reset(account);
-    else if (open) form.reset({ name: '', code: '', type: 'asset', balance: 0, description: '' });
+  React.useEffect(() => {
+    if (open && account) {
+      form.reset({
+        name: account.name,
+        code: account.code,
+        type: account.type,
+        balance: account.balance,
+        description: account.description || ''
+      });
+    } else if (open) {
+      form.reset({ name: '', code: '', type: 'asset', balance: 0, description: '' });
+    }
   }, [open, account, form]);
-  const onSubmit: SubmitHandler<AccountFormValues> = (v) => mutation.mutate(v);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-right" dir="rtl">
-        <DialogHeader><DialogTitle className="text-right font-display text-xl font-bold">{account ? 'تعديل الحساب' : 'إضافة حساب جديد'}</DialogTitle></DialogHeader>
+      <DialogContent>
+        <DialogHeader><DialogTitle>{account ? 'Edit Account' : 'New Account'}</DialogTitle></DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FormField<AccountFormValues>
-              control={form.control}
-              name="name"
-              render={({ field: { value, ...fieldProps } }) => (
-                <FormItem>
-                  <FormLabel>اسم الحساب</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...fieldProps}
-                      value={String(value ?? "")}
-                      className="h-12 text-right border-2"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
+            <FormField control={form.control} name="name" render={({ field }) => (
+              <FormItem><FormLabel>Account Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues>
-                control={form.control}
-                name="code"
-                render={({ field: { value, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormLabel>كود الحساب</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...fieldProps}
-                        value={String(value ?? "")}
-                        className="h-12 font-mono border-2"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<AccountFormValues>
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>نوع الحساب</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-12"><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent>{Object.entries(TYPE_LABELS).map(([k,v]) => (<SelectItem key={k} value={k}>{v}</SelectItem>))}</SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="code" render={({ field }) => (
+                <FormItem><FormLabel>Account Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="type" render={({ field }) => (
+                <FormItem><FormLabel>Account Type</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                  <SelectContent>
+                    {['asset', 'liability', 'equity', 'revenue', 'expense'].map(t => (
+                      <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage /></FormItem>
+              )} />
             </div>
-            <FormField<AccountFormValues>
-              control={form.control}
-              name="balance"
-              render={({ field: { value, onChange, ...fieldProps } }) => (
-                <FormItem>
-                  <FormLabel>الرصيد الافتتاحي</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...fieldProps}
-                      type="number"
-                      step="0.01"
-                      value={String(value ?? "0")}
-                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                      className="h-12 text-left font-bold text-xl border-2"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter className="mt-8">
-              <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 bg-pharmav-primary">حفظ البيانات</Button>
-            </DialogFooter>
+            <FormField control={form.control} name="balance" render={({ field }) => (
+              <FormItem><FormLabel>Initial Balance</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="description" render={({ field }) => (
+              <FormItem><FormLabel>Description (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full">Save Account</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>
