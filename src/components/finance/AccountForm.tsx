@@ -15,7 +15,7 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
-  balance: z.coerce.number({ invalid_type_error: 'يجب إدخال رقم صحيح' }),
+  balance: z.coerce.number().min(0, { message: 'يجب إدخال رقم صحيح' }),
   description: z.string().optional().or(z.literal(''))
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -73,7 +73,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -85,7 +85,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
                 render={({ field }) => (
@@ -96,7 +96,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="type"
                 render={({ field }) => (
@@ -119,18 +119,18 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 )}
               />
             </div>
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="balance"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      value={field.value} 
-                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value}
+                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                       className="text-left font-bold"
                     />
                   </FormControl>
@@ -138,7 +138,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="description"
               render={({ field }) => (

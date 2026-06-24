@@ -64,7 +64,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<PurchaseFormValues>
                 control={form.control}
                 name="supplierId"
                 render={({ field }) => (
@@ -84,7 +84,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<PurchaseFormValues>
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -113,20 +113,20 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                   <span>أصناف الطلبية</span>
                   <Package className="size-4" />
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}
                   className="gap-2 border-dashed border-2 hover:bg-pharmav-primary/5"
                 >
                   <PlusCircle className="size-4" /> إضافة دواء للطلبية
                 </Button>
               </div>
-              {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-12 gap-2 items-end bg-muted/30 p-3 rounded-xl border border-border/40">
+              {fields.map((itemField, index) => (
+                <div key={itemField.id} className="grid grid-cols-12 gap-2 items-end bg-muted/30 p-3 rounded-xl border border-border/40">
                   <div className="col-span-6 text-right">
-                    <FormField
+                    <FormField<PurchaseFormValues>
                       control={form.control}
                       name={`items.${index}.productId`}
                       render={({ field }) => (
@@ -147,18 +147,18 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     />
                   </div>
                   <div className="col-span-2">
-                    <FormField
+                    <FormField<PurchaseFormValues>
                       control={form.control}
                       name={`items.${index}.quantity`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs text-muted-foreground">الكمية</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              {...field} 
-                              value={field.value} 
-                              onChange={e => field.onChange(parseInt(e.target.value) || 0)} 
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value}
+                              onChange={e => field.onChange(parseInt(e.target.value) || 0)}
                               className="text-left font-bold"
                             />
                           </FormControl>
@@ -167,19 +167,19 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     />
                   </div>
                   <div className="col-span-3">
-                    <FormField
+                    <FormField<PurchaseFormValues>
                       control={form.control}
                       name={`items.${index}.costPrice`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs text-muted-foreground">التكلفة (ر.س)</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01" 
-                              {...field} 
-                              value={field.value} 
-                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)} 
+                            <Input
+                              type="number"
+                              step="0.01"
+                              {...field}
+                              value={field.value}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                               className="text-left font-bold"
                             />
                           </FormControl>
@@ -188,11 +188,11 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     />
                   </div>
                   <div className="col-span-1 pb-1">
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-destructive hover:bg-destructive/10" 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:bg-destructive/10"
                       onClick={() => remove(index)}
                     >
                       <Trash2 className="size-4" />
