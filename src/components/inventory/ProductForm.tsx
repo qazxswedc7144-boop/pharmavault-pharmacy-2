@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -75,8 +75,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
   const mutation = useMutation({
-    mutationFn: (values: ProductFormValues) =>
-      product
+    mutationFn: (values: ProductFormValues) => 
+      product 
         ? api(`/api/products/${product.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
@@ -119,7 +119,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       }
     }
   }, [product, open, form]);
-  const onSubmit: SubmitHandler<ProductFormValues> = (values) => mutation.mutate(values);
+  const onSubmit = (values: ProductFormValues) => mutation.mutate(values);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
@@ -155,19 +155,19 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="categoryId" render={({ field }) => (
                 <FormItem><FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl>
-                    <SelectContent>{categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <FormMessage /></FormItem>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl>
+                  <SelectContent>{categories?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                </Select>
+                <FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="supplierId" render={({ field }) => (
                 <FormItem><FormLabel>Default Supplier</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger></FormControl>
-                    <SelectContent>{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <FormMessage /></FormItem>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <FormControl><SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger></FormControl>
+                  <SelectContent>{suppliers?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                </Select>
+                <FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-4 gap-4">

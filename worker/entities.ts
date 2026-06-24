@@ -3,12 +3,12 @@ import type {
   Product, Supplier, Category, User, Transaction, 
   PurchaseOrder, Account, JournalEntry, Expense, Alert, Customer 
 } from "@shared/types";
-import {
-  MOCK_PRODUCTS,
-  MOCK_SUPPLIERS,
-  MOCK_CATEGORIES,
+import { 
+  MOCK_PRODUCTS, 
+  MOCK_SUPPLIERS, 
+  MOCK_CATEGORIES, 
   MOCK_USERS,
-  MOCK_TRANSACTIONS
+  MOCK_TRANSACTIONS 
 } from "@shared/mock-data";
 export class UserEntity extends IndexedEntity<User> {
   static readonly entityName = "user";
@@ -19,7 +19,7 @@ export class UserEntity extends IndexedEntity<User> {
 export class ProductEntity extends IndexedEntity<Product> {
   static readonly entityName = "product";
   static readonly indexName = "products";
-  static readonly initialState: Product = {
+  static readonly initialState: Product = { 
     id: "", name: "", sku: "", categoryId: "", supplierId: "",
     price: 0, costPrice: 0, taxRate: 0, discountRate: 0, stockQuantity: 0, unit: "",
     expiryDate: "", batchNumber: "", minStockLevel: 0
@@ -29,16 +29,16 @@ export class ProductEntity extends IndexedEntity<Product> {
 export class SupplierEntity extends IndexedEntity<Supplier> {
   static readonly entityName = "supplier";
   static readonly indexName = "suppliers";
-  static readonly initialState: Supplier = {
-    id: "", name: "", contactPerson: "", email: "", phone: "", address: ""
+  static readonly initialState: Supplier = { 
+    id: "", name: "", contactPerson: "", email: "", phone: "", address: "" 
   };
   static seedData = MOCK_SUPPLIERS;
 }
 export class CustomerEntity extends IndexedEntity<Customer> {
   static readonly entityName = "customer";
   static readonly indexName = "customers";
-  static readonly initialState: Customer = {
-    id: "", name: "", email: "", phone: "", creditLimit: 0, currentBalance: 0
+  static readonly initialState: Customer = { 
+    id: "", name: "", email: "", phone: "", creditLimit: 0, currentBalance: 0 
   };
 }
 export class CategoryEntity extends IndexedEntity<Category> {
@@ -51,7 +51,7 @@ export class TransactionEntity extends IndexedEntity<Transaction> {
   static readonly entityName = "transaction";
   static readonly indexName = "transactions";
   static readonly initialState: Transaction = {
-    id: "", userId: "", items: [], subtotal: 0, taxTotal: 0, discountTotal: 0, 
+    id: "", userId: "", items: [], subtotal: 0, taxTotal: 0, discountTotal: 0,
     totalAmount: 0, paymentMethod: 'cash', status: 'pending', timestamp: 0
   };
 }
@@ -65,8 +65,8 @@ export class PurchaseOrderEntity extends IndexedEntity<PurchaseOrder> {
 export class AccountEntity extends IndexedEntity<Account> {
   static readonly entityName = "account";
   static readonly indexName = "accounts";
-  static readonly initialState: Account = {
-    id: "", name: "", code: "", type: 'asset', balance: 0
+  static readonly initialState: Account = { 
+    id: "", name: "", code: "", type: 'asset', balance: 0 
   };
   static seedData: Account[] = [
     { id: 'acc-cash', name: 'Cash on Hand', code: '1001', type: 'asset', balance: 5000 },

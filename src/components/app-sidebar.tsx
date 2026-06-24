@@ -1,11 +1,11 @@
 import React from "react";
-import {
-  Home,
-  ClipboardList,
-  ShoppingCart,
-  Truck,
-  BarChart,
-  Settings,
+import { 
+  Home, 
+  ClipboardList, 
+  ShoppingCart, 
+  Truck, 
+  BarChart, 
+  Settings, 
   Pill,
   Users,
   Layers,
@@ -64,8 +64,8 @@ export function AppSidebar(): JSX.Element {
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton
-                  asChild
+                <SidebarMenuButton 
+                  asChild 
                   isActive={location.pathname === item.href}
                   className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors"
                 >
@@ -83,8 +83,8 @@ export function AppSidebar(): JSX.Element {
           <SidebarMenu>
             {accountingItems.map((item) => (
               <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton
-                  asChild
+                <SidebarMenuButton 
+                  asChild 
                   isActive={location.pathname === item.href}
                   className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors"
                 >

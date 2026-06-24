@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search,
-  ShoppingCart,
-  Plus,
-  Minus,
-  CreditCard,
-  Banknote,
+import { 
+  Search, 
+  ShoppingCart, 
+  Plus, 
+  Minus, 
+  CreditCard, 
+  Banknote, 
   Receipt,
   AlertCircle
 } from 'lucide-react';
@@ -37,8 +37,8 @@ export function SalesPage() {
   const filteredProducts = useMemo(() => {
     if (!search) return products;
     const s = search.toLowerCase();
-    return products.filter(p =>
-      p.name.toLowerCase().includes(s) ||
+    return products.filter(p => 
+      p.name.toLowerCase().includes(s) || 
       p.sku.toLowerCase().includes(s) ||
       p.barcode?.includes(s)
     );
@@ -53,13 +53,13 @@ export function SalesPage() {
       const tax = product.price * (product.taxRate / 100);
       const discount = product.price * (product.discountRate / 100);
       if (existing) {
-        return prev.map(item =>
-          item.productId === product.id
+        return prev.map(item => 
+          item.productId === product.id 
             ? { 
                 ...item, 
                 quantity: item.quantity + 1, 
                 subtotal: (item.quantity + 1) * (item.unitPrice + tax - discount)
-              }
+              } 
             : item
         );
       }
@@ -93,7 +93,7 @@ export function SalesPage() {
   const cartDiscount = (subtotal + totalTax - productDiscounts) * (discountPercent / 100);
   const total = subtotal + totalTax - productDiscounts - cartDiscount;
   const saleMutation = useMutation({
-    mutationFn: (transaction: Transaction) =>
+    mutationFn: (transaction: Transaction) => 
       api('/api/transactions', { method: 'POST', body: JSON.stringify(transaction) }),
     onSuccess: () => {
       toast.success('Sale processed successfully');
@@ -130,12 +130,13 @@ export function SalesPage() {
   return (
     <AppLayout container contentClassName="max-w-full lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]">
+        {/* Product Grid */}
         <div className="flex-1 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Search products or scan barcode..."
+              <Input 
+                placeholder="Search products or scan barcode..." 
                 className="pl-10 h-12 text-lg glass-card"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -171,6 +172,7 @@ export function SalesPage() {
             </div>
           </ScrollArea>
         </div>
+        {/* Cart Area */}
         <div className="w-full lg:w-96 flex flex-col gap-4">
           <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
             <CardHeader className="border-b pb-4">
@@ -220,7 +222,7 @@ export function SalesPage() {
                     type="number" 
                     placeholder="Extra Discount %" 
                     className="h-8 text-xs" 
-                    value={discountPercent || ''} 
+                    value={discountPercent || ''}
                     onChange={e => setDiscountPercent(Number(e.target.value))}
                   />
                 </div>
@@ -246,7 +248,7 @@ export function SalesPage() {
                     </Button>
                   ))}
                 </div>
-                <Button
+                <Button 
                   className="w-full h-14 text-lg font-bold shadow-neon-blue bg-pharmav-primary"
                   disabled={cart.length === 0 || saleMutation.isPending}
                   onClick={handleProcessSale}

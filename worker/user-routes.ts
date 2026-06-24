@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
-import {
-  ProductEntity,
-  SupplierEntity,
-  CategoryEntity,
-  UserEntity,
+import { 
+  ProductEntity, 
+  SupplierEntity, 
+  CategoryEntity, 
+  UserEntity, 
   TransactionEntity,
   PurchaseOrderEntity,
   AccountEntity,
@@ -54,8 +54,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.post('/api/transactions', async (c) => {
     const data = await c.req.json() as Transaction;
     if (!data.items?.length) return bad(c, 'items required');
-    const transaction = await TransactionEntity.create(c.env, {
-      ...data,
+    const transaction = await TransactionEntity.create(c.env, { 
+      ...data, 
       id: data.id || crypto.randomUUID(),
       timestamp: data.timestamp || Date.now()
     });
@@ -128,8 +128,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const data = await c.req.json() as Expense;
     const expense = await ExpenseEntity.create(c.env, { 
       ...data, 
-      id: crypto.randomUUID(), 
-      date: data.date || Date.now() 
+      id: crypto.randomUUID(),
+      date: data.date || Date.now()
     });
     if (expense.status === 'paid') {
       const expAcc = new AccountEntity(c.env, expense.accountId);
