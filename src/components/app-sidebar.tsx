@@ -1,72 +1,79 @@
-/* This is a demo sidebar. **COMPULSORY** Edit this file to customize the sidebar OR remove it from appLayout OR don't use appLayout at all */
 import React from "react";
-import { Home, Layers, Compass, Star, Settings, LifeBuoy } from "lucide-react";
+import { 
+  Home, 
+  ClipboardList, 
+  ShoppingCart, 
+  Truck, 
+  FileText, 
+  Settings,
+  Pill,
+  Users
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarSeparator,
-  SidebarInput,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuAction,
-  SidebarMenuBadge,
+  SidebarInput,
 } from "@/components/ui/sidebar";
-
 export function AppSidebar(): JSX.Element {
+  const location = useLocation();
+  const navItems = [
+    { name: "Dashboard", icon: <Home className="size-4" />, href: "/dashboard" },
+    { name: "Inventory", icon: <ClipboardList className="size-4" />, href: "/inventory" },
+    { name: "Sales / POS", icon: <ShoppingCart className="size-4" />, href: "#" },
+    { name: "Suppliers", icon: <Truck className="size-4" />, href: "#" },
+    { name: "Staff", icon: <Users className="size-4" />, href: "#" },
+    { name: "Reports", icon: <FileText className="size-4" />, href: "#" },
+  ];
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1">
-          <div className="h-6 w-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500" />
-          <span className="text-sm font-medium">Demo Sidebar</span>
-        </div>
-        <SidebarInput placeholder="Search" />
+    <Sidebar className="border-r border-border/50">
+      <SidebarHeader className="pt-6 px-6">
+        <Link to="/" className="flex items-center gap-2 mb-6">
+          <div className="h-8 w-8 rounded-lg bg-pharmav-primary flex items-center justify-center text-white shadow-neon-blue">
+            <Pill className="size-5" />
+          </div>
+          <span className="font-display font-bold text-lg tracking-tight">PharmaVault</span>
+        </Link>
+        <SidebarInput placeholder="Quick search..." className="bg-muted/50 border-none focus-visible:ring-1 ring-pharmav-primary/50" />
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent className="px-4">
+        <SidebarGroup className="mt-4">
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
-                <a href="#"><Home /> <span>Home</span></a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Layers /> <span>Projects</span></a>
-              </SidebarMenuButton>
-              <SidebarMenuAction>
-                <Star className="size-4" />
-              </SidebarMenuAction>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Compass /> <span>Explore</span></a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Star /> <span>Starred</span></a>
-              </SidebarMenuButton>
-              <SidebarMenuBadge>5</SidebarMenuBadge>
-            </SidebarMenuItem>
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === item.href}
+                  className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors"
+                >
+                  <Link to={item.href}>
+                    {item.icon}
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <div className="px-2 text-xs text-muted-foreground">A simple shadcn sidebar</div>
+      <SidebarFooter className="p-6">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton className="hover:bg-muted">
+              <Settings className="size-4" />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <div className="mt-4 text-[10px] text-muted-foreground/60 font-mono text-center">
+          V2.0.4-STABLE
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

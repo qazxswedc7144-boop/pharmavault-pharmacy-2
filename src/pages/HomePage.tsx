@@ -1,138 +1,153 @@
-// Home page of the app.
-// Currently a demo placeholder "please wait" screen.
-// Replace this file with your actual app UI. Do not delete it to use some other file as homepage. Simply replace the entire contents of this file.
-
-import { useEffect, useMemo, useState } from 'react'
-import { Sparkles } from 'lucide-react'
-
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { HAS_TEMPLATE_DEMO, TemplateDemo } from '@/components/TemplateDemo'
-import { Button } from '@/components/ui/button'
-import { Toaster, toast } from '@/components/ui/sonner'
-
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
+import React from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Pill, 
+  ShieldCheck, 
+  BarChart3, 
+  Zap, 
+  ArrowRight, 
+  CheckCircle2, 
+  LayoutDashboard,
+  Package
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
+import { PricingCard } from '@/components/ui/pricing-card';
 export function HomePage() {
-  const [coins, setCoins] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [startedAt, setStartedAt] = useState<number | null>(null)
-  const [elapsedMs, setElapsedMs] = useState(0)
-
-  useEffect(() => {
-    if (!isRunning || startedAt === null) return
-
-    const t = setInterval(() => {
-      setElapsedMs(Date.now() - startedAt)
-    }, 250)
-
-    return () => clearInterval(t)
-  }, [isRunning, startedAt])
-
-  const formatted = useMemo(() => formatDuration(elapsedMs), [elapsedMs])
-
-  const onPleaseWait = () => {
-    setCoins((c) => c + 1)
-
-    if (!isRunning) {
-      // Resume from the current elapsed time
-      setStartedAt(Date.now() - elapsedMs)
-      setIsRunning(true)
-      toast.success('Building your app…', {
-        description: "Hang tight — we're setting everything up.",
-      })
-      return
-    }
-
-    setIsRunning(false)
-    toast.info('Still working…', {
-      description: 'You can come back in a moment.',
-    })
-  }
-
-  const onReset = () => {
-    setCoins(0)
-    setIsRunning(false)
-    setStartedAt(null)
-    setElapsedMs(0)
-    toast('Reset complete')
-  }
-
-  const onAddCoin = () => {
-    setCoins((c) => c + 1)
-    toast('Coin added')
-  }
-
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4 overflow-hidden relative">
-      <ThemeToggle />
-      <div className="absolute inset-0 bg-gradient-rainbow opacity-10 dark:opacity-20 pointer-events-none" />
-
-      <div className="text-center space-y-8 relative z-10 animate-fade-in w-full">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-primary floating">
-            <Sparkles className="w-8 h-8 text-white rotating" />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main>
+        {/* Hero Section */}
+        <section className="relative overflow-hidden py-24 md:py-36 bg-gradient-hero">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pharmav-primary/10 text-pharmav-primary text-sm font-medium mb-8"
+            >
+              <Zap className="h-4 w-4" />
+              <span>Version 2.0 is now live</span>
+            </motion.div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-balance leading-tight tracking-tight mb-8"
+            >
+              The vault for your <span className="text-gradient-pharmav">Pharmacy's</span> success.
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 text-pretty"
+            >
+              Comprehensive inventory management, smart accounting, and deep analytics. Everything you need to run a modern pharmacy in one secure place.
+            </motion.p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-col sm:flex-row justify-center gap-4"
+            >
+              <Button size="lg" asChild className="rounded-full h-14 px-8 text-lg font-semibold bg-pharmav-primary hover:bg-pharmav-primary/90 shadow-neon-blue">
+                <Link to="/dashboard" className="flex items-center gap-2">
+                  Launch App <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="rounded-full h-14 px-8 text-lg font-semibold border-2">
+                <Link to="/pricing">View Plans</Link>
+              </Button>
+            </motion.div>
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-            Creating your <span className="text-gradient">app</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto text-pretty">
-            Your application would be ready soon.
-          </p>
-        </div>
-
-        {HAS_TEMPLATE_DEMO ? (
-          <div className="max-w-5xl mx-auto text-left">
-            <TemplateDemo />
+        </section>
+        {/* Features Grid */}
+        <section className="py-24 bg-background border-y border-border/40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for efficiency</h2>
+              <p className="text-muted-foreground">Every tool you need to streamline operations and increase profitability.</p>
+            </div>
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            >
+              {[
+                { 
+                  icon: <Package className="h-8 w-8 text-pharmav-primary" />,
+                  title: "Inventory Control", 
+                  desc: "Automatic stock tracking, batch management, and expiry alerts to minimize waste."
+                },
+                { 
+                  icon: <BarChart3 className="h-8 w-8 text-green-500" />,
+                  title: "Smart Accounting", 
+                  desc: "Real-time sales tracking, profit/loss statements, and tax-ready financial reports."
+                },
+                { 
+                  icon: <ShieldCheck className="h-8 w-8 text-blue-500" />,
+                  title: "Secure & Compliant", 
+                  desc: "Enterprise-grade security ensuring all your medical and financial data is protected."
+                }
+              ].map((feat, idx) => (
+                <motion.div 
+                  key={idx}
+                  variants={itemVariants}
+                  className="p-8 rounded-3xl bg-muted/50 border border-border/60 hover:border-pharmav-primary/40 transition-colors"
+                >
+                  <div className="mb-6">{feat.icon}</div>
+                  <h3 className="text-xl font-bold mb-3">{feat.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{feat.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-        ) : (
-          <>
-            <div className="flex justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={onPleaseWait}
-                className="btn-gradient px-8 py-4 text-lg font-semibold hover:-translate-y-0.5 transition-all duration-200"
-                aria-live="polite"
-              >
-                Please Wait
-              </Button>
+        </section>
+        {/* Mock Pricing Preview */}
+        <section className="py-24 bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
+              <p className="text-muted-foreground">Choose the plan that fits your pharmacy's scale.</p>
             </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div>
-                Time elapsed:{' '}
-                <span className="font-medium tabular-nums text-foreground">{formatted}</span>
-              </div>
-              <div>
-                Coins:{' '}
-                <span className="font-medium tabular-nums text-foreground">{coins}</span>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <PricingCard 
+                title="Starter" 
+                price="$49" 
+                description="Perfect for small, independent pharmacies."
+                features={["Up to 500 products", "Basic reporting", "1 user account"]}
+              />
+              <PricingCard 
+                title="Professional" 
+                price="$99" 
+                description="Optimized for growing pharmacies with high volume."
+                features={["Unlimited products", "Advanced analytics", "5 user accounts", "Expiry alerts"]}
+                featured
+              />
+              <PricingCard 
+                title="Enterprise" 
+                price="Custom" 
+                description="Full solution for pharmacy chains and hospitals."
+                features={["Multi-location support", "API Access", "Unlimited users", "24/7 Priority support"]}
+              />
             </div>
-
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={onReset}>
-                Reset
-              </Button>
-              <Button variant="outline" size="sm" onClick={onAddCoin}>
-                Add Coin
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-
-      <footer className="absolute bottom-8 text-center text-muted-foreground/80">
-        <p>Powered by Cloudflare</p>
-      </footer>
-
-      <Toaster richColors closeButton />
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
-  )
+  );
 }

@@ -1,41 +1,48 @@
-/**
- * Minimal real-world demo: One Durable Object instance per entity (User, ChatBoard), with Indexes for listing.
- */
 import { IndexedEntity } from "./core-utils";
-import type { User, Chat, ChatMessage } from "@shared/types";
-import { MOCK_CHAT_MESSAGES, MOCK_CHATS, MOCK_USERS } from "@shared/mock-data";
-
-// USER ENTITY: one DO instance per user
+import type { Product, Supplier, Category, User, Transaction } from "@shared/types";
+import { 
+  MOCK_PRODUCTS, 
+  MOCK_SUPPLIERS, 
+  MOCK_CATEGORIES, 
+  MOCK_USERS,
+  MOCK_TRANSACTIONS 
+} from "@shared/mock-data";
 export class UserEntity extends IndexedEntity<User> {
   static readonly entityName = "user";
   static readonly indexName = "users";
-  static readonly initialState: User = { id: "", name: "" };
+  static readonly initialState: User = { id: "", name: "", role: 'viewer' };
   static seedData = MOCK_USERS;
 }
-
-// CHAT BOARD ENTITY: one DO instance per chat board, stores its own messages
-export type ChatBoardState = Chat & { messages: ChatMessage[] };
-
-const SEED_CHAT_BOARDS: ChatBoardState[] = MOCK_CHATS.map(c => ({
-  ...c,
-  messages: MOCK_CHAT_MESSAGES.filter(m => m.chatId === c.id),
-}));
-
-export class ChatBoardEntity extends IndexedEntity<ChatBoardState> {
-  static readonly entityName = "chat";
-  static readonly indexName = "chats";
-  static readonly initialState: ChatBoardState = { id: "", title: "", messages: [] };
-  static seedData = SEED_CHAT_BOARDS;
-
-  async listMessages(): Promise<ChatMessage[]> {
-    const { messages } = await this.getState();
-    return messages;
-  }
-
-  async sendMessage(userId: string, text: string): Promise<ChatMessage> {
-    const msg: ChatMessage = { id: crypto.randomUUID(), chatId: this.id, userId, text, ts: Date.now() };
-    await this.mutate(s => ({ ...s, messages: [...s.messages, msg] }));
-    return msg;
-  }
+export class ProductEntity extends IndexedEntity<Product> {
+  static readonly entityName = "product";
+  static readonly indexName = "products";
+  static readonly initialState: Product = {
+    id: "", name: "", sku: "", categoryId: "", supplierId: "",
+    price: 0, costPrice: 0, stockQuantity: 0, unit: "",
+    expiryDate: "", batchNumber: "", minStockLevel: 0
+  };
+  static seedData = MOCK_PRODUCTS;
 }
-
+export class SupplierEntity extends IndexedEntity<Supplier> {
+  static readonly entityName = "supplier";
+  static readonly indexName = "suppliers";
+  static readonly initialState: Supplier = {
+    id: "", name: "", contactPerson: "", email: "", phone: "", address: ""
+  };
+  static seedData = MOCK_SUPPLIERS;
+}
+export class CategoryEntity extends IndexedEntity<Category> {
+  static readonly entityName = "category";
+  static readonly indexName = "categories";
+  static readonly initialState: Category = { id: "", name: "" };
+  static seedData = MOCK_CATEGORIES;
+}
+export class TransactionEntity extends IndexedEntity<Transaction> {
+  static readonly entityName = "transaction";
+  static readonly indexName = "transactions";
+  static readonly initialState: Transaction = {
+    id: "", userId: "", items: [], totalAmount: 0, paymentMethod: 'cash',
+    status: 'pending', timestamp: 0
+  };
+  static seedData = MOCK_TRANSACTIONS;
+}
