@@ -92,6 +92,14 @@ function runSetupCommands() {
         "react-hook-form",
         "@hookform/resolvers",
         "zod"
+    ],
+    [
+        "bun",
+        "add",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
