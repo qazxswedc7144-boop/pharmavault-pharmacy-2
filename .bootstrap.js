@@ -105,6 +105,11 @@ function runSetupCommands() {
         "bun",
         "add",
         "cmdk"
+    ],
+    [
+        "bun",
+        "add",
+        "lucide-react@0.460.0"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
