@@ -15,8 +15,8 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
-  balance: z.coerce.number().default(0),
-  description: z.string().optional()
+  balance: z.coerce.number(),
+  description: z.string().optional().or(z.literal(''))
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -40,8 +40,8 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   const mutation = useMutation({
     mutationFn: (values: AccountFormValues) =>
       account
-        ? api(`/api/accounts/${account.id}`, { method: 'PUT', body: JSON.stringify(values) })
-        : api('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
+        ? api<Account>(`/api/accounts/${account.id}`, { method: 'PUT', body: JSON.stringify(values) })
+        : api<Account>('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       toast.success(account ? 'تم تحديث الحساب' : 'تم إنشاء الحساب');
@@ -69,14 +69,14 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         <DialogHeader><DialogTitle className="text-right font-display">{account ? 'تعديل حساب' : 'إضافة حساب جديد'}</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
+            <FormField<AccountFormValues, 'name'> control={form.control} name="name" render={({ field }) => (
               <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="code" render={({ field }) => (
+              <FormField<AccountFormValues, 'code'> control={form.control} name="code" render={({ field }) => (
                 <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField control={form.control} name="type" render={({ field }) => (
+              <FormField<AccountFormValues, 'type'> control={form.control} name="type" render={({ field }) => (
                 <FormItem><FormLabel>نوع الحساب</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
@@ -89,11 +89,11 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormMessage /></FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="balance" render={({ field }) => (
-              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel><FormControl><Input type="number" {...field} value={field.value.toString()} /></FormControl><FormMessage /></FormItem>
+            <FormField<AccountFormValues, 'balance'> control={form.control} name="balance" render={({ field }) => (
+              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>الوصف (اختياري)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField<AccountFormValues, 'description'> control={form.control} name="description" render={({ field }) => (
+              <FormItem><FormLabel>الوصف (اختياري)</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full font-bold bg-pharmav-primary">حفظ بيانات الحساب</Button></DialogFooter>
           </form>

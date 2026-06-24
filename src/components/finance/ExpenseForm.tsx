@@ -18,7 +18,7 @@ const expenseSchema = z.object({
   category: z.string().min(1, 'الوسم مطلوب'),
   description: z.string().min(3, 'الوصف مطلوب'),
   status: z.enum(['paid', 'pending']),
-  date: z.string().default(() => new Date().toISOString().split('T')[0])
+  date: z.string()
 });
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
 interface ExpenseFormProps {
@@ -39,8 +39,8 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   const mutation = useMutation({
     mutationFn: (values: ExpenseFormValues) =>
       expense
-        ? api(`/api/expenses/${expense.id}`, { method: 'PUT', body: JSON.stringify(values) })
-        : api('/api/expenses', { method: 'POST', body: JSON.stringify(values) }),
+        ? api<Expense>(`/api/expenses/${expense.id}`, { method: 'PUT', body: JSON.stringify(values) })
+        : api<Expense>('/api/expenses', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
@@ -61,6 +61,8 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         status: expense.status,
         date: new Date(expense.date).toISOString().split('T')[0]
       });
+    } else if (open) {
+      form.reset({ status: 'paid', amount: 0, date: new Date().toISOString().split('T')[0], category: '', description: '', accountId: '', paymentAccountId: '' });
     }
   }, [open, expense, form]);
   return (
@@ -70,7 +72,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="accountId" render={({ field }) => (
+              <FormField<ExpenseFormValues, 'accountId'> control={form.control} name="accountId" render={({ field }) => (
                 <FormItem><FormLabel>تصنيف المصروف</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
@@ -80,7 +82,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 </Select>
                 <FormMessage /></FormItem>
               )} />
-              <FormField control={form.control} name="paymentAccountId" render={({ field }) => (
+              <FormField<ExpenseFormValues, 'paymentAccountId'> control={form.control} name="paymentAccountId" render={({ field }) => (
                 <FormItem><FormLabel>حساب الدفع</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر المصدر" /></SelectTrigger></FormControl>
@@ -92,10 +94,10 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="amount" render={({ field }) => (
-                <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value.toString()} /></FormControl><FormMessage /></FormItem>
+              <FormField<ExpenseFormValues, 'amount'> control={form.control} name="amount" render={({ field }) => (
+                <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField control={form.control} name="status" render={({ field }) => (
+              <FormField<ExpenseFormValues, 'status'> control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>الحالة</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
@@ -107,10 +109,10 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormMessage /></FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="description" render={({ field }) => (
+            <FormField<ExpenseFormValues, 'description'> control={form.control} name="description" render={({ field }) => (
               <FormItem><FormLabel>الوصف</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="category" render={({ field }) => (
+            <FormField<ExpenseFormValues, 'category'> control={form.control} name="category" render={({ field }) => (
               <FormItem><FormLabel>الوسم (إيجار، رواتب، إلخ)</FormLabel><FormControl><Input placeholder="مثال: فاتورة كهرباء" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">تسجيل العملية</Button></DialogFooter>
