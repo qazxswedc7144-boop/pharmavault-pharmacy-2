@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  ShoppingCart, 
-  Plus, 
-  Minus, 
-  CreditCard, 
-  Banknote, 
+import {
+  Search,
+  ShoppingCart,
+  Plus,
+  Minus,
+  CreditCard,
+  Banknote,
   Receipt,
   AlertCircle
 } from 'lucide-react';
@@ -37,15 +37,15 @@ export function SalesPage() {
   const filteredProducts = useMemo(() => {
     if (!search) return products;
     const s = search.toLowerCase();
-    return products.filter(p => 
-      p.name.toLowerCase().includes(s) || 
+    return products.filter(p =>
+      p.name.toLowerCase().includes(s) ||
       p.sku.toLowerCase().includes(s) ||
       p.barcode?.includes(s)
     );
   }, [products, search]);
   const addToCart = (product: Product) => {
     if (product.stockQuantity <= 0) {
-      toast.error('Product out of stock');
+      toast.error('الدواء غير متوفر في المخزون حالياً');
       return;
     }
     setCart(prev => {
@@ -53,13 +53,13 @@ export function SalesPage() {
       const tax = product.price * (product.taxRate / 100);
       const discount = product.price * (product.discountRate / 100);
       if (existing) {
-        return prev.map(item => 
-          item.productId === product.id 
-            ? { 
-                ...item, 
-                quantity: item.quantity + 1, 
+        return prev.map(item =>
+          item.productId === product.id
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
                 subtotal: (item.quantity + 1) * (item.unitPrice + tax - discount)
-              } 
+              }
             : item
         );
       }
@@ -77,32 +77,30 @@ export function SalesPage() {
     setCart(prev => prev.map(item => {
       if (item.productId === productId) {
         const newQty = Math.max(0, item.quantity + delta);
-        return { 
-          ...item, 
-          quantity: newQty, 
-          subtotal: newQty * (item.unitPrice + item.taxAmount - item.discountAmount) 
+        return {
+          ...item,
+          quantity: newQty,
+          subtotal: newQty * (item.unitPrice + item.taxAmount - item.discountAmount)
         };
       }
       return item;
     }).filter(item => item.quantity > 0));
   };
-  // Calculations
   const subtotal = cart.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
   const totalTax = cart.reduce((acc, item) => acc + (item.taxAmount * item.quantity), 0);
   const productDiscounts = cart.reduce((acc, item) => acc + (item.discountAmount * item.quantity), 0);
   const cartDiscount = (subtotal + totalTax - productDiscounts) * (discountPercent / 100);
   const total = subtotal + totalTax - productDiscounts - cartDiscount;
   const saleMutation = useMutation({
-    mutationFn: (transaction: Transaction) => 
+    mutationFn: (transaction: Transaction) =>
       api('/api/transactions', { method: 'POST', body: JSON.stringify(transaction) }),
     onSuccess: () => {
-      toast.success('Sale processed successfully');
+      toast.success('تمت عملية البيع بنجاح');
       setCart([]);
       setDiscountPercent(0);
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: () => toast.error('Server error. Transaction failed.')
+    onError: () => toast.error('خطأ في الخادم. فشلت العملية.')
   });
   const handleProcessSale = async () => {
     if (cart.length === 0) return;
@@ -120,7 +118,7 @@ export function SalesPage() {
     };
     if (!isOnline) {
       addToOfflineQueue(transaction);
-      toast.info('Offline: Transaction saved locally');
+      toast.info('تم حفظ العملية محلياً (وضع عدم الاتصال)');
       setCart([]);
       setDiscountPercent(0);
     } else {
@@ -129,22 +127,111 @@ export function SalesPage() {
   };
   return (
     <AppLayout container contentClassName="max-w-full lg:px-8">
-      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]">
-        {/* Product Grid */}
-        <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-          <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]" dir="rtl">
+        {/* Cart Area (Left in Arabic Layout) */}
+        <div className="w-full lg:w-[400px] flex flex-col gap-4 order-2 lg:order-1">
+          <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
+            <CardHeader className="border-b pb-4 text-right">
+              <CardTitle className="flex items-center justify-end gap-2">
+                <span>سلة المبيعات</span>
+                <ShoppingCart className="size-5" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
+              <ScrollArea className="flex-1 px-4">
+                <div className="py-4 space-y-4">
+                  <AnimatePresence initial={false}>
+                    {cart.map(item => {
+                      const product = products.find(p => p.id === item.productId);
+                      return (
+                        <motion.div
+                          key={item.productId}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          className="flex items-center gap-3 flex-row-reverse"
+                        >
+                          <div className="flex-1 text-right">
+                            <div className="text-sm font-bold line-clamp-1">{product?.name}</div>
+                            <div className="text-[10px] text-muted-foreground">السعر: {item.unitPrice.toFixed(2)} ر.س</div>
+                          </div>
+                          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                            <Button variant="ghost" size="icon" className="size-6" onClick={() => updateQuantity(item.productId, -1)}><Minus className="size-3" /></Button>
+                            <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
+                            <Button variant="ghost" size="icon" className="size-6" onClick={() => addToCart(product!)}><Plus className="size-3" /></Button>
+                          </div>
+                          <div className="text-sm font-bold w-20 text-left">{item.subtotal.toFixed(2)} ر.س</div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                  {cart.length === 0 && (
+                    <div className="h-40 flex flex-col items-center justify-center text-muted-foreground gap-2">
+                      <ShoppingCart className="size-8 opacity-20" />
+                      <p className="text-sm">سلة المبيعات فارغة</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+              <div className="p-4 bg-muted/30 border-t space-y-3">
+                <div className="flex items-center gap-2 mb-2 flex-row-reverse">
+                  <Input
+                    type="number"
+                    placeholder="خصم إضافي %"
+                    className="h-9 text-xs text-right"
+                    value={discountPercent || ''}
+                    onChange={e => setDiscountPercent(Number(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-1 text-xs text-muted-foreground text-right" dir="rtl">
+                  <div className="flex justify-between"><span>المجموع الفرعي:</span><span>{subtotal.toFixed(2)} ر.س</span></div>
+                  <div className="flex justify-between"><span>الضريبة:</span><span>+{totalTax.toFixed(2)} ر.س</span></div>
+                  <div className="flex justify-between text-red-500"><span>الخصومات:</span><span>-{(productDiscounts + cartDiscount).toFixed(2)} ر.س</span></div>
+                </div>
+                <div className="flex items-center justify-between text-2xl font-display font-bold border-t pt-2 flex-row-reverse">
+                  <span>الإجمالي:</span>
+                  <span className="text-pharmav-primary">{total.toFixed(2)} ر.س</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 py-2">
+                  {(['cash', 'card', 'transfer'] as const).map(method => (
+                    <Button
+                      key={method}
+                      variant={paymentMethod === method ? 'default' : 'outline'}
+                      className="flex-col h-14 gap-1 p-0 bg-pharmav-primary/5 hover:bg-pharmav-primary/10 border-transparent text-foreground data-[state=active]:bg-pharmav-primary"
+                      onClick={() => setPaymentMethod(method)}
+                      data-state={paymentMethod === method ? 'active' : ''}
+                    >
+                      {method === 'cash' ? <Banknote className="size-3" /> : method === 'card' ? <CreditCard className="size-3" /> : <Receipt className="size-3" />}
+                      <span className="text-[10px] capitalize">{method === 'cash' ? 'نقدي' : method === 'card' ? 'بطاقة' : 'تحويل'}</span>
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  className="w-full h-14 text-lg font-bold shadow-neon-blue bg-pharmav-primary"
+                  disabled={cart.length === 0 || saleMutation.isPending}
+                  onClick={handleProcessSale}
+                >
+                  تأكيد البيع وطباعة الفاتورة
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        {/* Product Grid (Right in Arabic Layout) */}
+        <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
+          <div className="flex items-center gap-4 flex-row-reverse">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Search products or scan barcode..." 
-                className="pl-10 h-12 text-lg glass-card"
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="ابحث عن دواء أو امسح الباركود..."
+                className="pr-10 h-12 text-lg glass-card text-right"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             {!isOnline && (
-              <Badge variant="outline" className="h-12 px-4 gap-2 text-orange-500 border-orange-500/50 bg-orange-500/5">
-                <AlertCircle className="size-4" /> Offline Mode
+              <Badge variant="outline" className="h-12 px-4 gap-2 text-orange-500 border-orange-500/50 bg-orange-500/5 flex-row-reverse">
+                <AlertCircle className="size-4" /> وضع عدم الاتصال
               </Badge>
             )}
           </div>
@@ -158,106 +245,19 @@ export function SalesPage() {
                 <button
                   key={product.id}
                   onClick={() => addToCart(product)}
-                  className="flex flex-col items-start p-4 bg-card border rounded-xl hover:border-pharmav-primary/40 hover:shadow-soft transition-all text-left group"
+                  className="flex flex-col items-end p-4 bg-card border rounded-xl hover:border-pharmav-primary/40 hover:shadow-soft transition-all text-right group"
                 >
-                  <div className="w-full flex justify-between items-start mb-2">
+                  <div className="w-full flex justify-between items-start mb-2 flex-row-reverse">
                     <Badge variant="outline" className="text-[10px] opacity-70">{product.sku}</Badge>
-                    {product.taxRate > 0 && <Badge variant="secondary" className="text-[10px]">Tax {product.taxRate}%</Badge>}
+                    {product.taxRate > 0 && <Badge variant="secondary" className="text-[10px]">ضريبة {product.taxRate}%</Badge>}
                   </div>
-                  <span className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-pharmav-primary">{product.name}</span>
-                  <span className="text-xs text-muted-foreground mb-4">{product.stockQuantity} {product.unit}s left</span>
-                  <span className="mt-auto text-lg font-display font-bold text-pharmav-primary">${product.price.toFixed(2)}</span>
+                  <span className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-pharmav-primary font-display">{product.name}</span>
+                  <span className="text-xs text-muted-foreground mb-4">متوفر: {product.stockQuantity} {product.unit}</span>
+                  <span className="mt-auto text-lg font-display font-bold text-pharmav-primary">{product.price.toFixed(2)} ر.س</span>
                 </button>
               ))}
             </div>
           </ScrollArea>
-        </div>
-        {/* Cart Area */}
-        <div className="w-full lg:w-96 flex flex-col gap-4">
-          <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
-            <CardHeader className="border-b pb-4">
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingCart className="size-5" /> Checkout
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
-              <ScrollArea className="flex-1 px-4">
-                <div className="py-4 space-y-4">
-                  <AnimatePresence initial={false}>
-                    {cart.map(item => {
-                      const product = products.find(p => p.id === item.productId);
-                      return (
-                        <motion.div
-                          key={item.productId}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          className="flex items-center gap-3"
-                        >
-                          <div className="flex-1">
-                            <div className="text-sm font-bold line-clamp-1">{product?.name}</div>
-                            <div className="text-[10px] text-muted-foreground">Base: ${item.unitPrice.toFixed(2)}</div>
-                          </div>
-                          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                            <Button variant="ghost" size="icon" className="size-6 h-6 w-6" onClick={() => updateQuantity(item.productId, -1)}><Minus className="size-3" /></Button>
-                            <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
-                            <Button variant="ghost" size="icon" className="size-6 h-6 w-6" onClick={() => addToCart(product!)}><Plus className="size-3" /></Button>
-                          </div>
-                          <div className="text-sm font-bold w-16 text-right">${item.subtotal.toFixed(2)}</div>
-                        </motion.div>
-                      );
-                    })}
-                  </AnimatePresence>
-                  {cart.length === 0 && (
-                    <div className="h-40 flex flex-col items-center justify-center text-muted-foreground gap-2">
-                      <ShoppingCart className="size-8 opacity-20" />
-                      <p className="text-sm">Pharmacy cart is empty</p>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-              <div className="p-4 bg-muted/30 border-t space-y-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Input 
-                    type="number" 
-                    placeholder="Extra Discount %" 
-                    className="h-8 text-xs" 
-                    value={discountPercent || ''}
-                    onChange={e => setDiscountPercent(Number(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                  <div className="flex justify-between"><span>Tax</span><span>+${totalTax.toFixed(2)}</span></div>
-                  <div className="flex justify-between text-red-500"><span>Discounts</span><span>-${(productDiscounts + cartDiscount).toFixed(2)}</span></div>
-                </div>
-                <div className="flex items-center justify-between text-2xl font-display font-bold border-t pt-2">
-                  <span>Total</span>
-                  <span className="text-pharmav-primary">${total.toFixed(2)}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['cash', 'card', 'transfer'] as const).map(method => (
-                    <Button
-                      key={method}
-                      variant={paymentMethod === method ? 'default' : 'outline'}
-                      className="flex-col h-14 gap-1 p-0"
-                      onClick={() => setPaymentMethod(method)}
-                    >
-                      {method === 'cash' ? <Banknote className="size-3" /> : method === 'card' ? <CreditCard className="size-3" /> : <Receipt className="size-3" />}
-                      <span className="text-[10px] capitalize">{method}</span>
-                    </Button>
-                  ))}
-                </div>
-                <Button 
-                  className="w-full h-14 text-lg font-bold shadow-neon-blue bg-pharmav-primary"
-                  disabled={cart.length === 0 || saleMutation.isPending}
-                  onClick={handleProcessSale}
-                >
-                  Confirm Transaction
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </AppLayout>

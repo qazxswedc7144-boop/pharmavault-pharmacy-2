@@ -11,12 +11,13 @@ import { api } from '@/lib/api-client';
 import type { Supplier } from '@shared/types';
 import { toast } from 'sonner';
 const supplierSchema = z.object({
-  name: z.string().min(2, 'Company name required'),
-  contactPerson: z.string().min(2, 'Contact person required'),
-  email: z.string().email('Invalid email'),
-  phone: z.string().min(5, 'Phone required'),
-  address: z.string().min(5, 'Address required')
+  name: z.string().min(2, 'اسم الشركة مطلوب'),
+  contactPerson: z.string().min(2, 'مسؤول التواصل مطلوب'),
+  email: z.string().email('بريد إلكتروني غير صالح'),
+  phone: z.string().min(5, 'رقم الهاتف مطلوب'),
+  address: z.string().min(5, 'العنوان مطلوب')
 });
+type SupplierFormValues = z.infer<typeof supplierSchema>;
 interface SupplierFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,22 +25,22 @@ interface SupplierFormProps {
 }
 export function SupplierForm({ open, onOpenChange, supplier }: SupplierFormProps) {
   const queryClient = useQueryClient();
-  const form = useForm<z.infer<typeof supplierSchema>>({
+  const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
     defaultValues: { name: '', contactPerson: '', email: '', phone: '', address: '' }
   });
   const mutation = useMutation({
-    mutationFn: (values: z.infer<typeof supplierSchema>) =>
+    mutationFn: (values: SupplierFormValues) =>
       supplier
         ? api(`/api/suppliers/${supplier.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api('/api/suppliers', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-      toast.success('Supplier profile saved');
+      toast.success('تم حفظ بيانات المورد بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('Failed to save supplier')
+    onError: () => toast.error('فشل في حفظ بيانات المورد')
   });
   React.useEffect(() => {
     if (open && supplier) form.reset(supplier);
@@ -47,28 +48,28 @@ export function SupplierForm({ open, onOpenChange, supplier }: SupplierFormProps
   }, [open, supplier, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader><DialogTitle>{supplier ? 'Edit Supplier' : 'New Supplier'}</DialogTitle></DialogHeader>
+      <DialogContent className="text-right" dir="rtl">
+        <DialogHeader><DialogTitle className="text-right font-display">{supplier ? 'تعديل بيانات المورد' : 'إضافة مورد جديد'}</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>اسم الشركة/المورد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="contactPerson" render={({ field }) => (
-              <FormItem><FormLabel>Contact Person</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>مسؤول التواصل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>البريد الإلكتروني</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="phone" render={({ field }) => (
-                <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>رقم الهاتف</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <FormField control={form.control} name="address" render={({ field }) => (
-              <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>العنوان</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full">Save Supplier</Button></DialogFooter>
+            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">حفظ المورد</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>

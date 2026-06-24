@@ -66,17 +66,17 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right" dir="rtl">
-        <DialogHeader><DialogTitle className="text-right">{account ? 'تعديل حساب' : 'حساب جديد'}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-right font-display">{account ? 'تعديل حساب' : 'إضافة حساب جديد'}</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
-            <FormField<AccountFormValues> control={form.control} name="name" render={({ field }) => (
+            <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues> control={form.control} name="code" render={({ field }) => (
+              <FormField control={form.control} name="code" render={({ field }) => (
                 <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <FormField<AccountFormValues> control={form.control} name="type" render={({ field }) => (
+              <FormField control={form.control} name="type" render={({ field }) => (
                 <FormItem><FormLabel>نوع الحساب</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
@@ -89,13 +89,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormMessage /></FormItem>
               )} />
             </div>
-            <FormField<AccountFormValues> control={form.control} name="balance" render={({ field }) => (
-              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField control={form.control} name="balance" render={({ field }) => (
+              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel><FormControl><Input type="number" {...field} value={field.value.toString()} /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField<AccountFormValues> control={form.control} name="description" render={({ field }) => (
+            <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem><FormLabel>الوصف (اختياري)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full font-bold">حفظ الحساب</Button></DialogFooter>
+            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full font-bold bg-pharmav-primary">حفظ بيانات الحساب</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>

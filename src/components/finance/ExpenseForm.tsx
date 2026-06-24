@@ -12,11 +12,11 @@ import { api } from '@/lib/api-client';
 import type { Expense, Account } from '@shared/types';
 import { toast } from 'sonner';
 const expenseSchema = z.object({
-  accountId: z.string().min(1, 'Category required'),
-  paymentAccountId: z.string().min(1, 'Source account required'),
-  amount: z.coerce.number().min(0.01, 'Amount must be positive'),
-  category: z.string().min(1, 'Tag required'),
-  description: z.string().min(3, 'Description required'),
+  accountId: z.string().min(1, 'تصنيف المصروف مطلوب'),
+  paymentAccountId: z.string().min(1, 'حساب الدفع مطلوب'),
+  amount: z.coerce.number().min(0.01, 'يجب أن يكون المبلغ أكبر من صفر'),
+  category: z.string().min(1, 'الوسم مطلوب'),
+  description: z.string().min(3, 'الوصف مطلوب'),
   status: z.enum(['paid', 'pending']),
   date: z.string().default(() => new Date().toISOString().split('T')[0])
 });
@@ -30,7 +30,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
-    defaultValues: { status: 'paid', amount: 0, date: new Date().toISOString().split('T')[0] }
+    defaultValues: { status: 'paid', amount: 0, date: new Date().toISOString().split('T')[0], category: '', description: '', accountId: '', paymentAccountId: '' }
   });
   const { data: accounts } = useQuery<{ items: Account[] }>({
     queryKey: ['accounts'],
@@ -44,11 +44,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('Expense recorded');
+      toast.success('تم تسجيل المصروف بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('Failed to log expense')
+    onError: () => toast.error('فشل في تسجيل المصروف')
   });
   React.useEffect(() => {
     if (open && expense) {
@@ -65,26 +65,26 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   }, [open, expense, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader><DialogTitle>Log Pharmacy Expense</DialogTitle></DialogHeader>
+      <DialogContent className="text-right" dir="rtl">
+        <DialogHeader><DialogTitle className="text-right font-display">تسجيل مصروفات الصيدلية</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="accountId" render={({ field }) => (
-                <FormItem><FormLabel>Expense Category</FormLabel>
+                <FormItem><FormLabel>تصنيف المصروف</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl>
-                  <SelectContent>
+                  <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
+                  <SelectContent className="text-right">
                     {accounts?.items.filter(a => a.type === 'expense').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="paymentAccountId" render={({ field }) => (
-                <FormItem><FormLabel>Source Account</FormLabel>
+                <FormItem><FormLabel>حساب الدفع</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select Source" /></SelectTrigger></FormControl>
-                  <SelectContent>
+                  <FormControl><SelectTrigger className="text-right"><SelectValue placeholder="اختر المصدر" /></SelectTrigger></FormControl>
+                  <SelectContent className="text-right">
                     {accounts?.items.filter(a => a.type === 'asset').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -93,27 +93,27 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="amount" render={({ field }) => (
-                <FormItem><FormLabel>Amount</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value.toString()} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel>
+                <FormItem><FormLabel>الحالة</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                  <SelectContent>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                  <FormControl><SelectTrigger className="text-right"><SelectValue /></SelectTrigger></FormControl>
+                  <SelectContent className="text-right">
+                    <SelectItem value="paid">تم الدفع</SelectItem>
+                    <SelectItem value="pending">قيد الانتظار</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage /></FormItem>
               )} />
             </div>
             <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>Description</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>الوصف</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="category" render={({ field }) => (
-              <FormItem><FormLabel>Category/Tag</FormLabel><FormControl><Input placeholder="Rent, Utilities, Salary..." {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>الوسم (إيجار، رواتب، إلخ)</FormLabel><FormControl><Input placeholder="مثال: فاتورة كهرباء" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <DialogFooter><Button type="submit" disabled={mutation.isPending} className="w-full">Log Expense</Button></DialogFooter>
+            <DialogFooter className="mt-6"><Button type="submit" disabled={mutation.isPending} className="w-full bg-pharmav-primary font-bold">تسجيل العملية</Button></DialogFooter>
           </form>
         </Form>
       </DialogContent>

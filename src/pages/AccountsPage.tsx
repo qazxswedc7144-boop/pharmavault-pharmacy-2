@@ -37,41 +37,63 @@ export function AccountsPage() {
       default: return 'bg-gray-500/10 text-gray-600';
     }
   };
+  const typeLabels: Record<string, string> = {
+    asset: 'أصول',
+    liability: 'خصوم',
+    equity: 'حقوق ملكية',
+    revenue: 'إيرادات',
+    expense: 'مصاريف'
+  };
   return (
     <AppLayout container>
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-8 text-right" dir="rtl">
+        <div className="flex items-center justify-between flex-row-reverse">
           <div>
-            <h1 className="text-3xl font-display font-bold">Chart of Accounts</h1>
-            <p className="text-muted-foreground">Professional general ledger for pharmacy bookkeeping.</p>
+            <h1 className="text-3xl font-display font-bold">دليل الحسابات</h1>
+            <p className="text-muted-foreground">إدارة السجل المالي والمحاسبي للصيدلية.</p>
           </div>
-          <Button onClick={handleNew} className="gap-2 bg-pharmav-primary">
-            <Plus className="h-4 w-4" /> New Account
+          <Button onClick={handleNew} className="gap-2 bg-pharmav-primary font-bold flex-row-reverse">
+            <Plus className="h-4 w-4" /> إضافة حساب جديد
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="glass-card bg-blue-500/5">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><TrendingUp className="size-4 text-blue-500" /> Total Assets</CardTitle></CardHeader>
-            <CardContent><div className="text-2xl font-bold">${totalAssets.toLocaleString()}</div></CardContent>
+            <CardHeader className="pb-2 text-right">
+              <CardTitle className="text-sm font-medium flex items-center justify-end gap-2">
+                <span>إجمالي الأصول</span>
+                <TrendingUp className="size-4 text-blue-500" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent><div className="text-2xl font-bold">{totalAssets.toLocaleString()} ر.س</div></CardContent>
           </Card>
           <Card className="glass-card bg-orange-500/5">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><TrendingDown className="size-4 text-orange-500" /> Total Liabilities</CardTitle></CardHeader>
-            <CardContent><div className="text-2xl font-bold">${totalLiabilities.toLocaleString()}</div></CardContent>
+            <CardHeader className="pb-2 text-right">
+              <CardTitle className="text-sm font-medium flex items-center justify-end gap-2">
+                <span>إجمالي الخصوم</span>
+                <TrendingDown className="size-4 text-orange-500" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent><div className="text-2xl font-bold">{totalLiabilities.toLocaleString()} ر.س</div></CardContent>
           </Card>
           <Card className="glass-card bg-green-500/5">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Scale className="size-4 text-green-500" /> Net Equity</CardTitle></CardHeader>
-            <CardContent><div className="text-2xl font-bold">${(totalAssets - totalLiabilities).toLocaleString()}</div></CardContent>
+            <CardHeader className="pb-2 text-right">
+              <CardTitle className="text-sm font-medium flex items-center justify-end gap-2">
+                <span>صافي حقوق الملكية</span>
+                <Scale className="size-4 text-green-500" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent><div className="text-2xl font-bold">{(totalAssets - totalLiabilities).toLocaleString()} ر.س</div></CardContent>
           </Card>
         </div>
         <Card className="glass-card border-none overflow-hidden">
-          <Table>
+          <Table className="text-right">
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Account Code</TableHead>
-                <TableHead>Account Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
-                <TableHead></TableHead>
+                <TableHead className="text-right">كود الحساب</TableHead>
+                <TableHead className="text-right">اسم الحساب</TableHead>
+                <TableHead className="text-right">النوع</TableHead>
+                <TableHead className="text-left">الرصيد</TableHead>
+                <TableHead className="text-left"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -84,12 +106,14 @@ export function AccountsPage() {
                   <TableCell className="font-mono text-sm">{account.code}</TableCell>
                   <TableCell className="font-medium">{account.name}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={cn("capitalize", getAccountBadgeColor(account.type))}>{account.type}</Badge>
+                    <Badge variant="outline" className={cn("capitalize border-transparent", getAccountBadgeColor(account.type))}>
+                      {typeLabels[account.type]}
+                    </Badge>
                   </TableCell>
-                  <TableCell className={cn("text-right font-bold", account.type === 'expense' || account.type === 'liability' ? "text-red-500" : "text-green-600")}>
-                    ${account.balance.toLocaleString()}
+                  <TableCell className={cn("text-left font-bold", account.type === 'expense' || account.type === 'liability' ? "text-red-500" : "text-green-600")}>
+                    {account.balance.toLocaleString()} ر.س
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-left">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(account)}><Pencil className="size-4" /></Button>
                   </TableCell>
                 </TableRow>
