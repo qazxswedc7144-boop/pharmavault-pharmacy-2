@@ -162,7 +162,7 @@ export function PosPaymentSection({
             </>
           )}
         </Button>
-      </div>
+      </CardContent>
     </Card>
   );
 }
