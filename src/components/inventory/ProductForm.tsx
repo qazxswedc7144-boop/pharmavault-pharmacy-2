@@ -192,24 +192,24 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
             <div className="grid grid-cols-4 gap-4">
               <FormField<ProductFormValues> control={form.control} name="price" render={({ field }) => (
-                <FormItem><FormLabel>السعر</FormLabel><FormControl><Input type="number" step="0.01" {...field} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>السعر</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="costPrice" render={({ field }) => (
-                <FormItem><FormLabel>التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="taxRate" render={({ field }) => (
-                <FormItem><FormLabel>الضريبة%</FormLabel><FormControl><Input type="number" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الضريبة%</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="discountRate" render={({ field }) => (
-                <FormItem><FormLabel>الخصم%</FormLabel><FormControl><Input type="number" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الخصم%</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField<ProductFormValues> control={form.control} name="stockQuantity" render={({ field }) => (
-                <FormItem><FormLabel>الكمية</FormLabel><FormControl><Input type="number" {...field} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الكمية</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left font-bold" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="minStockLevel" render={({ field }) => (
-                <FormItem><FormLabel>الحد الأدنى</FormLabel><FormControl><Input type="number" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الحد الأدنى</FormLabel><FormControl><Input type="number" {...field} value={field.value} onChange={(e) => field.onChange(e.target.value)} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
                 <FormItem><FormLabel>رقم الدفعة</FormLabel><FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>

@@ -20,7 +20,7 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
-  const customerOptions = React.useMemo(() => 
+  const customerOptions = React.useMemo(() =>
     (customersData?.items || []).map(c => ({
       label: `${c.name} (${c.phone})`,
       value: c.id

@@ -16,7 +16,7 @@ const accountSchema = z.object({
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
-  description: z.string().optional()
+  description: z.string().optional().default('')
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -112,7 +112,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       </FormControl>
                       <SelectContent className="text-right">
                         {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                          <SelectItem key={val} value={val as any}>{label}</SelectItem>
+                          <SelectItem key={val} value={val}>{label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -131,6 +131,8 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     <Input
                       type="number"
                       {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
                       className="h-12 text-left font-bold"
                     />
                   </FormControl>

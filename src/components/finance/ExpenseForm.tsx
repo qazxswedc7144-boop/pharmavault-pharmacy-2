@@ -151,6 +151,8 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         type="number"
                         step="0.01"
                         {...field}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
                         className="h-12 text-left font-bold text-red-600"
                       />
                     </FormControl>

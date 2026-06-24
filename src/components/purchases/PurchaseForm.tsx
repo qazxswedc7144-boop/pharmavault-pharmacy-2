@@ -23,7 +23,7 @@ const purchaseSchema = z.object({
     costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled']),
-  notes: z.string().optional(),
+  notes: z.string().optional().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
@@ -88,7 +88,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="p-6 space-y-8">
             <div className="grid grid-cols-10 gap-6">
               <div className="col-span-10 lg:col-span-7 space-y-6">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="supplierId"
                   render={({ field }) => (
@@ -105,7 +105,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     </FormItem>
                   )}
                 />
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="notes"
                   render={({ field }) => (
@@ -133,7 +133,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                 />
               </div>
               <div className="col-span-10 lg:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="invoiceNumber"
                   render={({ field }) => (
@@ -152,7 +152,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     </FormItem>
                   )}
                 />
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="date"
                   render={({ field }) => (
@@ -166,7 +166,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     </FormItem>
                   )}
                 />
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="status"
                   render={({ field }) => (
@@ -211,13 +211,13 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     <div className="col-span-12 lg:col-span-6">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.productId`}
+                        name={`items.${index}.productId` as const}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">اسم المنتج</FormLabel>
                             <Autocomplete
                               options={productOptions}
-                              value={field.value}
+                              value={field.value as string}
                               onValueChange={field.onChange}
                               placeholder="اختر المنتج..."
                               className="h-10 bg-white"
@@ -229,12 +229,18 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     <div className="col-span-5 lg:col-span-2">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.quantity`}
+                        name={`items.${index}.quantity` as const}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">الكمية</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} className="h-10 text-center font-bold bg-white" />
+                              <Input 
+                                type="number" 
+                                {...field} 
+                                value={field.value as number}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                className="h-10 text-center font-bold bg-white" 
+                              />
                             </FormControl>
                           </FormItem>
                         )}
@@ -243,12 +249,19 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     <div className="col-span-5 lg:col-span-3">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.costPrice`}
+                        name={`items.${index}.costPrice` as const}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">التكلفة</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" {...field} className="h-10 text-center font-bold bg-white" />
+                              <Input 
+                                type="number" 
+                                step="0.01" 
+                                {...field} 
+                                value={field.value as number}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                className="h-10 text-center font-bold bg-white" 
+                              />
                             </FormControl>
                           </FormItem>
                         )}
