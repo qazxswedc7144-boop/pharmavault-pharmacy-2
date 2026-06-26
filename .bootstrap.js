@@ -127,6 +127,11 @@ function runSetupCommands() {
         "clsx",
         "tailwind-merge",
         "cmdk"
+    ],
+    [
+        "bun",
+        "add",
+        "react-hotkeys-hook"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
