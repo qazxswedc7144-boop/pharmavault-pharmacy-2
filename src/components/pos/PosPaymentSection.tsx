@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, RotateCcw, Loader2, Printer } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -62,7 +62,10 @@ export function PosPaymentSection({
     onError: () => toast.error('فشل في إتمام العملية')
   });
   const handleConfirm = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      toast.error('السلة فارغة');
+      return;
+    }
     if (isCredit && !customer) {
       toast.warning('يرجى اختيار عميل لإتمام البيع الآجل');
       return;
@@ -110,7 +113,7 @@ export function PosPaymentSection({
             </div>
           )}
         </div>
-        {!isCredit && (
+        {!isCredit && !isReturn && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 text-right">
               <Label className={cn("text-xs font-bold", isReturn ? "text-white/80" : "text-muted-foreground")}>المبلغ المستلم</Label>

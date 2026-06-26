@@ -87,8 +87,8 @@ export function PosPage() {
     setSelectedCustomer(null);
   }, []);
   const handleCustomerChange = (customerId: string) => {
-    // Selection handled by the object fetch inside PosPaymentSection normally,
-    // but we can simulate/update here for shared state if needed.
+    // In a real app we'd fetch or find the customer. 
+    // This is handled by PosPaymentSection's fetch normally.
   };
   const isReturn = transactionType === 'return';
   return (
@@ -106,11 +106,9 @@ export function PosPage() {
           onCustomerChange={(id) => handleCustomerChange(id)}
         />
         <div className="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
-          {/* Right Column: Product Selection (Order 1 on Desktop RTL) */}
           <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1">
             <PosProductGrid onSelect={addToCart} isReturn={isReturn} />
           </div>
-          {/* Left Column: Cart & Summary (Order 2 on Desktop RTL) */}
           <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2">
             <PosCart
               items={cart}

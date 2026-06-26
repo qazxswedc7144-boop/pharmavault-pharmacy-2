@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Camera, Calendar, User, Hash, FileText, Lock, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,13 +22,16 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
-  const customerOptions = React.useMemo(() =>
+  const customerOptions = useMemo(() =>
     (customersData?.items || []).map(c => ({
       label: `${c.name} (${c.phone})`,
       value: c.id
     })), [customersData]);
   const today = new Date().toISOString().split('T')[0];
-  const autoInvoiceNum = `PHV-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Date.now().toString().slice(-4)}`;
+  const autoInvoiceNum = useMemo(() => {
+    const now = new Date();
+    return `PHV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }, []);
   const handleSimulateUpload = () => {
     setIsFileAttached(true);
     toast.success('تم إرفاق الملف/الصورة بنجاح بالفاتورة');
@@ -38,7 +41,6 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
       "grid grid-cols-10 gap-4 mb-4 p-4 rounded-3xl border bg-card/50 shadow-sm transition-colors duration-500",
       isReturn ? "border-rose-500/20 bg-rose-50/30" : "border-border"
     )}>
-      {/* 30% Column: Customer Search */}
       <div className="col-span-10 lg:col-span-3 space-y-2">
         <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
           <User className="size-3" /> العميل المختار
@@ -52,7 +54,6 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
           className="h-12 bg-white"
         />
       </div>
-      {/* 70% Column: Meta Data */}
       <div className="col-span-10 lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between flex-row-reverse">

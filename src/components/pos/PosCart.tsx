@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Plus, Minus, Trash2, Tag, Percent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { api } from '@/lib/api-client';
 interface PosCartProps {
   items: SaleItem[];
   onUpdateQuantity: (id: string, qty: number) => void;
-  onUpdateDiscount?: (id: string, discount: number) => void;
+  onUpdateDiscount: (id: string, discount: number) => void;
   isReturn: boolean;
 }
 export function PosCart({ items, onUpdateQuantity, onUpdateDiscount, isReturn }: PosCartProps) {
@@ -35,6 +35,7 @@ export function PosCart({ items, onUpdateQuantity, onUpdateDiscount, isReturn }:
           <AnimatePresence initial={false}>
             {items.map(item => {
               const product = products.find(p => p.id === item.productId);
+              const discountPercent = ((item.discountAmount / item.unitPrice) * 100).toFixed(0);
               return (
                 <motion.div
                   key={item.productId}
@@ -45,29 +46,32 @@ export function PosCart({ items, onUpdateQuantity, onUpdateDiscount, isReturn }:
                   className="group flex items-center gap-4 p-3 rounded-2xl border bg-muted/10 hover:bg-muted/30 transition-colors flex-row-reverse"
                 >
                   <div className="flex-1 text-right">
-                    <div className="font-bold text-sm leading-tight line-clamp-1">{product?.name || 'منتج غير معروف'}</div>
+                    <div className="font-bold text-sm leading-tight line-clamp-1">
+                      {product?.name || 'منتج غير معروف'}
+                    </div>
                     <div className="flex items-center justify-end gap-2 mt-1">
-                      <span className="text-[10px] text-muted-foreground">{item.unitPrice.toFixed(2)} ر.س / للوحدة</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {item.unitPrice.toFixed(2)} ر.س / للوحدة
+                      </span>
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="flex items-center gap-1 text-[9px] font-bold text-pharmav-primary hover:underline">
                             <Tag className="size-2" />
-                            {item.discountAmount > 0 ? `خصم ${(item.discountAmount / item.unitPrice * 100).toFixed(0)}%` : 'أضف خصم'}
+                            {item.discountAmount > 0 ? `خصم ${discountPercent}%` : 'أضف خصم'}
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 p-3" align="end">
                           <div className="space-y-2 text-right">
                             <label className="text-[10px] font-bold">نسبة الخصم للصنف (%)</label>
                             <div className="flex gap-2">
-                              <Input 
-                                type="number" 
-                                className="h-8 text-center text-xs" 
+                              <Input
+                                type="number"
+                                className="h-8 text-center text-xs"
                                 placeholder="0"
+                                defaultValue={discountPercent}
                                 onChange={(e) => {
-                                  if (onUpdateDiscount) {
-                                    const val = parseFloat(e.target.value) || 0;
-                                    onUpdateDiscount(item.productId, (val / 100) * item.unitPrice);
-                                  }
+                                  const val = parseFloat(e.target.value) || 0;
+                                  onUpdateDiscount(item.productId, (val / 100) * item.unitPrice);
                                 }}
                               />
                               <div className="h-8 w-8 rounded bg-muted flex items-center justify-center shrink-0">
