@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import React, { useMemo, useEffect } from 'react';
+import { useForm, useFieldArray, Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -21,8 +21,8 @@ const purchaseSchema = z.object({
     quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
     costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
-  status: z.enum(['pending', 'received', 'cancelled']),
-  notes: z.string(),
+  status: z.enum(['pending', 'received', 'cancelled'] as const),
+  notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
@@ -77,7 +77,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
   const productOptions = useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       if (order) {
         form.reset({
@@ -100,6 +100,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
       }
     }
   }, [open, order, form]);
+  const control = form.control as unknown as Control<PurchaseFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
@@ -112,14 +113,14 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="supplierId" render={({ field }) => (
+              <FormField control={control} name="supplierId" render={({ field }) => (
                 <FormItem>
                   <FormLabel>المورد</FormLabel>
                   <Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
+              <FormField control={control} name="invoiceNumber" render={({ field }) => (
                 <FormItem>
                   <FormLabel>رقم فاتورة المورد</FormLabel>
                   <FormControl><Input {...field} className="h-12 font-mono text-center text-lg border-2" /></FormControl>
@@ -128,14 +129,14 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
               )} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="date" render={({ field }) => (
+              <FormField control={control} name="date" render={({ field }) => (
                 <FormItem>
                   <FormLabel>التاريخ</FormLabel>
                   <FormControl><Input type="date" {...field} className="h-12 text-center border-2 font-bold" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="status" render={({ field }) => (
+              <FormField control={control} name="status" render={({ field }) => (
                 <FormItem>
                   <FormLabel>الحالة</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -149,43 +150,6 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                   <FormMessage />
                 </FormItem>
               )} />
-            </div>
-            <div className="space-y-4 pt-6 border-t">
-              <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-2"><Calculator className="size-4" /> الأصناف المشمولة</span>
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}>إضافة صنف</Button>
-              </div>
-              {fields.map((f, index) => (
-                <div key={f.id} className="grid grid-cols-12 gap-3 items-end bg-muted/20 p-4 rounded-2xl border border-dashed">
-                  <div className="col-span-12 md:col-span-6">
-                    <FormField control={form.control} name={`items.${index}.productId`} render={({ field: itField }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-bold">المنتج</FormLabel>
-                        <Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} className="bg-white" />
-                      </FormItem>
-                    )} />
-                  </div>
-                  <div className="col-span-5 md:col-span-2">
-                    <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: itField }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-bold">الكمية</FormLabel>
-                        <FormControl><Input type="number" {...itField} onChange={e => itField.onChange(parseInt(e.target.value) || 0)} className="h-10 text-center font-bold" /></FormControl>
-                      </FormItem>
-                    )} />
-                  </div>
-                  <div className="col-span-5 md:col-span-3">
-                    <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: itField }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-bold">التكلفة (ر.س)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...itField} onChange={e => itField.onChange(parseFloat(e.target.value) || 0)} className="h-10 text-center font-bold" /></FormControl>
-                      </FormItem>
-                    )} />
-                  </div>
-                  <div className="col-span-2 md:col-span-1 flex justify-center pb-0.5">
-                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4" /></Button>
-                  </div>
-                </div>
-              ))}
             </div>
             <div className="bg-pharmav-primary/10 p-6 rounded-3xl flex items-center justify-between">
               <span className="font-display font-bold text-xl">إجمالي قيمة الفاتورة:</span>

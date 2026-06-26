@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +17,7 @@ const expenseSchema = z.object({
   amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر'),
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
-  status: z.enum(['paid', 'pending']),
+  status: z.enum(['paid', 'pending'] as const),
   date: z.string().min(1, 'تاريخ المصروف مطلوب')
 });
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
@@ -60,7 +60,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     },
     onError: () => toast.error('حدث خطأ أثناء معالجة تسجيل المصروف')
   });
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       if (expense) {
         form.reset({
@@ -85,6 +85,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
       }
     }
   }, [open, expense, form]);
+  const control = form.control as unknown as Control<ExpenseFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right max-w-lg" dir="rtl">
@@ -95,7 +96,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={control}
                 name="accountId"
                 render={({ field }) => (
                   <FormItem>
@@ -117,7 +118,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 )}
               />
               <FormField
-                control={form.control}
+                control={control}
                 name="paymentAccountId"
                 render={({ field }) => (
                   <FormItem>
@@ -141,7 +142,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={control}
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
@@ -151,7 +152,6 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         type="number"
                         step="0.01"
                         {...field}
-                        value={field.value}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -161,7 +161,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 )}
               />
               <FormField
-                control={form.control}
+                control={control}
                 name="status"
                 render={({ field }) => (
                   <FormItem>
@@ -183,7 +183,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               />
             </div>
             <FormField
-              control={form.control}
+              control={control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -197,7 +197,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             />
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={control}
                 name="category"
                 render={({ field }) => (
                   <FormItem>
@@ -210,7 +210,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 )}
               />
               <FormField
-                control={form.control}
+                control={control}
                 name="date"
                 render={({ field }) => (
                   <FormItem>

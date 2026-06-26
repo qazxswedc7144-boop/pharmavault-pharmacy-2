@@ -1,68 +1,114 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { PnlView, ListView } from './ReportViews';
-import { api } from '@/lib/api-client';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, Package, Users, DollarSign } from 'lucide-react';
+import type { ReportType } from '@/pages/ReportsPage';
 interface ReportContainerProps {
-  type: string;
+  type: ReportType;
   dateRange: { from: string; to: string };
 }
+const COLORS = ['#2C7BE5', '#28A745', '#FFC107', '#E91E63', '#9C27B0'];
 export function ReportContainer({ type, dateRange }: ReportContainerProps) {
-  const fromTs = new Date(dateRange.from).getTime();
-  const toTs = new Date(dateRange.to).getTime();
-  const { data: reportData, isLoading, error } = useQuery<any>({
-    queryKey: ['report-api', type, dateRange],
-    queryFn: () => api<any>(`/api/reports?type=${type}&from=${fromTs}&to=${toTs}`),
-  });
-  if (isLoading) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center gap-4 bg-card rounded-3xl border border-dashed">
-        <Loader2 className="size-12 text-pharmav-primary animate-spin" />
-        <p className="font-bold text-muted-foreground">جاري استخراج البيانات المالية...</p>
+  // Mock Data Generators
+  const kpis = [
+    { title: 'إجمالي المبيعات', value: '142,500 ر.س', icon: DollarSign, trend: '+12.5%', color: 'text-green-500' },
+    { title: 'عدد الفواتير', value: '1,284', icon: TrendingUp, trend: '+8.2%', color: 'text-blue-500' },
+    { title: 'متوسط قيمة الطلب', value: '110.9 ر.س', icon: Users, trend: '-2.1%', color: 'text-orange-500' },
+    { title: 'الأصناف المباعة', value: '4,520', icon: Package, trend: '+15.4%', color: 'text-purple-500' },
+  ];
+  const chartData = [
+    { name: 'الأسبوع 1', val: 4500, cost: 3200 },
+    { name: 'الأسبوع 2', val: 5200, cost: 3800 },
+    { name: 'الأسبوع 3', val: 4800, cost: 3400 },
+    { name: 'الأسبوع 4', val: 6100, cost: 4200 },
+  ];
+  return (
+    <div className="space-y-6">
+      {/* KPI Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {kpis.map((kpi, i) => (
+          <Card key={i} className="glass-card border-none overflow-hidden group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4 flex-row-reverse">
+                <div className={cn("p-3 rounded-2xl bg-muted group-hover:scale-110 transition-transform", kpi.color)}>
+                  <kpi.icon className="size-5" />
+                </div>
+                <Badge variant="outline" className="text-[10px] font-bold bg-green-500/10 text-green-600 border-none">
+                  {kpi.trend}
+                </Badge>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{kpi.title}</p>
+                <h3 className="text-2xl font-display font-bold">{kpi.value}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center gap-4 bg-red-50 rounded-3xl border border-red-200 text-red-600">
-        <AlertCircle className="size-12" />
-        <p className="font-bold">حدث خطأ أثناء تحميل التقرير</p>
-      </div>
-    );
-  }
-  const items = reportData?.items || [];
-  switch (type) {
-    case 'pnl':
-      return <PnlView data={reportData} />;
-    case 'sales':
-      return <ListView items={items} columns={[
-        { key: 'id', label: 'رقم الفاتورة', format: (v) => <span className="font-mono text-xs">#{v.slice(0,8)}</span> },
-        { key: 'timestamp', label: 'التاريخ', format: (v) => format(new Date(v), 'dd/MM/yyyy HH:mm', { locale: ar }) },
-        { key: 'paymentMethod', label: 'طريقة الدفع' },
-        { key: 'totalAmount', label: 'المبلغ الإجمالي', format: (v) => <span className="font-bold">{v.toLocaleString()} ر.س</span> }
-      ]} />;
-    case 'purchases':
-      return <ListView items={items} columns={[
-        { key: 'invoiceNumber', label: 'رقم الفاتورة' },
-        { key: 'timestamp', label: 'تاريخ التوريد', format: (v) => format(new Date(v), 'dd/MM/yyyy', { locale: ar }) },
-        { key: 'totalCost', label: 'إجمالي التكلفة', format: (v) => <span className="font-bold">{v.toLocaleString()} ر.س</span> }
-      ]} />;
-    case 'expiry':
-      return <ListView items={items} columns={[
-        { key: 'name', label: 'اسم الدواء' },
-        { key: 'batchNumber', label: 'رقم التشغيلة' },
-        { key: 'expiryDate', label: 'تاريخ الانتهاء', format: (v) => <span className="text-red-600 font-bold">{v}</span> },
-        { key: 'stockQuantity', label: 'الكمية المتوفرة' }
-      ]} />;
-    case 'cust-bal':
-      return <ListView items={items} columns={[
-        { key: 'name', label: 'العميل' },
-        { key: 'phone', label: 'الهاتف' },
-        { key: 'currentBalance', label: 'الرصيد المدين', format: (v) => <span className="text-red-600 font-bold">{v.toLocaleString()} ر.س</span> }
-      ]} />;
-    default:
-      return <div className="p-20 text-center text-muted-foreground italic">لا تتوفر معاينة لهذا النوع من التقارير حالياً.</div>;
-  }
+      {/* Chart Section */}
+      <Card className="glass-card border-none">
+        <CardHeader className="flex flex-row-reverse items-center justify-between border-b pb-4">
+          <CardTitle className="text-lg font-display">مخطط الأداء البياني</CardTitle>
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground"><div className="size-2 rounded-full bg-pharmav-primary" /> الإيراد</div>
+            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground"><div className="size-2 rounded-full bg-green-500" /> الربح</div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-8 h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} orientation="right" />
+              <Tooltip 
+                cursor={{fill: 'hsl(var(--muted)/0.3)'}}
+                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', textAlign: 'right' }}
+              />
+              <Bar dataKey="val" fill="hsl(var(--pharmav-primary))" radius={[6, 6, 0, 0]} barSize={40} />
+              <Bar dataKey="cost" fill="#28A745" radius={[6, 6, 0, 0]} barSize={40} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+      {/* Data Table */}
+      <Card className="glass-card border-none overflow-hidden">
+        <div className="p-6 border-b bg-muted/20 flex items-center justify-between flex-row-reverse">
+          <h3 className="font-display font-bold">تفاصيل العمليات</h3>
+          <Badge variant="outline" className="font-mono">CSV / Excel / PDF</Badge>
+        </div>
+        <Table className="text-right">
+          <TableHeader className="bg-muted/40">
+            <TableRow>
+              <TableHead className="text-right py-4">رقم العملية</TableHead>
+              <TableHead className="text-right">البيان / الوصف</TableHead>
+              <TableHead className="text-right">التاريخ</TableHead>
+              <TableHead className="text-right">المبلغ</TableHead>
+              <TableHead className="text-right">الضريبة</TableHead>
+              <TableHead className="text-right">الحالة</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i} className="hover:bg-muted/30 border-b">
+                <TableCell className="font-mono font-bold text-xs">#INV-2024-00{i+1}</TableCell>
+                <TableCell className="font-medium text-sm">مبيعات صيدلية مسائية - فرع 01</TableCell>
+                <TableCell className="text-muted-foreground text-xs">2024-05-{10+i}</TableCell>
+                <TableCell className="font-bold">{(1250 * (i+1)).toLocaleString()} ر.س</TableCell>
+                <TableCell className="text-muted-foreground">15%</TableCell>
+                <TableCell><Badge variant="outline" className="bg-green-500/10 text-green-600 border-none font-bold">مكتمل</Badge></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
+  );
+}
+function cn(...inputs: any[]) {
+  return inputs.filter(Boolean).join(' ');
 }

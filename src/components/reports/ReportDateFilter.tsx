@@ -68,6 +68,7 @@ export function ReportDateFilter({ value, onChange }: ReportDateFilterProps) {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
+            initialFocus
             mode="range"
             selected={{ from: new Date(value.from), to: new Date(value.to) }}
             onSelect={(range: any) => {

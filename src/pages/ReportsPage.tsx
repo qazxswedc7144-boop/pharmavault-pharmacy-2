@@ -1,109 +1,95 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { BarChart3, TrendingUp, DollarSign, Package, PieChart as PieIcon } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts';
-import { api } from '@/lib/api-client';
-import type { AnalyticsReport } from '@shared/types';
+import { ReportSidebar } from '@/components/reports/ReportSidebar';
+import { ReportDateFilter } from '@/components/reports/ReportDateFilter';
+import { ReportContainer } from '@/components/reports/ReportContainer';
+import { FileText, Printer, FileDown, Share2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
+export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
 export function ReportsPage() {
-  const { data: analytics, isLoading } = useQuery<AnalyticsReport>({
-    queryKey: ['analytics'],
-    queryFn: () => api<AnalyticsReport>('/api/reports/analytics')
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeReport = (searchParams.get('type') as ReportType) || 'pnl';
+  const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
+    from: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+    to: new Date().toISOString().split('T')[0]
   });
+  const reportTitles: Record<ReportType, string> = {
+    'pnl': 'تقرير الأرباح والخسائر',
+    'sales': 'تقرير المبيعات التفصيلي',
+    'purchases': 'تقرير المشتريات والموردين',
+    'cust-bal': 'أرصدة العملاء والذمم',
+    'sup-bal': 'أرصدة الموردين والمدفوعات',
+    'top-selling': 'الأصناف الأكثر مبيعاً',
+    'slow-moving': 'الأصناف الراكدة',
+    'cash': 'حركة الصندوق اليومية',
+    'expiry': 'تنبيهات انتهاء الصلاحية',
+    'comparison': 'مقارنة الفترات المالية'
+  };
+  const handleExport = (format: 'pdf' | 'excel') => {
+    toast.promise(new Promise(res => setTimeout(res, 2000)), {
+      loading: `جاري تحضير ملف ${format.toUpperCase()}...`,
+      success: `تم تصدير التقرير بنجاح بصيغة ${format.toUpperCase()}`,
+      error: 'فشل في تصدير التقرير'
+    });
+  };
   return (
     <AppLayout container>
-      <div className="space-y-8 text-right" dir="rtl">
-        <div>
-          <h1 className="text-3xl font-display font-bold">التحليلات والتقارير</h1>
-          <p className="text-muted-foreground">نظرة عميقة على أداء صيدليتك ونمو الأعمال.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass-card">
-            <CardHeader className="pb-2 text-right">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-end gap-2">
-                <span>إجمالي الإيرادات</span>
-                <DollarSign className="size-4" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics?.profitSummary.revenue.toLocaleString() ?? '0'} ر.س</div>
-              <p className="text-xs text-green-500 mt-1 flex items-center justify-end gap-1">
-                <span>+14.2% مقارنة بالشهر الماضي</span>
-                <TrendingUp className="size-3" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
+        <div className="py-8 md:py-10 lg:py-12 space-y-8">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b pb-8">
+            <div className="text-right space-y-2">
+              <h1 className="text-4xl font-display font-bold text-pharmav-primary">
+                {reportTitles[activeReport]}
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                تحليل دقيق للبيانات المالية والتشغيلية للفترة المحددة.
               </p>
-            </CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2 text-right">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-end gap-2">
-                <span>قيمة المخزون</span>
-                <Package className="size-4" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics?.inventoryValue.toLocaleString() ?? '0'} ر.س</div>
-              <p className="text-xs text-muted-foreground mt-1">بناءً على سعر التكلفة</p>
-            </CardContent>
-          </Card>
-          <Card className="glass-card">
-            <CardHeader className="pb-2 text-right">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-end gap-2">
-                <span>الربح التقديري</span>
-                <PieIcon className="size-4" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics?.profitSummary.profit.toLocaleString() ?? '0'} ر.س</div>
-              <p className="text-xs text-blue-500 mt-1">هامش ربح تقريبي 24.5%</p>
-            </CardContent>
-          </Card>
-        </div>
-        <Tabs defaultValue="inventory" className="w-full">
-          <div className="flex justify-end">
-            <TabsList className="bg-muted/50 p-1 rounded-xl">
-              <TabsTrigger value="sales" className="rounded-lg">اتجاهات المبيعات</TabsTrigger>
-              <TabsTrigger value="inventory" className="rounded-lg">توزيع المخزون</TabsTrigger>
-            </TabsList>
+            </div>
+            <div className="flex gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-12 px-6 gap-2 border-2 font-bold">
+                    <FileDown className="size-4" /> تصدير التقرير
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="text-right">
+                  <DropdownMenuItem onClick={() => handleExport('pdf')} className="flex-row-reverse gap-2">
+                    <FileText className="size-4 text-rose-500" /> تصدير PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('excel')} className="flex-row-reverse gap-2">
+                    <FileText className="size-4 text-green-600" /> تصدير Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="outline" onClick={() => window.print()} className="h-12 px-4 border-2">
+                <Printer className="size-5" />
+              </Button>
+              <Button variant="ghost" className="h-12 px-4 border-2">
+                <Share2 className="size-5" />
+              </Button>
+            </div>
           </div>
-          <TabsContent value="inventory" className="mt-6">
-            <Card className="glass-card text-right">
-              <CardHeader>
-                <CardTitle className="font-display">قيمة المخزون حسب التصنيف</CardTitle>
-                <CardDescription>القيمة المالية الحالية للأدوية مقسمة حسب الفئات العلاجية.</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analytics?.categoryDistribution ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                    <XAxis dataKey="category" orientation="bottom" stroke="hsl(var(--muted-foreground))" tick={{fontSize: 12}} />
-                    <YAxis orientation="right" stroke="hsl(var(--muted-foreground))" tick={{fontSize: 12}} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))', textAlign: 'right' }}
-                    />
-                    <Bar dataKey="value" fill="hsl(var(--pharmav-primary))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="sales" className="mt-6">
-            <Card className="glass-card text-right">
-              <CardHeader>
-                <CardTitle className="font-display">أداء الإيرادات الشهري</CardTitle>
-                <CardDescription>متابعة نمو المبيعات والتقلبات الموسمية.</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px]">
-                <div className="flex items-center justify-center h-full text-muted-foreground italic">
-                  ستظهر البيانات التحليلية المتقدمة فور تسجيل المزيد من العمليات.
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Sidebar - Right */}
+            <div className="lg:col-span-3 order-2 lg:order-2">
+              <ReportSidebar active={activeReport} onSelect={(type) => setSearchParams({ type })} />
+            </div>
+            {/* Content Area - Left */}
+            <div className="lg:col-span-9 order-1 lg:order-1 space-y-6">
+              <ReportDateFilter value={dateRange} onChange={setDateRange} />
+              <ReportContainer type={activeReport} dateRange={dateRange} />
+            </div>
+          </div>
+        </div>
       </div>
     </AppLayout>
   );

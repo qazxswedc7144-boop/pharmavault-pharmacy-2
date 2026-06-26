@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,9 +14,9 @@ import { toast } from 'sonner';
 const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
-  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
+  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
-  description: z.string()
+  description: z.string().optional()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -56,7 +56,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
     },
     onError: () => toast.error('فشل في حفظ بيانات الحساب')
   });
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       if (account) {
         form.reset({
@@ -77,6 +77,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
       }
     }
   }, [open, account, form]);
+  const control = form.control as unknown as Control<AccountFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right" dir="rtl">
@@ -87,7 +88,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField control={form.control} name="name" render={({ field }) => (
+            <FormField control={control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
                 <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
@@ -95,14 +96,14 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               </FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="code" render={({ field }) => (
+              <FormField control={control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
                   <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="type" render={({ field }) => (
+              <FormField control={control} name="type" render={({ field }) => (
                 <FormItem>
                   <FormLabel>نوع الحساب</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -117,7 +118,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="balance" render={({ field }) => (
+            <FormField control={control} name="balance" render={({ field }) => (
               <FormItem>
                 <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                 <FormControl>
@@ -125,7 +126,6 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     type="number"
                     step="0.01"
                     {...field}
-                    value={field.value}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     className="h-12 text-left font-bold text-xl border-2"
                   />
@@ -133,7 +133,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
+            <FormField control={control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>البيان / ملاحظات</FormLabel>
                 <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
