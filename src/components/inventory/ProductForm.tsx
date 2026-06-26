@@ -87,7 +87,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         : api<Product>('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(product ? 'تم تحديث بيانات الدواء' : 'تمت إضافة الدواء للمخزن');
+      toast.success(product ? 'تم تحديث بيانات الدواء بنجاح' : 'تمت إضافة الدواء بنجاح للمخزن');
       onOpenChange(false);
       form.reset();
     },
@@ -97,8 +97,10 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const cost = form.watch('costPrice');
   const expiry = form.watch('expiryDate');
   const margin = useMemo(() => {
-    if (!price || price <= 0) return 0;
-    return ((price - cost) / price) * 100;
+    const p = Number(price) || 0;
+    const c = Number(cost) || 0;
+    if (p <= 0) return 0;
+    return ((p - c) / p) * 100;
   }, [price, cost]);
   const expiryStatus = useMemo(() => {
     if (!expiry) return null;
@@ -171,9 +173,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   </TabsTrigger>
                   <TabsTrigger value="stock" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-none border-b-2 border-transparent data-[state=active]:border-pharmav-primary h-full px-4 font-bold flex gap-2">
                     <Package className="size-4" /> المخزون والتواريخ
-                  </TabsTrigger>
-                  <TabsTrigger value="media" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-none border-b-2 border-transparent data-[state=active]:border-pharmav-primary h-full px-4 font-bold flex gap-2">
-                    <Camera className="size-4" /> المرفقات
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -315,17 +314,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="media" className="mt-0">
-                  <div className="h-64 border-4 border-dashed rounded-3xl flex flex-col items-center justify-center gap-4 bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer group">
-                    <div className="p-4 rounded-full bg-background group-hover:scale-110 transition-transform">
-                      <Camera className="size-8 text-muted-foreground" />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold">ارفع صورة الدواء</p>
-                      <p className="text-xs text-muted-foreground mt-1">يدعم JPG, PNG (بحد أقصى 2 ميجابايت)</p>
-                    </div>
                   </div>
                 </TabsContent>
               </div>

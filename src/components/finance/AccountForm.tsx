@@ -35,7 +35,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
-    defaultValues: { name: '', code: '', type: 'asset', balance: 0, description: '' }
+    defaultValues: { 
+      name: '', 
+      code: '', 
+      type: 'asset', 
+      balance: 0, 
+      description: '' 
+    }
   });
   const mutation = useMutation({
     mutationFn: (values: AccountFormValues) =>
@@ -44,11 +50,11 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         : api<Account>('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success(account ? 'تم تحديث الحساب بنجاح' : 'تم إنشاء الحساب بنجاح');
+      toast.success(account ? 'تم تحديث الحساب المالي بنجاح' : 'تم إنشاء الحساب المالي الجديد');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الحساب')
+    onError: () => toast.error('فشل في حفظ بيانات الحساب')
   });
   React.useEffect(() => {
     if (open) {
@@ -61,7 +67,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
           description: account.description || ''
         });
       } else {
-        form.reset({ name: '', code: '', type: 'asset', balance: 0, description: '' });
+        form.reset({ 
+          name: '', 
+          code: '', 
+          type: 'asset', 
+          balance: 0, 
+          description: '' 
+        });
       }
     }
   }, [open, account, form]);
@@ -78,7 +90,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
-                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -86,7 +98,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormField control={form.control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -94,7 +106,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormItem>
                   <FormLabel>نوع الحساب</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl>
+                    <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl>
                     <SelectContent className="text-right">
                       {(Object.entries(TYPE_LABELS) as [AccountType, string][]).map(([val, label]) => (
                         <SelectItem key={val} value={val}>{label}</SelectItem>
@@ -107,21 +119,30 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             </div>
             <FormField control={form.control} name="balance" render={({ field }) => (
               <FormItem>
-                <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold" /></FormControl>
+                <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    {...field} 
+                    value={field.value} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
+                    className="h-12 text-left font-bold text-xl border-2" 
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
-                <FormLabel>ملاحظات إضافية</FormLabel>
-                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormLabel>البيان / ملاحظات</FormLabel>
+                <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 text-lg bg-pharmav-primary shadow-neon-blue">
-                حفظ بيانات الحساب المالي
+                {mutation.isPending ? "جاري الحفظ..." : "حفظ بيانات الحساب المالي"}
               </Button>
             </DialogFooter>
           </form>

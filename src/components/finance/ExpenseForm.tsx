@@ -54,11 +54,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('تم تسجيل المصروف بنجاح وتحديث الحسابات');
+      toast.success('تم تسجيل المصروف وتحديث أرصدة الحسابات بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('حدث خطأ أثناء تسجيل المصروف')
+    onError: () => toast.error('حدث خطأ أثناء معالجة تسجيل المصروف')
   });
   React.useEffect(() => {
     if (open) {
@@ -102,11 +102,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <FormLabel>تصنيف المصروف</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-12 text-right">
+                        <SelectTrigger className="h-12 text-right border-2">
                           <SelectValue placeholder="اختر التصنيف" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="text-right">
+                      <SelectContent className="text-right font-sans">
                         {accountsData?.items.filter(a => a.type === 'expense').map(a => (
                           <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                         ))}
@@ -121,14 +121,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 name="paymentAccountId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>حساب الدفع</FormLabel>
+                    <FormLabel>حساب الدفع (المصدر)</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-12 text-right">
-                          <SelectValue placeholder="اختر المصدر" />
+                        <SelectTrigger className="h-12 text-right border-2">
+                          <SelectValue placeholder="اختر الحساب" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="text-right">
+                      <SelectContent className="text-right font-sans">
                         {accountsData?.items.filter(a => a.type === 'asset').map(a => (
                           <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                         ))}
@@ -145,14 +145,15 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>المبلغ (ر.س)</FormLabel>
+                    <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.01"
                         {...field}
+                        value={field.value}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-left font-bold text-red-600"
+                        className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
                     </FormControl>
                     <FormMessage />
@@ -164,16 +165,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>حالة الدفع</FormLabel>
+                    <FormLabel>حالة السداد</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-12 text-right">
+                        <SelectTrigger className="h-12 text-right border-2">
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="text-right">
-                        <SelectItem value="paid">تم السداد</SelectItem>
-                        <SelectItem value="pending">قيد الانتظار</SelectItem>
+                      <SelectContent className="text-right font-sans">
+                        <SelectItem value="paid">تم السداد بالكامل</SelectItem>
+                        <SelectItem value="pending">قيد الانتظار / معلق</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -186,47 +187,49 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>بيان المصروف</FormLabel>
+                  <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
-                    <Input {...field} className="h-12 text-right" />
+                    <Input {...field} className="h-12 text-right border-2" placeholder="مثلاً: سداد إيجار الشهر..." />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>الوسم</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="h-12 text-right" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>التاريخ</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} className="h-12 text-left" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الوسم / القسم</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="h-12 text-right border-2" placeholder="إيجار، فواتير..." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>تاريخ العملية</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} className="h-12 text-center border-2 font-bold" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <DialogFooter className="mt-8">
               <Button
                 type="submit"
                 disabled={mutation.isPending}
                 className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow"
               >
-                تسجيل العملية المالية
+                {mutation.isPending ? "جاري المعالجة..." : "تسجيل العملية المالية"}
               </Button>
             </DialogFooter>
           </form>
