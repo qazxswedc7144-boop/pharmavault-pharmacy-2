@@ -7,12 +7,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, Package, Camera, Pencil } from 'lucide-react';
+import { Trash2, Package, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
@@ -44,15 +43,15 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
       date: new Date().toISOString().split('T')[0]
     }
   });
-  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'items'
   });
-  const { data: products } = useQuery<{ items: Product[] }>({
+  const { data: productsData } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
   });
-  const { data: suppliers, isLoading: isLoadingSuppliers } = useQuery<{ items: Supplier[] }>({
+  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery<{ items: Supplier[] }>({
     queryKey: ['suppliers'],
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
@@ -72,8 +71,8 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
     },
     onError: () => toast.error('فشل في إرسال طلب الشراء')
   });
-  const supplierOptions = React.useMemo(() => (suppliers?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliers]);
-  const productOptions = React.useMemo(() => (products?.items || []).map(p => ({ label: p.name, value: p.id })), [products]);
+  const supplierOptions = React.useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
+  const productOptions = React.useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto text-right p-0 border-none" dir="rtl">
@@ -87,48 +86,35 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="p-6 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
               <div className="md:col-span-7 space-y-6">
-                <FormField<PurchaseFormValues>
-                  control={form.control}
-                  name="supplierId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-bold">المورد / الشركة</FormLabel>
-                      <Autocomplete
-                        options={supplierOptions}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="ابحث عن مورد..."
-                        isLoading={isLoadingSuppliers}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField<PurchaseFormValues>
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-bold">ملاحظات الفاتورة</FormLabel>
-                      <div className="relative">
-                        <FormControl>
-                          <Input {...field} className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary" placeholder="أضف أي ملاحظات..." />
-                        </FormControl>
-                        <Button type="button" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2"><Camera className="size-5" /></Button>
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="supplierId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-bold">المورد / الشركة</FormLabel>
+                    <Autocomplete
+                      options={supplierOptions}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="ابحث عن مورد..."
+                      isLoading={isLoadingSuppliers}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="notes" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-bold">ملاحظات الفاتورة</FormLabel>
+                    <FormControl><Input {...field} className="h-12 pr-4 text-right bg-white border-2 border-transparent focus:border-pharmav-primary" placeholder="أضف أي ملاحظات..." /></FormControl>
+                  </FormItem>
+                )} />
               </div>
               <div className="md:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
-                <FormField<PurchaseFormValues> control={form.control} name="invoiceNumber" render={({ field }) => (
+                <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-bold">رقم الفاتورة</FormLabel>
                     <FormControl><Input {...field} className="h-12 bg-white font-mono text-center" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField<PurchaseFormValues> control={form.control} name="date" render={({ field }) => (
+                <FormField control={form.control} name="date" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-bold">التاريخ</FormLabel>
                     <FormControl><Input type="date" {...field} className="h-12 text-center bg-white" /></FormControl>
@@ -144,17 +130,17 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
               {fields.map((f, index) => (
                 <div key={f.id} className="grid grid-cols-12 gap-3 items-end bg-card border p-4 rounded-2xl">
                   <div className="col-span-12 lg:col-span-6">
-                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.productId` as const} render={({ field }) => (
+                    <FormField control={form.control} name={`items.${index}.productId`} render={({ field }) => (
                       <FormItem><FormLabel className="text-[10px]">المنتج</FormLabel><Autocomplete options={productOptions} value={field.value} onValueChange={field.onChange} /></FormItem>
                     )} />
                   </div>
                   <div className="col-span-5 lg:col-span-2">
-                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.quantity` as const} render={({ field }) => (
+                    <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                       <FormItem><FormLabel className="text-[10px]">الكمية</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl></FormItem>
                     )} />
                   </div>
                   <div className="col-span-5 lg:col-span-3">
-                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.costPrice` as const} render={({ field }) => (
+                    <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field }) => (
                       <FormItem><FormLabel className="text-[10px]">التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl></FormItem>
                     )} />
                   </div>

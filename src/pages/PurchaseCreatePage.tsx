@@ -9,12 +9,11 @@ import { PurchaseHeader } from '@/components/purchases/PurchaseHeader';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, Package, Camera, Pencil } from 'lucide-react';
+import { Trash2, PlusCircle, Package } from 'lucide-react';
 import { toast } from 'sonner';
 const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
@@ -43,17 +42,17 @@ export function PurchaseCreatePage() {
       isCredit: false, isReturn: false
     }
   });
-  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'items'
   });
   const isReturn = form.watch('isReturn');
   const isCredit = form.watch('isCredit');
-  const { data: products } = useQuery<{ items: Product[] }>({
+  const { data: productsData } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
   });
-  const { data: suppliers, isLoading: isLoadingSuppliers } = useQuery<{ items: Supplier[] }>({
+  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery<{ items: Supplier[] }>({
     queryKey: ['suppliers'],
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
@@ -72,8 +71,8 @@ export function PurchaseCreatePage() {
     },
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
-  const supplierOptions = React.useMemo(() => (suppliers?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliers]);
-  const productOptions = React.useMemo(() => (products?.items || []).map(p => ({ label: p.name, value: p.id })), [products]);
+  const supplierOptions = React.useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
+  const productOptions = React.useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
   return (
     <AppLayout className="bg-muted/10 min-h-screen flex flex-col">
       <PurchaseHeader
@@ -88,24 +87,24 @@ export function PurchaseCreatePage() {
             <div className="bg-card border rounded-3xl p-8 shadow-soft space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
                 <div className="md:col-span-7">
-                  <FormField<PurchaseFormValues> control={form.control} name="supplierId" render={({ field }) => (
+                  <FormField control={form.control} name="supplierId" render={({ field }) => (
                     <FormItem><FormLabel className="font-bold">المورد</FormLabel><Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} /></FormItem>
                   )} />
                 </div>
                 <div className="md:col-span-3">
-                  <FormField<PurchaseFormValues> control={form.control} name="invoiceNumber" render={({ field }) => (
+                  <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
                     <FormItem><FormLabel className="font-bold">رقم الفاتورة</FormLabel><FormControl><Input {...field} className="h-12 text-center font-mono" /></FormControl></FormItem>
                   )} />
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-10 gap-6">
                 <div className="col-span-5">
-                   <FormField<PurchaseFormValues> control={form.control} name="date" render={({ field }) => (
+                   <FormField control={form.control} name="date" render={({ field }) => (
                     <FormItem><FormLabel className="font-bold">التاريخ</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-center" /></FormControl></FormItem>
                   )} />
                 </div>
                 <div className="col-span-5">
-                  <FormField<PurchaseFormValues> control={form.control} name="status" render={({ field }) => (
+                  <FormField control={form.control} name="status" render={({ field }) => (
                     <FormItem><FormLabel className="font-bold">الحالة</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl><SelectContent className="text-right"><SelectItem value="received">تم الاستلام</SelectItem><SelectItem value="pending">قيد الانتظار</SelectItem></SelectContent></Select></FormItem>
                   )} />
                 </div>
@@ -120,17 +119,17 @@ export function PurchaseCreatePage() {
                 {fields.map((f, index) => (
                   <div key={f.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-muted/5 p-4 rounded-2xl border">
                     <div className="md:col-span-6">
-                      <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.productId` as const} render={({ field: itField }) => (
+                      <FormField control={form.control} name={`items.${index}.productId`} render={({ field: itField }) => (
                         <FormItem><FormLabel className="text-[10px]">الدواء</FormLabel><Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} /></FormItem>
                       )} />
                     </div>
                     <div className="md:col-span-2">
-                      <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.quantity` as const} render={({ field: itField }) => (
+                      <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: itField }) => (
                         <FormItem><FormLabel className="text-[10px]">الكمية</FormLabel><FormControl><Input type="number" {...itField} onChange={e => itField.onChange(parseInt(e.target.value) || 0)} className="h-12 text-center" /></FormControl></FormItem>
                       )} />
                     </div>
                     <div className="md:col-span-3">
-                      <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.costPrice` as const} render={({ field: itField }) => (
+                      <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: itField }) => (
                         <FormItem><FormLabel className="text-[10px]">التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...itField} onChange={e => itField.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-center" /></FormControl></FormItem>
                       )} />
                     </div>

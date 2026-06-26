@@ -75,7 +75,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField<AccountFormValues> control={form.control} name="name" render={({ field }) => (
+            <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
                 <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
@@ -83,14 +83,14 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               </FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues> control={form.control} name="code" render={({ field }) => (
+              <FormField control={form.control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
                   <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField<AccountFormValues> control={form.control} name="type" render={({ field }) => (
+              <FormField control={form.control} name="type" render={({ field }) => (
                 <FormItem>
                   <FormLabel>نوع الحساب</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -105,17 +105,17 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )} />
             </div>
-            <FormField<AccountFormValues> control={form.control} name="balance" render={({ field }) => (
+            <FormField control={form.control} name="balance" render={({ field }) => (
               <FormItem>
                 <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold" /></FormControl>
+                <FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField<AccountFormValues> control={form.control} name="description" render={({ field }) => (
+            <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>ملاحظات إضافية</FormLabel>
-                <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl>
+                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

@@ -46,7 +46,7 @@ export function PosPaymentSection({
     return diff > 0 ? diff : 0;
   }, [cashReceived, totals.total]);
   const mutation = useMutation({
-    mutationFn: (tx: Transaction) => api('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
+    mutationFn: (tx: Transaction) => api<Transaction>('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
     onSuccess: () => {
       toast.success(isReturn ? 'تمت عملية الاسترجاع بنجاح' : 'تمت عملية البيع بنجاح');
       onSuccess();
@@ -82,7 +82,7 @@ export function PosPaymentSection({
         <div className="space-y-2 text-right">
           <Label className={`text-xs font-bold ${isReturn ? 'text-white/80' : 'text-muted-foreground'}`}>العميل المختار</Label>
           <Select
-            value={customer?.id}
+            value={customer?.id || ''}
             onValueChange={(id) => onCustomerChange(customersData?.items.find(c => c.id === id) || null)}
           >
             <SelectTrigger className={`text-right h-12 rounded-xl ${isReturn ? 'bg-white/10 border-white/20 text-white' : 'bg-muted border-none'}`}>
