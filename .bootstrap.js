@@ -145,6 +145,14 @@ function runSetupCommands() {
         "tailwind-merge",
         "cmdk",
         "react-hotkeys-hook"
+    ],
+    [
+        "bun",
+        "add",
+        "lucide-react@latest",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "zod"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
