@@ -16,7 +16,7 @@ const accountSchema = z.object({
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
-  description: z.string().optional().default('')
+  description: z.string().default('')
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -75,82 +75,50 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField<AccountFormValues>
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>اسم الحساب</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormField control={form.control} name="name" render={({ field }) => (
+              <FormItem>
+                <FormLabel>اسم الحساب</FormLabel>
+                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues>
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كود الحساب</FormLabel>
-                    <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<AccountFormValues>
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>نوع الحساب</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-right">
-                          <SelectValue placeholder="اختر النوع" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        {Object.entries(TYPE_LABELS).map(([val, label]) => (
-                          <SelectItem key={val} value={val}>{label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="code" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>كود الحساب</FormLabel>
+                  <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="type" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>نوع الحساب</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      {Object.entries(TYPE_LABELS).map(([val, label]) => (
+                        <SelectItem key={val} value={val}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
-            <FormField<AccountFormValues>
-              control={form.control}
-              name="balance"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="h-12 text-left font-bold"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField<AccountFormValues>
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ملاحظات إضافية</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormField control={form.control} name="balance" render={({ field }) => (
+              <FormItem>
+                <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
+                <FormControl><Input type="number" {...field} className="h-12 text-left font-bold" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="description" render={({ field }) => (
+              <FormItem>
+                <FormLabel>ملاحظات إضافية</FormLabel>
+                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 text-lg bg-pharmav-primary shadow-neon-blue">
                 حفظ بيانات الحساب المالي

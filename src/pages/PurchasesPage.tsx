@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Truck, Plus, Search, Package, MoreVertical } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -9,9 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { PurchaseOrder, Supplier } from '@shared/types';
 import { format } from 'date-fns';
-import { PurchaseForm } from '@/components/purchases/PurchaseForm';
 export function PurchasesPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const { data: ordersData, isLoading } = useQuery<{ items: PurchaseOrder[] }>({
     queryKey: ['purchases'],
     queryFn: () => api<{ items: PurchaseOrder[] }>('/api/purchases')
@@ -31,8 +30,10 @@ export function PurchasesPage() {
             <h1 className="text-3xl font-display font-bold">المشتريات</h1>
             <p className="text-muted-foreground">تتبع توريد الأدوية وإدارة مخزون الصيدلية.</p>
           </div>
-          <Button onClick={() => setIsFormOpen(true)} className="gap-2 bg-pharmav-primary flex-row-reverse font-bold">
-            <Plus className="h-4 w-4" /> طلب شراء جديد
+          <Button asChild className="gap-2 bg-pharmav-primary flex-row-reverse font-bold shadow-neon-blue h-12 px-6 rounded-xl">
+            <Link to="/purchases/new">
+              <Plus className="h-4 w-4" /> طلب شراء جديد
+            </Link>
           </Button>
         </div>
         <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border/40 flex-row-reverse">
@@ -80,7 +81,6 @@ export function PurchasesPage() {
           </Table>
         </div>
       </div>
-      <PurchaseForm open={isFormOpen} onOpenChange={setIsFormOpen} />
     </AppLayout>
   );
 }

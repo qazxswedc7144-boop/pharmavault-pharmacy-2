@@ -16,6 +16,7 @@ import { CategoriesPage } from '@/pages/CategoriesPage';
 import { SalesPage } from '@/pages/SalesPage';
 import { PosPage } from '@/pages/PosPage';
 import { PurchasesPage } from '@/pages/PurchasesPage';
+import { PurchaseCreatePage } from '@/pages/PurchaseCreatePage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { AccountsPage } from '@/pages/AccountsPage';
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
   { path: "/sales", element: <SalesPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/pos", element: <PosPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/purchases", element: <PurchasesPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/purchases/new", element: <PurchaseCreatePage />, errorElement: <RouteErrorBoundary /> },
   { path: "/reports", element: <ReportsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/settings", element: <SettingsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/accounts", element: <AccountsPage />, errorElement: <RouteErrorBoundary /> },

@@ -94,131 +94,64 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues>
-                control={form.control}
-                name="accountId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>تصنيف المصروف</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-right">
-                          <SelectValue placeholder="اختر التصنيف" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        {accounts?.items.filter(a => a.type === 'expense').map(a => (
-                          <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<ExpenseFormValues>
-                control={form.control}
-                name="paymentAccountId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>حساب الدفع</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-right">
-                          <SelectValue placeholder="اختر المصدر" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        {accounts?.items.filter(a => a.type === 'asset').map(a => (
-                          <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="accountId" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>تصنيف المصروف</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      {accounts?.items.filter(a => a.type === 'expense').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="paymentAccountId" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>حساب الدفع</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر المصدر" /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      {accounts?.items.filter(a => a.type === 'asset').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues>
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>المبلغ (ر.س)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        className="h-12 text-left font-bold text-red-600"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField<ExpenseFormValues>
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>حالة الدفع</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-right">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="text-right">
-                        <SelectItem value="paid">تم السداد</SelectItem>
-                        <SelectItem value="pending">قيد الانتظار</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="amount" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>المبلغ (ر.س)</FormLabel>
+                  <FormControl><Input type="number" step="0.01" {...field} className="h-12 text-left font-bold text-red-600" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="status" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>حالة الدفع</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent className="text-right">
+                      <SelectItem value="paid">تم السداد</SelectItem>
+                      <SelectItem value="pending">قيد الانتظار</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
-            <FormField<ExpenseFormValues>
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>بيان المصروف</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right bg-white" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField<ExpenseFormValues>
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>الوسم</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right bg-white" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField<ExpenseFormValues>
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>التاريخ</FormLabel>
-                  <FormControl><Input type="date" {...field} className="h-12 text-left bg-white" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormField control={form.control} name="description" render={({ field }) => (
+              <FormItem><FormLabel>بيان المصروف</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="category" render={({ field }) => (
+              <FormItem><FormLabel>الوسم</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="date" render={({ field }) => (
+              <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+            )} />
             <DialogFooter className="mt-8">
-              <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow">
-                تسجيل العملية المالية
-              </Button>
+              <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow">تسجيل العملية المالية</Button>
             </DialogFooter>
           </form>
         </Form>
