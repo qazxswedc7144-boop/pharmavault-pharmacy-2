@@ -78,7 +78,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues> control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
-                <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl>
+                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -86,7 +86,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormField<AccountFormValues> control={form.control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono" /></FormControl>
+                  <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -108,7 +108,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues> control={form.control} name="balance" render={({ field }) => (
               <FormItem>
                 <FormLabel>الرصيد الافتتاحي (ر.س)</FormLabel>
-                <FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))} className="h-12 text-left font-bold" /></FormControl>
+                <FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

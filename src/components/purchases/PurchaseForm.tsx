@@ -66,7 +66,6 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('تم إنشاء طلب الشراء بنجاح');
       onOpenChange(false);
       form.reset();
@@ -113,183 +112,60 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                       <FormLabel className="text-sm font-bold">ملاحظات الفاتورة</FormLabel>
                       <div className="relative">
                         <FormControl>
-                          <Input
-                            {...field}
-                            value={field.value ?? ''}
-                            className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary"
-                            placeholder="أضف أي ملاحظات أو تفاصيل إضافية..."
-                          />
+                          <Input {...field} className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary" placeholder="أضف أي ملاحظات..." />
                         </FormControl>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-pharmav-primary"
-                        >
-                          <Camera className="size-5" />
-                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2"><Camera className="size-5" /></Button>
                       </div>
                     </FormItem>
                   )}
                 />
               </div>
               <div className="md:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
-                <FormField<PurchaseFormValues>
-                  control={form.control}
-                  name="invoiceNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between flex-row-reverse mb-2">
-                        <FormLabel className="text-sm font-bold">رقم فاتورة المورد</FormLabel>
-                        <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] py-0 h-4">يدوي</Badge>
-                      </div>
-                      <div className="relative">
-                        <FormControl>
-                          <Input {...field} value={field.value ?? ''} className="h-12 bg-white font-mono text-center pr-10" placeholder="أدخل الرقم..." />
-                        </FormControl>
-                        <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField<PurchaseFormValues>
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-bold">تاريخ الفاتورة</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} value={field.value ?? ''} className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField<PurchaseFormValues>
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-bold">حالة التوريد</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12 bg-white text-right">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="text-right">
-                          <SelectItem value="pending">قيد الانتظار</SelectItem>
-                          <SelectItem value="received">تم الاستلام</SelectItem>
-                          <SelectItem value="cancelled">ملغي</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField<PurchaseFormValues> control={form.control} name="invoiceNumber" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-bold">رقم الفاتورة</FormLabel>
+                    <FormControl><Input {...field} className="h-12 bg-white font-mono text-center" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField<PurchaseFormValues> control={form.control} name="date" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-bold">التاريخ</FormLabel>
+                    <FormControl><Input type="date" {...field} className="h-12 text-center bg-white" /></FormControl>
+                  </FormItem>
+                )} />
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-row-reverse border-b pb-2">
-                <span className="font-bold flex items-center gap-2 text-lg">
-                  <Package className="size-5 text-pharmav-primary" /> تفاصيل الأصناف
-                </span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}
-                  className="h-9 gap-2 border-pharmav-primary text-pharmav-primary hover:bg-pharmav-primary/10"
-                >
-                  <PlusCircle className="size-4" /> إضافة صنف جديد
-                </Button>
+                <span className="font-bold flex items-center gap-2 text-lg"><Package className="size-5" /> تفاصيل الأصناف</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}>إضافة صنف</Button>
               </div>
-              <div className="space-y-3">
-                {fields.map((fieldItem, index) => (
-                  <div key={fieldItem.id} className="grid grid-cols-12 gap-3 items-end bg-card border p-4 rounded-2xl shadow-sm">
-                    <div className="col-span-12 lg:col-span-6">
-                      <FormField<PurchaseFormValues>
-                        control={form.control}
-                        name={`items.${index}.productId` as const}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">اسم المنتج</FormLabel>
-                            <Autocomplete
-                              options={productOptions}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              placeholder="اختر المنتج..."
-                              className="h-10 bg-white"
-                            />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="col-span-5 lg:col-span-2">
-                      <FormField<PurchaseFormValues>
-                        control={form.control}
-                        name={`items.${index}.quantity` as const}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">الكمية</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                value={field.value ?? 1}
-                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseInt(e.target.value))}
-                                className="h-10 text-center font-bold bg-white"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="col-span-5 lg:col-span-3">
-                      <FormField<PurchaseFormValues>
-                        control={form.control}
-                        name={`items.${index}.costPrice` as const}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">التكلفة</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                {...field}
-                                value={field.value ?? 0}
-                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
-                                className="h-10 text-center font-bold bg-white"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="col-span-2 lg:col-span-1 flex justify-center pb-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="size-5" />
-                      </Button>
-                    </div>
+              {fields.map((f, index) => (
+                <div key={f.id} className="grid grid-cols-12 gap-3 items-end bg-card border p-4 rounded-2xl">
+                  <div className="col-span-12 lg:col-span-6">
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.productId` as const} render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px]">المنتج</FormLabel><Autocomplete options={productOptions} value={field.value} onValueChange={field.onChange} /></FormItem>
+                    )} />
                   </div>
-                ))}
-              </div>
+                  <div className="col-span-5 lg:col-span-2">
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.quantity` as const} render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px]">الكمية</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value) || 0)} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                  <div className="col-span-5 lg:col-span-3">
+                    <FormField<PurchaseFormValues> control={form.control} name={`items.${index}.costPrice` as const} render={({ field }) => (
+                      <FormItem><FormLabel className="text-[10px]">التكلفة</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                  <div className="col-span-2 lg:col-span-1 flex justify-center pb-1">
+                    <Button type="button" variant="ghost" onClick={() => remove(index)}><Trash2 className="size-5 text-destructive" /></Button>
+                  </div>
+                </div>
+              ))}
             </div>
             <DialogFooter className="mt-12 sticky bottom-0 bg-background py-4 border-t">
-              <Button
-                type="submit"
-                disabled={mutation.isPending}
-                className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-neon-blue rounded-2xl"
-              >
-                {mutation.isPending ? 'جاري الحفظ...' : 'تأكيد وحفظ فاتورة المشتريات'}
-              </Button>
+              <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-neon-blue">حفظ الفاتورة</Button>
             </DialogFooter>
           </form>
         </Form>
