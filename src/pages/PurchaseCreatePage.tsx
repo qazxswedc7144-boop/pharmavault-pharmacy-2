@@ -47,7 +47,7 @@ export function PurchaseCreatePage() {
       isReturn: false
     }
   });
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
     control: form.control,
     name: 'items'
   });
@@ -80,9 +80,9 @@ export function PurchaseCreatePage() {
   const productOptions = React.useMemo(() => (products?.items || []).map(p => ({ label: p.name, value: p.id })), [products]);
   return (
     <AppLayout className="bg-muted/10 min-h-screen flex flex-col">
-      <PurchaseHeader 
-        isReturn={isReturn} 
-        isCredit={isCredit} 
+      <PurchaseHeader
+        isReturn={isReturn}
+        isCredit={isCredit}
         onTypeChange={(val) => form.setValue('isReturn', val)}
         onModeChange={(val) => form.setValue('isCredit', val === 'credit')}
       />
@@ -90,7 +90,6 @@ export function PurchaseCreatePage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-8">
             <div className="bg-card border rounded-3xl p-8 shadow-soft space-y-8">
-              {/* Row 1: 70/30 Grid */}
               <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
                 <div className="md:col-span-7">
                   <FormField<PurchaseFormValues>
@@ -133,7 +132,6 @@ export function PurchaseCreatePage() {
                   />
                 </div>
               </div>
-              {/* Row 2: 30/70 Grid */}
               <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
                 <div className="md:col-span-3">
                   <FormField<PurchaseFormValues>
@@ -190,7 +188,6 @@ export function PurchaseCreatePage() {
                 </div>
               </div>
             </div>
-            {/* Items Table */}
             <div className="bg-card border rounded-3xl overflow-hidden shadow-soft">
               <div className="p-6 border-b bg-muted/20 flex items-center justify-between flex-row-reverse">
                 <span className="font-display font-bold text-xl flex items-center gap-2">
@@ -206,7 +203,7 @@ export function PurchaseCreatePage() {
                     <div className="md:col-span-6">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.productId`}
+                        name={`items.${index}.productId` as const}
                         render={({ field: f }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase text-muted-foreground font-bold">الدواء</FormLabel>
@@ -218,11 +215,11 @@ export function PurchaseCreatePage() {
                     <div className="md:col-span-2">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.quantity`}
+                        name={`items.${index}.quantity` as const}
                         render={({ field: f }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase text-muted-foreground font-bold">الكمية</FormLabel>
-                            <FormControl><Input type="number" {...f} className="h-12 text-center font-bold" /></FormControl>
+                            <FormControl><Input type="number" {...f} value={f.value ?? 0} onChange={(e) => f.onChange(e.target.value === "" ? 0 : parseInt(e.target.value))} className="h-12 text-center font-bold" /></FormControl>
                           </FormItem>
                         )}
                       />
@@ -230,11 +227,11 @@ export function PurchaseCreatePage() {
                     <div className="md:col-span-3">
                       <FormField<PurchaseFormValues>
                         control={form.control}
-                        name={`items.${index}.costPrice`}
+                        name={`items.${index}.costPrice` as const}
                         render={({ field: f }) => (
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase text-muted-foreground font-bold">سعر التكلفة (ر.س)</FormLabel>
-                            <FormControl><Input type="number" step="0.01" {...f} className="h-12 text-center font-bold" /></FormControl>
+                            <FormControl><Input type="number" step="0.01" {...f} value={f.value ?? 0} onChange={(e) => f.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))} className="h-12 text-center font-bold" /></FormControl>
                           </FormItem>
                         )}
                       />

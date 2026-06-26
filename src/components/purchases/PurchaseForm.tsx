@@ -23,7 +23,7 @@ const purchaseSchema = z.object({
     costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled']),
-  notes: z.string().optional().default(''),
+  notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
@@ -217,7 +217,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">اسم المنتج</FormLabel>
                             <Autocomplete
                               options={productOptions}
-                              value={field.value as string}
+                              value={field.value}
                               onValueChange={field.onChange}
                               placeholder="اختر المنتج..."
                               className="h-10 bg-white"
@@ -234,12 +234,12 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">الكمية</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="number" 
-                                {...field} 
-                                value={field.value as number}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                className="h-10 text-center font-bold bg-white" 
+                              <Input
+                                type="number"
+                                {...field}
+                                value={field.value ?? 1}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseInt(e.target.value))}
+                                className="h-10 text-center font-bold bg-white"
                               />
                             </FormControl>
                           </FormItem>
@@ -254,13 +254,13 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                           <FormItem>
                             <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground">التكلفة</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="number" 
-                                step="0.01" 
-                                {...field} 
-                                value={field.value as number}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                className="h-10 text-center font-bold bg-white" 
+                              <Input
+                                type="number"
+                                step="0.01"
+                                {...field}
+                                value={field.value ?? 0}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
+                                className="h-10 text-center font-bold bg-white"
                               />
                             </FormControl>
                           </FormItem>

@@ -94,7 +94,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="accountId" render={({ field }) => (
+              <FormField<ExpenseFormValues> control={form.control} name="accountId" render={({ field }) => (
                 <FormItem>
                   <FormLabel>تصنيف المصروف</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -106,7 +106,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="paymentAccountId" render={({ field }) => (
+              <FormField<ExpenseFormValues> control={form.control} name="paymentAccountId" render={({ field }) => (
                 <FormItem>
                   <FormLabel>حساب الدفع</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -120,14 +120,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="amount" render={({ field }) => (
+              <FormField<ExpenseFormValues> control={form.control} name="amount" render={({ field }) => (
                 <FormItem>
                   <FormLabel>المبلغ (ر.س)</FormLabel>
-                  <FormControl><Input type="number" step="0.01" {...field} className="h-12 text-left font-bold text-red-600" /></FormControl>
+                  <FormControl><Input type="number" step="0.01" {...field} value={field.value ?? 0} onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))} className="h-12 text-left font-bold text-red-600" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={form.control} name="status" render={({ field }) => (
+              <FormField<ExpenseFormValues> control={form.control} name="status" render={({ field }) => (
                 <FormItem>
                   <FormLabel>حالة الدفع</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -141,13 +141,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 </FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="description" render={({ field }) => (
+            <FormField<ExpenseFormValues> control={form.control} name="description" render={({ field }) => (
               <FormItem><FormLabel>بيان المصروف</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="category" render={({ field }) => (
+            <FormField<ExpenseFormValues> control={form.control} name="category" render={({ field }) => (
               <FormItem><FormLabel>الوسم</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="date" render={({ field }) => (
+            <FormField<ExpenseFormValues> control={form.control} name="date" render={({ field }) => (
               <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-8">

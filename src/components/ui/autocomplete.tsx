@@ -70,7 +70,7 @@ export function Autocomplete({
                       key={option.value}
                       value={option.label}
                       onSelect={() => {
-                        onValueChange(option.value === value ? "" : option.value);
+                        onValueChange(option.value);
                         setOpen(false);
                       }}
                       className="flex-row-reverse justify-between text-right cursor-pointer"
