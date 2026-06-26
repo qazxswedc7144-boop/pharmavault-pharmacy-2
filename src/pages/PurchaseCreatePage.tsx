@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { useForm, useFieldArray, Control } from 'react-hook-form';
+import React, { useMemo } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -10,22 +10,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Autocomplete } from '@/components/ui/autocomplete';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, Package, Camera, Edit3, Calculator, History, Truck } from 'lucide-react';
+import { Trash2, PlusCircle, Package, History, Truck } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
+    quantity: z.preprocess((v) => Number(v), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل')),
+    costPrice: z.preprocess((v) => Number(v), z.number().min(0, 'التكلفة مطلوبة'))
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -37,7 +33,6 @@ type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 export function PurchaseCreatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isFileAttached, setIsFileAttached] = useState(false);
   const form = useForm<PurchaseFormValues>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
@@ -81,11 +76,10 @@ export function PurchaseCreatePage() {
       toast.success('تم تسجيل فاتورة المشتريات بنجاح');
       navigate('/purchases');
     },
-    onError: () => toast.error('فشل في حفظ الفاتورة، يرجى التحقق من البيانات')
+    onError: () => toast.error('فشل في حفظ الفاتورة')
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
   const productOptions = useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
-  const control = form.control as unknown as Control<PurchaseFormValues>;
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
       <PurchaseHeader
@@ -100,7 +94,7 @@ export function PurchaseCreatePage() {
             <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
               <div className="md:col-span-7 bg-card border rounded-3xl p-8 shadow-soft space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField control={control} name="supplierId" render={({ field }) => (
+                  <FormField control={form.control} name="supplierId" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-bold flex items-center gap-2">
                         <Truck className="size-4 text-pharmav-primary" /> المورد / الشركة
@@ -109,79 +103,86 @@ export function PurchaseCreatePage() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={control} name="invoiceNumber" render={({ field }) => (
+                  <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel className="font-bold">رقم فاتورة المورد</FormLabel>
-                      </div>
-                      <FormControl><Input {...field} className="h-12 font-mono text-center text-lg border-2" placeholder="رقم الفاتورة..." /></FormControl>
+                      <FormLabel className="font-bold">رقم فاتورة المورد</FormLabel>
+                      <FormControl><Input {...field} className="h-12 font-mono text-center text-lg border-2" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
               </div>
-              <div className="md:col-span-3 space-y-6">
-                <div className="bg-card border rounded-3xl p-6 shadow-soft space-y-6">
-                  <FormField control={control} name="date" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold flex items-center gap-2">
-                        <History className="size-4" /> تاريخ التوريد
-                      </FormLabel>
-                      <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
-                    </FormItem>
-                  )} />
-                  <FormField control={control} name="status" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">حالة الطلبية</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl>
-                        <SelectContent className="text-right">
-                          <SelectItem value="received">تم الاستلام والمراجعة</SelectItem>
-                          <SelectItem value="pending">في انتظار الشحن</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )} />
-                </div>
+              <div className="md:col-span-3 bg-card border rounded-3xl p-6 shadow-soft space-y-4">
+                <FormField control={form.control} name="date" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold flex items-center gap-2">
+                      <History className="size-4" /> تاريخ التوريد
+                    </FormLabel>
+                    <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="status" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">حالة الطلبية</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent className="text-right">
+                        <SelectItem value="received">تم الاستلام</SelectItem>
+                        <SelectItem value="pending">في الانتظار</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
               </div>
             </div>
             <div className="bg-card border rounded-3xl overflow-hidden shadow-soft">
               <div className="p-6 border-b bg-muted/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-pharmav-primary/10 text-pharmav-primary">
-                    <Package className="size-5" />
-                  </div>
+                  <Package className="size-5 text-pharmav-primary" />
                   <span className="font-display font-bold text-xl">قائمة الأصناف الواردة</span>
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}
-                  className="bg-pharmav-primary hover:bg-pharmav-primary/90 text-white gap-2 font-bold px-6 h-11 rounded-xl"
-                >
-                  <PlusCircle className="size-4" /> إضافة صنف
+                <Button type="button" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })} className="gap-2">
+                   إضافة صنف
                 </Button>
               </div>
               <div className="p-6 space-y-4">
                 {fields.map((f, index) => (
-                  <div key={f.id} className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end bg-muted/5 p-5 rounded-2xl border-2 border-dashed border-border/60 hover:border-pharmav-primary/30 transition-all">
+                  <div key={f.id} className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end bg-muted/5 p-4 rounded-xl border">
                     <div className="lg:col-span-6">
-                      <FormField control={control} name={`items.${index}.productId`} render={({ field: itField }) => (
+                      <FormField control={form.control} name={`items.${index}.productId`} render={({ field: itField }) => (
                         <FormItem>
-                          <Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} className="bg-white" />
+                          <Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} />
                         </FormItem>
                       )} />
+                    </div>
+                    <div className="lg:col-span-2">
+                      <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: itField }) => (
+                        <FormItem>
+                          <FormControl><Input type="number" {...itField} /></FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+                    <div className="lg:col-span-3">
+                      <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: itField }) => (
+                        <FormItem>
+                          <FormControl><Input type="number" step="0.01" {...itField} /></FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+                    <div className="lg:col-span-1">
+                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="size-4" /></Button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="bg-pharmav-primary/10 p-8 rounded-3xl flex justify-between items-center">
+               <span className="text-2xl font-bold">إجمالي قيمة الفاتورة:</span>
+               <span className="text-4xl font-display font-bold text-pharmav-primary">{totals.toLocaleString()} ر.س</span>
+            </div>
             <div className="flex justify-end pt-4 pb-12">
-              <Button
-                type="submit"
-                disabled={mutation.isPending || fields.length === 0}
-                className="h-16 px-16 bg-pharmav-primary font-display font-bold text-xl rounded-2xl shadow-neon-blue"
-              >
-                {mutation.isPending ? "جاري المعالجة..." : "حفظ الفاتورة"}
+              <Button type="submit" disabled={mutation.isPending} className="h-16 px-16 bg-pharmav-primary font-bold text-xl rounded-2xl shadow-neon-blue">
+                حفظ الفاتورة
               </Button>
             </div>
           </form>

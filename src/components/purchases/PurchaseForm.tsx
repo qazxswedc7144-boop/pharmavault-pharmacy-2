@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { useForm, useFieldArray, Control } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,15 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, Package, Calculator } from 'lucide-react';
+import { Trash2, Package, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
+    quantity: z.preprocess((v) => Number(v), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل')),
+    costPrice: z.preprocess((v) => Number(v), z.number().min(0, 'التكلفة مطلوبة'))
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -100,7 +100,6 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
       }
     }
   }, [open, order, form]);
-  const control = form.control as unknown as Control<PurchaseFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
@@ -113,14 +112,14 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={control} name="supplierId" render={({ field }) => (
+              <FormField control={form.control} name="supplierId" render={({ field }) => (
                 <FormItem>
                   <FormLabel>المورد</FormLabel>
                   <Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={control} name="invoiceNumber" render={({ field }) => (
+              <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
                 <FormItem>
                   <FormLabel>رقم فاتورة المورد</FormLabel>
                   <FormControl><Input {...field} className="h-12 font-mono text-center text-lg border-2" /></FormControl>
@@ -128,28 +127,43 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                 </FormItem>
               )} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={control} name="date" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>التاريخ</FormLabel>
-                  <FormControl><Input type="date" {...field} className="h-12 text-center border-2 font-bold" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={control} name="status" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>الحالة</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent className="text-right">
-                      <SelectItem value="received">تم الاستلام</SelectItem>
-                      <SelectItem value="pending">قيد الانتظار</SelectItem>
-                      <SelectItem value="cancelled">ملغي</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-row-reverse">
+                <h4 className="font-bold">أصناف الفاتورة</h4>
+                <Button type="button" size="sm" variant="outline" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })} className="gap-1">
+                  <PlusCircle className="size-4" /> إضافة صنف
+                </Button>
+              </div>
+              {fields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-muted/20 p-4 rounded-xl">
+                  <div className="md:col-span-6">
+                    <FormField control={form.control} name={`items.${index}.productId`} render={({ field: f }) => (
+                      <FormItem>
+                        <Autocomplete options={productOptions} value={f.value} onValueChange={f.onChange} placeholder="اختر الدواء..." />
+                      </FormItem>
+                    )} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: f }) => (
+                      <FormItem>
+                        <FormControl><Input type="number" {...f} placeholder="الكمية" /></FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+                  <div className="md:col-span-3">
+                    <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: f }) => (
+                      <FormItem>
+                        <FormControl><Input type="number" step="0.01" {...f} placeholder="سعر التكلفة" /></FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="text-destructive">
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="bg-pharmav-primary/10 p-6 rounded-3xl flex items-center justify-between">
               <span className="font-display font-bold text-xl">إجمالي قيمة الفاتورة:</span>

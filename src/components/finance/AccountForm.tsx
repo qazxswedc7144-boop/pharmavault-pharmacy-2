@@ -15,7 +15,7 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
-  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
+  balance: z.preprocess((val) => Number(val), z.number().min(0, 'يجب إدخال رقم صحيح')),
   description: z.string().optional()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -77,7 +77,6 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
       }
     }
   }, [open, account, form]);
-  const control = form.control as unknown as Control<AccountFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right" dir="rtl">
@@ -88,7 +87,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
-            <FormField control={control} name="name" render={({ field }) => (
+            <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
                 <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
@@ -96,14 +95,14 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               </FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
-              <FormField control={control} name="code" render={({ field }) => (
+              <FormField control={form.control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
                   <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={control} name="type" render={({ field }) => (
+              <FormField control={form.control} name="type" render={({ field }) => (
                 <FormItem>
                   <FormLabel>نوع الحساب</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
@@ -118,7 +117,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )} />
             </div>
-            <FormField control={control} name="balance" render={({ field }) => (
+            <FormField control={form.control} name="balance" render={({ field }) => (
               <FormItem>
                 <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                 <FormControl>
@@ -133,7 +132,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={control} name="description" render={({ field }) => (
+            <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>البيان / ملاحظات</FormLabel>
                 <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>

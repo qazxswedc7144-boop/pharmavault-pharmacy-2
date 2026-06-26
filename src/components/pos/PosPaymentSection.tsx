@@ -37,9 +37,9 @@ export function PosPaymentSection({
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
   const totals = useMemo(() => {
-    const subtotal = cart.reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0);
-    const tax = cart.reduce((acc, i) => acc + (i.taxAmount * i.quantity), 0);
-    const discount = cart.reduce((acc, i) => acc + (i.discountAmount * i.quantity), 0);
+    const subtotal = cart.reduce((acc, i) => acc + (Number(i.unitPrice) * Number(i.quantity)), 0);
+    const tax = cart.reduce((acc, i) => acc + (Number(i.taxAmount) * Number(i.quantity)), 0);
+    const discount = cart.reduce((acc, i) => acc + (Number(i.discountAmount) * Number(i.quantity)), 0);
     return { subtotal, tax, discount, total: subtotal + tax - discount };
   }, [cart]);
   const change = useMemo(() => {
@@ -106,28 +106,22 @@ export function PosPaymentSection({
               ))}
             </SelectContent>
           </Select>
-          {isCredit && customer && customer.currentBalance >= customer.creditLimit && (
-            <div className="flex items-center gap-2 text-[10px] font-bold text-orange-200 mt-1 justify-end animate-pulse">
-              <span>تجاوز الحد الائتماني المسموح به</span>
-              <AlertTriangle className="size-3" />
-            </div>
-          )}
         </div>
         {!isCredit && !isReturn && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 text-right">
-              <Label className={cn("text-xs font-bold", isReturn ? "text-white/80" : "text-muted-foreground")}>المبلغ المستلم</Label>
+              <Label className="text-xs font-bold text-muted-foreground">المبلغ المستلم</Label>
               <Input
                 type="number"
                 value={cashReceived}
                 onChange={e => setCashReceived(e.target.value)}
-                className={cn("h-12 text-center text-xl font-bold rounded-xl", isReturn ? "bg-white/10 border-white/20 text-white" : "bg-muted border-none")}
+                className="h-12 text-center text-xl font-bold bg-muted border-none"
                 placeholder="0.00"
               />
             </div>
             <div className="space-y-2 text-right">
-              <Label className={cn("text-xs font-bold", isReturn ? "text-white/80" : "text-muted-foreground")}>المتبقي للعميل</Label>
-              <div className={cn("h-12 flex items-center justify-center text-2xl font-display font-bold rounded-xl", isReturn ? "bg-white/20" : "bg-green-500/10 text-green-600")}>
+              <Label className="text-xs font-bold text-muted-foreground">المتبقي</Label>
+              <div className="h-12 flex items-center justify-center text-2xl font-display font-bold bg-green-500/10 text-green-600 rounded-xl">
                 {change.toFixed(2)}
               </div>
             </div>
@@ -137,10 +131,6 @@ export function PosPaymentSection({
           <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
             <span>المجموع:</span>
             <span>{totals.subtotal.toFixed(2)} ر.س</span>
-          </div>
-          <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
-            <span>الضريبة المضافة:</span>
-            <span>+{totals.tax.toFixed(2)} ر.س</span>
           </div>
           <div className="flex justify-between items-center text-sm text-rose-400 flex-row-reverse">
             <span>إجمالي الخصم:</span>
@@ -167,14 +157,14 @@ export function PosPaymentSection({
           {isPrinting ? (
             <>
               <Printer className="size-6 animate-bounce" />
-              جاري طباعة الإيصال...
+              جاري الطباعة...
             </>
           ) : mutation.isPending ? (
             <Loader2 className="size-6 animate-spin" />
           ) : (
             <>
               {isReturn ? <RotateCcw className="size-6" /> : <CheckCircle2 className="size-6" />}
-              {isReturn ? 'تأكيد المرتجع' : 'تأكيد البيع والطباعة (F1)'}
+              {isReturn ? 'تأكيد المرتجع' : 'تأكيد البيع (F1)'}
             </>
           )}
         </Button>

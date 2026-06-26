@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useForm, Control } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,9 +32,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { Product, Category, Supplier } from '@shared/types';
-import { MOCK_DRUG_DATABASE } from '@shared/mock-data';
 import { toast } from 'sonner';
-import { Info, DollarSign, Package, Zap, Barcode } from 'lucide-react';
+import { Info, DollarSign, Package, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 const productSchema = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
@@ -44,15 +43,15 @@ const productSchema = z.object({
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
-  price: z.coerce.number().min(0.01, 'السعر مطلوب'),
-  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
-  taxRate: z.coerce.number().min(0).max(100),
-  discountRate: z.coerce.number().min(0).max(100),
-  stockQuantity: z.coerce.number().min(0),
+  price: z.preprocess((v) => Number(v), z.number().min(0.01, 'السعر مطلوب')),
+  costPrice: z.preprocess((v) => Number(v), z.number().min(0, 'التكلفة مطلوبة')),
+  taxRate: z.preprocess((v) => Number(v), z.number().min(0).max(100)),
+  discountRate: z.preprocess((v) => Number(v), z.number().min(0).max(100)),
+  stockQuantity: z.preprocess((v) => Number(v), z.number().min(0)),
   unit: z.string().min(1, 'الوحدة مطلوبة'),
   expiryDate: z.string().min(1, 'تاريخ الانتهاء مطلوب'),
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
-  minStockLevel: z.coerce.number().min(0),
+  minStockLevel: z.preprocess((v) => Number(v), z.number().min(0)),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
@@ -95,22 +94,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   });
   const price = form.watch('price');
   const cost = form.watch('costPrice');
-  const expiry = form.watch('expiryDate');
   const margin = useMemo(() => {
     const p = Number(price) || 0;
     const c = Number(cost) || 0;
     if (p <= 0) return 0;
     return ((p - c) / p) * 100;
   }, [price, cost]);
-  const expiryStatus = useMemo(() => {
-    if (!expiry) return null;
-    const date = new Date(expiry);
-    const now = new Date();
-    const diffMonths = (date.getFullYear() - now.getFullYear()) * 12 + date.getMonth() - now.getMonth();
-    if (diffMonths < 3) return { label: 'قريب جداً', color: 'bg-destructive text-destructive-foreground' };
-    if (diffMonths < 6) return { label: 'متوسط', color: 'bg-orange-500 text-white' };
-    return { label: 'آمن', color: 'bg-green-500 text-white' };
-  }, [expiry]);
   useEffect(() => {
     if (open) {
       if (product) {
@@ -143,7 +132,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       }
     }
   }, [product, open, form]);
-  const control = form.control as unknown as Control<ProductFormValues>;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-glass" dir="rtl">
@@ -172,14 +160,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               <div className="p-8 max-h-[60vh] overflow-y-auto bg-card">
                 <TabsContent value="general" className="mt-0 space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={control} name="scientificName" render={({ field }) => (
+                    <FormField control={form.control} name="scientificName" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right border-2" placeholder="المادة الفعالة..." /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="name" render={({ field }) => (
+                    <FormField control={form.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
@@ -188,7 +176,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     )} />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={control} name="categoryId" render={({ field }) => (
+                    <FormField control={form.control} name="categoryId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المجموعة العلاجية</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
@@ -200,7 +188,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="supplierId" render={({ field }) => (
+                    <FormField control={form.control} name="supplierId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المورد الافتراضي</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
@@ -214,14 +202,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     )} />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={control} name="sku" render={({ field }) => (
+                    <FormField control={form.control} name="sku" render={({ field }) => (
                       <FormItem>
                         <FormLabel>كود المنتج (SKU)</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="barcode" render={({ field }) => (
+                    <FormField control={form.control} name="barcode" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الباركود</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
@@ -232,14 +220,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 </TabsContent>
                 <TabsContent value="financial" className="mt-0 space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={control} name="costPrice" render={({ field }) => (
+                    <FormField control={form.control} name="costPrice" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-14 text-center font-bold text-xl border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="price" render={({ field }) => (
+                    <FormField control={form.control} name="price" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary" /></FormControl>
@@ -259,27 +247,43 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 </TabsContent>
                 <TabsContent value="stock" className="mt-0 space-y-6">
                   <div className="grid grid-cols-3 gap-6">
-                    <FormField control={control} name="stockQuantity" render={({ field }) => (
+                    <FormField control={form.control} name="stockQuantity" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الكمية الحالية</FormLabel>
                         <FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} className="h-12 text-center font-bold text-lg" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="unit" render={({ field }) => (
+                    <FormField control={form.control} name="unit" render={({ field }) => (
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-center" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={control} name="minStockLevel" render={({ field }) => (
+                    <FormField control={form.control} name="minStockLevel" render={({ field }) => (
                       <FormItem>
                         <FormLabel>حد إعادة الطلب</FormLabel>
                         <FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} className="h-12 text-center" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                     <FormField control={form.control} name="expiryDate" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>تاريخ انتهاء الصلاحية</FormLabel>
+                          <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="batchNumber" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>رقم التشغيلة / الدفعة</FormLabel>
+                          <FormControl><Input {...field} className="h-12 text-right border-2 font-mono" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                   </div>
                 </TabsContent>
               </div>
