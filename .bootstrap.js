@@ -153,6 +153,11 @@ function runSetupCommands() {
         "react-hook-form",
         "@hookform/resolvers",
         "zod"
+    ],
+    [
+        "bun",
+        "add",
+        "date-fns"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
