@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { PosHeader } from '@/components/pos/PosHeader';
 import { PosInvoiceHeader } from '@/components/pos/PosInvoiceHeader';
@@ -19,11 +18,15 @@ export function PosPage() {
   useHotkeys('f1', (e) => {
     e.preventDefault();
     document.getElementById('process-payment-btn')?.click();
-  });
+  }, { enableOnFormTags: true });
   useHotkeys('f2', (e) => {
     e.preventDefault();
     document.getElementById('pos-search-input')?.focus();
-  });
+  }, { enableOnFormTags: true });
+  useHotkeys('f4', (e) => {
+    e.preventDefault();
+    setPaymentMode(prev => prev === 'cash' ? 'credit' : 'cash');
+  }, { enableOnFormTags: true });
   const addToCart = useCallback((product: Product) => {
     if (transactionType === 'sale' && product.stockQuantity <= 0) {
       toast.error('هذا المنتج غير متوفر في المخزون');
@@ -39,7 +42,7 @@ export function PosPage() {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                subtotal: (item.quantity + 1) * (item.unitPrice + tax - discount)
+                subtotal: (item.quantity + 1) * (item.unitPrice + tax - item.discountAmount)
               }
             : item
         );
@@ -67,35 +70,52 @@ export function PosPage() {
       return item;
     }).filter(item => item.quantity > 0));
   }, []);
+  const updateDiscount = useCallback((productId: string, discount: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.productId === productId) {
+        return {
+          ...item,
+          discountAmount: discount,
+          subtotal: item.quantity * (item.unitPrice + item.taxAmount - discount)
+        };
+      }
+      return item;
+    }));
+  }, []);
   const clearCart = useCallback(() => {
     setCart([]);
     setSelectedCustomer(null);
   }, []);
   const handleCustomerChange = (customerId: string) => {
-    // In a real app we'd fetch the customer object
-    setSelectedCustomer({ id: customerId, name: 'عميل مختار', phone: '', email: '', creditLimit: 1000, currentBalance: 0 } as Customer);
+    // Selection handled by the object fetch inside PosPaymentSection normally,
+    // but we can simulate/update here for shared state if needed.
   };
   const isReturn = transactionType === 'return';
   return (
-    <div className={`min-h-screen bg-background flex flex-col overflow-hidden transition-colors duration-500 ${isReturn ? 'bg-rose-50/10 dark:bg-rose-950/10' : ''}`} dir="rtl">
+    <div className={`h-screen flex flex-col bg-background overflow-hidden transition-colors duration-500 ${isReturn ? 'bg-rose-50/10 dark:bg-rose-950/20' : ''}`} dir="rtl">
       <PosHeader
         type={transactionType}
         onTypeChange={setTransactionType}
         mode={paymentMode}
         onModeChange={setPaymentMode}
       />
-      <main className="flex-1 flex flex-col p-4 overflow-hidden">
-        <PosInvoiceHeader 
-          isReturn={isReturn} 
+      <main className="flex-1 flex flex-col p-4 gap-4 overflow-hidden">
+        <PosInvoiceHeader
+          isReturn={isReturn}
           selectedCustomerId={selectedCustomer?.id}
-          onCustomerChange={handleCustomerChange}
+          onCustomerChange={(id) => handleCustomerChange(id)}
         />
         <div className="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
-          {/* Cart & Payment Area (Left for RTL) */}
-          <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2 lg:order-1">
+          {/* Right Column: Product Selection (Order 1 on Desktop RTL) */}
+          <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1">
+            <PosProductGrid onSelect={addToCart} isReturn={isReturn} />
+          </div>
+          {/* Left Column: Cart & Summary (Order 2 on Desktop RTL) */}
+          <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2">
             <PosCart
               items={cart}
               onUpdateQuantity={updateCartItem}
+              onUpdateDiscount={updateDiscount}
               isReturn={isReturn}
             />
             <PosPaymentSection
@@ -107,20 +127,18 @@ export function PosPage() {
               onSuccess={clearCart}
             />
           </div>
-          {/* Product Selection (Right for RTL) */}
-          <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
-            <PosProductGrid onSelect={addToCart} isReturn={isReturn} />
-          </div>
         </div>
       </main>
-      {/* Shortcuts Help Bar */}
-      <footer className="bg-muted/50 border-t px-6 py-2 flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-        <div className="flex gap-4">
-          <span>F1: تأكيد الدفع</span>
-          <span>F2: البحث</span>
-          <span>F4: تبديل نقدي/آجل</span>
+      <footer className="bg-muted/50 border-t px-6 h-10 flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest shrink-0">
+        <div className="flex gap-6">
+          <span className="flex items-center gap-1"><kbd className="bg-background px-1 rounded border">F1</kbd> تأكيد الدفع</span>
+          <span className="flex items-center gap-1"><kbd className="bg-background px-1 rounded border">F2</kbd> البحث</span>
+          <span className="flex items-center gap-1"><kbd className="bg-background px-1 rounded border">F4</kbd> تبديل (نقدي/آجل)</span>
         </div>
-        <div>نظام فارمافولت POS | الإصدار 2.5</div>
+        <div className="flex items-center gap-2">
+          <span>نظام فارمافولت لإدارة نقاط البيع</span>
+          <span className="px-2 py-0.5 rounded bg-pharmav-primary/10 text-pharmav-primary">V 2.5 STABLE</span>
+        </div>
       </footer>
     </div>
   );

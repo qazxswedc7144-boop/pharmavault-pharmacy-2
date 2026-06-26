@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { api } from '@/lib/api-client';
-import type { Expense, Account, ApiResponse } from '@shared/types';
+import type { Expense, Account } from '@shared/types';
 import { toast } from 'sonner';
 const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
@@ -98,9 +98,15 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormItem>
                   <FormLabel>تصنيف المصروف</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
+                    <FormControl>
+                      <SelectTrigger className="h-12 text-right">
+                        <SelectValue placeholder="اختر التصنيف" />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent className="text-right">
-                      {accountsData?.items.filter(a => a.type === 'expense').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                      {accountsData?.items.filter(a => a.type === 'expense').map(a => (
+                        <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -110,9 +116,15 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormItem>
                   <FormLabel>حساب الدفع</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر المصدر" /></SelectTrigger></FormControl>
+                    <FormControl>
+                      <SelectTrigger className="h-12 text-right">
+                        <SelectValue placeholder="اختر المصدر" />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent className="text-right">
-                      {accountsData?.items.filter(a => a.type === 'asset').map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                      {accountsData?.items.filter(a => a.type === 'asset').map(a => (
+                        <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -123,15 +135,21 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField control={form.control} name="amount" render={({ field }) => (
                 <FormItem>
                   <FormLabel>المبلغ (ر.س)</FormLabel>
-                  <FormControl><Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold text-red-600" /></FormControl>
+                  <FormControl>
+                    <Input type="number" step="0.01" {...field} value={field.value} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold text-red-600" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>حالة الدفع</Label>
+                  <FormLabel>حالة الدفع</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl>
+                    <FormControl>
+                      <SelectTrigger className="h-12 text-right">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent className="text-right">
                       <SelectItem value="paid">تم السداد</SelectItem>
                       <SelectItem value="pending">قيد الانتظار</SelectItem>
@@ -142,13 +160,31 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )} />
             </div>
             <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>بيان المصروف</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+              <FormItem>
+                <FormLabel>بيان المصروف</FormLabel>
+                <FormControl>
+                  <Input {...field} className="h-12 text-right" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )} />
             <FormField control={form.control} name="category" render={({ field }) => (
-              <FormItem><FormLabel>الوسم</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+              <FormItem>
+                <FormLabel>الوسم</FormLabel>
+                <FormControl>
+                  <Input {...field} className="h-12 text-right" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )} />
             <FormField control={form.control} name="date" render={({ field }) => (
-              <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+              <FormItem>
+                <FormLabel>التاريخ</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} className="h-12 text-left" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )} />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow">تسجيل العملية المالية</Button>

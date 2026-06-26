@@ -37,7 +37,7 @@ export function AppSidebar(): JSX.Element {
   const navItems = [
     { name: "الرئيسية", icon: <Home className="size-4" />, href: "/dashboard" },
     { name: "المخزون", icon: <ClipboardList className="size-4" />, href: "/inventory" },
-    { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/sales" },
+    { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/pos" },
     { name: "المشتريات", icon: <Truck className="size-4" />, href: "/purchases" },
     { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports" },
   ];

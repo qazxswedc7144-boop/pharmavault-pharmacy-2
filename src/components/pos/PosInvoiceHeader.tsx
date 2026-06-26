@@ -1,5 +1,5 @@
-import React from 'react';
-import { Camera, Calendar, User, Hash, FileText, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Camera, Calendar, User, Hash, FileText, Lock, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,14 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import type { Customer } from '@shared/types';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 interface PosInvoiceHeaderProps {
   selectedCustomerId?: string;
   onCustomerChange: (id: string) => void;
   isReturn?: boolean;
 }
 export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isReturn = false }: PosInvoiceHeaderProps) {
+  const [isFileAttached, setIsFileAttached] = useState(false);
   const { data: customersData, isLoading } = useQuery<{ items: Customer[] }>({
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
@@ -26,7 +28,11 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
       value: c.id
     })), [customersData]);
   const today = new Date().toISOString().split('T')[0];
-  const autoInvoiceNum = `SAL-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`;
+  const autoInvoiceNum = `PHV-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Date.now().toString().slice(-4)}`;
+  const handleSimulateUpload = () => {
+    setIsFileAttached(true);
+    toast.success('تم إرفاق الملف/الصورة بنجاح بالفاتورة');
+  };
   return (
     <div className={cn(
       "grid grid-cols-10 gap-4 mb-4 p-4 rounded-3xl border bg-card/50 shadow-sm transition-colors duration-500",
@@ -66,7 +72,7 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
                 <TooltipTrigger asChild>
                   <Lock className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 </TooltipTrigger>
-                <TooltipContent>رقم الفاتورة يتم توليده تلقائياً من النظام</TooltipContent>
+                <TooltipContent className="text-right">يتم توليد رقم الفاتورة تسلسلياً بواسطة النظام</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -82,25 +88,35 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
               className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary"
             />
           </div>
-          <p className="text-[10px] text-muted-foreground mr-1">قابل للتعديل</p>
         </div>
         <div className="space-y-2">
           <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
-            <FileText className="size-3" /> ملاحظات البيع
+            <FileText className="size-3" /> ملاحظات ومرفقات
           </Label>
           <div className="relative">
             <Input
               placeholder="أضف ملاحظات..."
               className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute left-1 top-1/2 -translate-y-1/2 size-10 text-muted-foreground hover:text-pharmav-primary"
-            >
-              <Camera className="size-5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSimulateUpload}
+                    className={cn(
+                      "absolute left-1 top-1/2 -translate-y-1/2 size-10 transition-colors",
+                      isFileAttached ? "text-green-600" : "text-muted-foreground hover:text-pharmav-primary"
+                    )}
+                  >
+                    {isFileAttached ? <CheckCircle2 className="size-5" /> : <Camera className="size-5" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="text-right">إرفاق صورة الوصفة الطبية أو الهوية</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
