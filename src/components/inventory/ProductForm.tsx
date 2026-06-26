@@ -43,15 +43,15 @@ const productSchema = z.object({
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
-  price: z.preprocess((v) => Number(v), z.number().min(0.01, 'السعر مطلوب')),
-  costPrice: z.preprocess((v) => Number(v), z.number().min(0, 'التكلفة مطلوبة')),
-  taxRate: z.preprocess((v) => Number(v), z.number().min(0).max(100)),
-  discountRate: z.preprocess((v) => Number(v), z.number().min(0).max(100)),
-  stockQuantity: z.preprocess((v) => Number(v), z.number().min(0)),
+  price: z.coerce.number().min(0.01, 'السعر مطلوب'),
+  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
+  taxRate: z.coerce.number().min(0).max(100),
+  discountRate: z.coerce.number().min(0).max(100),
+  stockQuantity: z.coerce.number().min(0),
   unit: z.string().min(1, 'الوحدة مطلوبة'),
   expiryDate: z.string().min(1, 'تاريخ الانتهاء مطلوب'),
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
-  minStockLevel: z.preprocess((v) => Number(v), z.number().min(0)),
+  minStockLevel: z.coerce.number().min(0),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
@@ -223,14 +223,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField control={form.control} name="costPrice" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-14 text-center font-bold text-xl border-2" /></FormControl>
+                        <FormControl><Input type="number" step="0.01" {...field} className="h-14 text-center font-bold text-xl border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="price" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary" /></FormControl>
+                        <FormControl><Input type="number" step="0.01" {...field} className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -250,7 +250,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField control={form.control} name="stockQuantity" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الكمية الحالية</FormLabel>
-                        <FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} className="h-12 text-center font-bold text-lg" /></FormControl>
+                        <FormControl><Input type="number" {...field} className="h-12 text-center font-bold text-lg" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -264,7 +264,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField control={form.control} name="minStockLevel" render={({ field }) => (
                       <FormItem>
                         <FormLabel>حد إعادة الطلب</FormLabel>
-                        <FormControl><Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} className="h-12 text-center" /></FormControl>
+                        <FormControl><Input type="number" {...field} className="h-12 text-center" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

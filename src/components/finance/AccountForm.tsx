@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, Control } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
-  balance: z.preprocess((val) => Number(val), z.number().min(0, 'يجب إدخال رقم صحيح')),
+  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
   description: z.string().optional()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -125,7 +125,6 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     type="number"
                     step="0.01"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     className="h-12 text-left font-bold text-xl border-2"
                   />
                 </FormControl>

@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
@@ -18,8 +17,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.preprocess((v) => Number(v), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل')),
-    costPrice: z.preprocess((v) => Number(v), z.number().min(0, 'التكلفة مطلوبة'))
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
