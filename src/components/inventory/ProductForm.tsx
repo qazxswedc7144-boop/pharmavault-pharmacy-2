@@ -34,25 +34,25 @@ import { api } from '@/lib/api-client';
 import type { Product, Category, Supplier } from '@shared/types';
 import { MOCK_DRUG_DATABASE } from '@shared/mock-data';
 import { toast } from 'sonner';
-import { Info, DollarSign, Package, Camera, Zap, Barcode } from 'lucide-react';
+import { Info, DollarSign, Package, Zap, Barcode } from 'lucide-react';
 import { cn } from '@/lib/utils';
 const productSchema = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
-  tradeName: z.string().default(''),
-  scientificName: z.string().default(''),
-  barcode: z.string().default(''),
+  tradeName: z.string(),
+  scientificName: z.string(),
+  barcode: z.string(),
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
   price: z.coerce.number().min(0.01, 'السعر مطلوب'),
   costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
-  taxRate: z.coerce.number().min(0).max(100).default(0),
-  discountRate: z.coerce.number().min(0).max(100).default(0),
-  stockQuantity: z.coerce.number().min(0).default(0),
+  taxRate: z.coerce.number().min(0).max(100),
+  discountRate: z.coerce.number().min(0).max(100),
+  stockQuantity: z.coerce.number().min(0),
   unit: z.string().min(1, 'الوحدة مطلوبة'),
   expiryDate: z.string().min(1, 'تاريخ الانتهاء مطلوب'),
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
-  minStockLevel: z.coerce.number().min(0).default(10),
+  minStockLevel: z.coerce.number().min(0),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
@@ -132,8 +132,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           supplierId: product.supplierId,
           price: product.price,
           costPrice: product.costPrice,
-          taxRate: product.taxRate ?? 0,
-          discountRate: product.discountRate ?? 0,
+          taxRate: product.taxRate || 0,
+          discountRate: product.discountRate || 0,
           stockQuantity: product.stockQuantity,
           unit: product.unit,
           expiryDate: product.expiryDate,
@@ -181,7 +181,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   <div className="grid grid-cols-2 gap-6">
                     <FormField control={form.control} name="scientificName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>الاسم العلمي (Autocomplete)</FormLabel>
+                        <FormLabel>الاسم العلمي</FormLabel>
                         <FormControl>
                           <Input {...field} onChange={(e) => { field.onChange(e); handleScientificSearch(e.target.value); }} className="h-12 text-right border-2 focus:ring-pharmav-primary/20" placeholder="ابحث عن المادة الفعالة..." />
                         </FormControl>

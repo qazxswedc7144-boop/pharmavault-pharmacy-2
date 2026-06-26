@@ -12,9 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Autocomplete } from '@/components/ui/autocomplete';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, Package, Camera, Edit3, Calculator, History } from 'lucide-react';
+import { Trash2, PlusCircle, Package, Camera, Edit3, Calculator, History, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 const purchaseSchema = z.object({
@@ -57,7 +59,7 @@ export function PurchaseCreatePage() {
   const isCredit = form.watch('isCredit');
   const items = form.watch('items');
   const totals = useMemo(() => {
-    return items.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0);
+    return (items || []).reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.costPrice || 0)), 0);
   }, [items]);
   const { data: productsData } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
@@ -94,9 +96,7 @@ export function PurchaseCreatePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
-            {/* Header Info: 70/30 Split */}
             <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
-              {/* Left Column (70%) - Supplier and Invoice Main Details */}
               <div className="md:col-span-7 bg-card border rounded-3xl p-8 shadow-soft space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="supplierId" render={({ field }) => (
@@ -124,10 +124,10 @@ export function PurchaseCreatePage() {
                 <div className="pt-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="font-bold">ملاحظات إضافية</Label>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setIsFileAttached(!isFileAttached)}
                       className={cn("gap-2", isFileAttached ? "text-pharmav-secondary" : "text-muted-foreground")}
                     >
@@ -141,7 +141,6 @@ export function PurchaseCreatePage() {
                   )} />
                 </div>
               </div>
-              {/* Right Column (30%) - Meta Data & Totals Preview */}
               <div className="md:col-span-3 space-y-6">
                 <div className="bg-card border rounded-3xl p-6 shadow-soft space-y-6">
                   <FormField control={form.control} name="date" render={({ field }) => (
@@ -165,7 +164,6 @@ export function PurchaseCreatePage() {
                     </FormItem>
                   )} />
                 </div>
-                {/* Total Preview Card */}
                 <div className="bg-pharmav-primary rounded-3xl p-6 text-white shadow-neon-blue relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative z-10 space-y-2">
@@ -179,7 +177,6 @@ export function PurchaseCreatePage() {
                 </div>
               </div>
             </div>
-            {/* Items Table Section */}
             <div className="bg-card border rounded-3xl overflow-hidden shadow-soft">
               <div className="p-6 border-b bg-muted/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -188,9 +185,9 @@ export function PurchaseCreatePage() {
                   </div>
                   <span className="font-display font-bold text-xl">قائمة الأصناف الواردة</span>
                 </div>
-                <Button 
-                  type="button" 
-                  onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })} 
+                <Button
+                  type="button"
+                  onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })}
                   className="bg-pharmav-primary hover:bg-pharmav-primary/90 text-white gap-2 font-bold px-6 h-11 rounded-xl"
                 >
                   <PlusCircle className="size-4" /> إضافة صنف
@@ -224,10 +221,10 @@ export function PurchaseCreatePage() {
                       )} />
                     </div>
                     <div className="lg:col-span-1 flex justify-center pb-1">
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => remove(index)}
                         className="h-12 w-12 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
                       >
@@ -236,18 +233,12 @@ export function PurchaseCreatePage() {
                     </div>
                   </div>
                 ))}
-                {fields.length === 0 && (
-                  <div className="py-20 text-center text-muted-foreground italic bg-muted/10 rounded-2xl">
-                    يرجى إضافة صنف واحد على الأقل للمتابعة...
-                  </div>
-                )}
               </div>
             </div>
-            {/* Bottom Actions */}
             <div className="flex justify-end pt-4 pb-12">
-              <Button 
-                type="submit" 
-                disabled={mutation.isPending || fields.length === 0} 
+              <Button
+                type="submit"
+                disabled={mutation.isPending || fields.length === 0}
                 className="h-16 px-16 bg-pharmav-primary font-display font-bold text-xl rounded-2xl shadow-neon-blue flex items-center gap-4 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 {mutation.isPending ? "جاري المعالجة..." : isReturn ? "تأكيد مرتجع المشتريات" : "حفظ وترحيل الفاتورة للمخزن"}

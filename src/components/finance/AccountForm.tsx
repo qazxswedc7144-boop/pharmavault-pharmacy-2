@@ -16,7 +16,7 @@ const accountSchema = z.object({
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
-  description: z.string().default('')
+  description: z.string()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
@@ -35,12 +35,12 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
-    defaultValues: { 
-      name: '', 
-      code: '', 
-      type: 'asset', 
-      balance: 0, 
-      description: '' 
+    defaultValues: {
+      name: '',
+      code: '',
+      type: 'asset',
+      balance: 0,
+      description: ''
     }
   });
   const mutation = useMutation({
@@ -67,12 +67,12 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
           description: account.description || ''
         });
       } else {
-        form.reset({ 
-          name: '', 
-          code: '', 
-          type: 'asset', 
-          balance: 0, 
-          description: '' 
+        form.reset({
+          name: '',
+          code: '',
+          type: 'asset',
+          balance: 0,
+          description: ''
         });
       }
     }
@@ -121,13 +121,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormItem>
                 <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    step="0.01" 
-                    {...field} 
-                    value={field.value} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
-                    className="h-12 text-left font-bold text-xl border-2" 
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    value={field.value}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    className="h-12 text-left font-bold text-xl border-2"
                   />
                 </FormControl>
                 <FormMessage />

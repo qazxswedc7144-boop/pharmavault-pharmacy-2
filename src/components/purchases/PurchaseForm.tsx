@@ -22,7 +22,7 @@ const purchaseSchema = z.object({
     costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled']),
-  notes: z.string().default(''),
+  notes: z.string(),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
@@ -58,7 +58,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
   });
   const formItems = form.watch('items');
   const totals = useMemo(() => {
-    return (formItems || []).reduce((sum, i) => sum + (Number(i.quantity) * Number(i.costPrice)), 0);
+    return (formItems || []).reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
   }, [formItems]);
   const mutation = useMutation({
     mutationFn: (values: PurchaseFormValues) => {
