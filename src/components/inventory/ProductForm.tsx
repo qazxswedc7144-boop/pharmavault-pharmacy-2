@@ -142,26 +142,26 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <FormField<ProductFormValues> control={form.control} name="name" render={({ field }) => (
-                <FormItem><FormLabel>الاسم الأساسي</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الاسم الأساسي</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="tradeName" render={({ field }) => (
-                <FormItem><FormLabel>الاسم التجاري</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الاسم التجاري</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField<ProductFormValues> control={form.control} name="scientificName" render={({ field }) => (
-                <FormItem><FormLabel>الاسم العلمي</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الاسم العلمي</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="barcode" render={({ field }) => (
-                <FormItem><FormLabel>الباركود</FormLabel><FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الباركود</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField<ProductFormValues> control={form.control} name="sku" render={({ field }) => (
-                <FormItem><FormLabel>كود المنتج</FormLabel><FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>كود المنتج</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="unit" render={({ field }) => (
-                <FormItem><FormLabel>وحدة الصرف</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>وحدة الصرف</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -212,11 +212,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 <FormItem><FormLabel>الحد الأدنى</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? 0} onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseInt(e.target.value))} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
-                <FormItem><FormLabel>رقم الدفعة</FormLabel><FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>رقم الدفعة</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
             <FormField<ProductFormValues> control={form.control} name="expiryDate" render={({ field }) => (
-              <FormItem><FormLabel>تاريخ الانتهاء</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-left bg-white" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>تاريخ الانتهاء</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} className="h-12 text-left bg-white" /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-neon-blue">

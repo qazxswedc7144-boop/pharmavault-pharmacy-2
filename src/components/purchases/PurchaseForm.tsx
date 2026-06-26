@@ -86,8 +86,8 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="p-6 space-y-8">
-            <div className="grid grid-cols-10 gap-6">
-              <div className="col-span-10 lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
+              <div className="md:col-span-7 space-y-6">
                 <FormField<PurchaseFormValues>
                   control={form.control}
                   name="supplierId"
@@ -115,6 +115,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                         <FormControl>
                           <Input
                             {...field}
+                            value={field.value ?? ''}
                             className="h-12 pr-4 pl-12 text-right bg-white border-2 border-transparent focus:border-pharmav-primary"
                             placeholder="أضف أي ملاحظات أو تفاصيل إضافية..."
                           />
@@ -132,7 +133,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                   )}
                 />
               </div>
-              <div className="col-span-10 lg:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
+              <div className="md:col-span-3 space-y-6 bg-muted/30 p-4 rounded-2xl border border-dashed">
                 <FormField<PurchaseFormValues>
                   control={form.control}
                   name="invoiceNumber"
@@ -144,7 +145,7 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                       </div>
                       <div className="relative">
                         <FormControl>
-                          <Input {...field} className="h-12 bg-white font-mono text-center pr-10" placeholder="أدخل الرقم..." />
+                          <Input {...field} value={field.value ?? ''} className="h-12 bg-white font-mono text-center pr-10" placeholder="أدخل الرقم..." />
                         </FormControl>
                         <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
                       </div>
@@ -159,9 +160,8 @@ export function PurchaseForm({ open, onOpenChange }: PurchaseFormProps) {
                     <FormItem>
                       <FormLabel className="text-sm font-bold">تاريخ الفاتورة</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary" />
+                        <Input type="date" {...field} value={field.value ?? ''} className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary" />
                       </FormControl>
-                      <p className="text-[10px] text-muted-foreground mr-1">قابل للتعديل</p>
                       <FormMessage />
                     </FormItem>
                   )}

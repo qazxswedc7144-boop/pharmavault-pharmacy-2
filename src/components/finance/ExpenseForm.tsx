@@ -142,13 +142,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )} />
             </div>
             <FormField<ExpenseFormValues> control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>بيان المصروف</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>بيان المصروف</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField<ExpenseFormValues> control={form.control} name="category" render={({ field }) => (
-              <FormItem><FormLabel>الوسم</FormLabel><FormControl><Input {...field} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>الوسم</FormLabel><FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField<ExpenseFormValues> control={form.control} name="date" render={({ field }) => (
-              <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} value={field.value ?? ''} className="h-12 text-left" /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow">تسجيل العملية المالية</Button>

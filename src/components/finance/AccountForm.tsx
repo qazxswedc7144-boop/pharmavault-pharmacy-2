@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { api } from '@/lib/api-client';
-import type { Account } from '@shared/types';
+import type { Account, AccountType } from '@shared/types';
 import { toast } from 'sonner';
 const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
@@ -24,7 +24,7 @@ interface AccountFormProps {
   onOpenChange: (open: boolean) => void;
   account?: Account;
 }
-const TYPE_LABELS: Record<string, string> = {
+const TYPE_LABELS: Record<AccountType, string> = {
   asset: 'أصول',
   liability: 'خصوم',
   equity: 'حقوق ملكية',
@@ -78,7 +78,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues> control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>
-                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -86,7 +86,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormField<AccountFormValues> control={form.control} name="code" render={({ field }) => (
                 <FormItem>
                   <FormLabel>كود الحساب</FormLabel>
-                  <FormControl><Input {...field} className="h-12 text-right font-mono" /></FormControl>
+                  <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -96,7 +96,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger className="h-12 text-right"><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl>
                     <SelectContent className="text-right">
-                      {Object.entries(TYPE_LABELS).map(([val, label]) => (
+                      {(Object.entries(TYPE_LABELS) as [AccountType, string][]).map(([val, label]) => (
                         <SelectItem key={val} value={val}>{label}</SelectItem>
                       ))}
                     </SelectContent>
@@ -115,7 +115,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues> control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>ملاحظات إضافية</FormLabel>
-                <FormControl><Input {...field} className="h-12 text-right" /></FormControl>
+                <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

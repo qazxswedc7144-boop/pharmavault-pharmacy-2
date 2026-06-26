@@ -122,7 +122,7 @@ export function PurchaseCreatePage() {
                         </div>
                         <div className="relative">
                           <FormControl>
-                            <Input {...field} className="h-12 font-mono text-center text-lg focus:ring-orange-500/20" placeholder="000000" />
+                            <Input {...field} value={field.value ?? ''} className="h-12 font-mono text-center text-lg focus:ring-orange-500/20" placeholder="000000" />
                           </FormControl>
                           <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         </div>
@@ -142,7 +142,7 @@ export function PurchaseCreatePage() {
                         <FormLabel className="font-bold">ملاحظات إضافية</FormLabel>
                         <div className="relative">
                           <FormControl>
-                            <Input {...field} className="h-12 pl-12 text-right bg-muted/30 border-none" placeholder="اكتب ملاحظة..." />
+                            <Input {...field} value={field.value ?? ''} className="h-12 pl-12 text-right bg-muted/30 border-none" placeholder="اكتب ملاحظة..." />
                           </FormControl>
                           <Button type="button" variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 hover:text-pharmav-primary">
                             <Camera className="size-5" />
@@ -160,7 +160,7 @@ export function PurchaseCreatePage() {
                       <FormItem>
                         <FormLabel className="font-bold">تاريخ الاستلام</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} className="h-12 text-center" />
+                          <Input type="date" {...field} value={field.value ?? ''} className="h-12 text-center" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
