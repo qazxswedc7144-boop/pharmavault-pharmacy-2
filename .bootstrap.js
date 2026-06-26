@@ -132,6 +132,19 @@ function runSetupCommands() {
         "bun",
         "add",
         "react-hotkeys-hook"
+    ],
+    [
+        "bun",
+        "add",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "zod",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge",
+        "cmdk",
+        "react-hotkeys-hook"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
