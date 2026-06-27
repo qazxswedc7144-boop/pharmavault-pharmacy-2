@@ -20,8 +20,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.preprocess((val) => Number(val), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1)),
-    costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة').default(0))
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -123,6 +123,7 @@ export function PurchaseCreatePage() {
                       <History className="size-4" /> تاريخ التوريد
                     </FormLabel>
                     <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="status" render={({ field }) => (
@@ -135,6 +136,7 @@ export function PurchaseCreatePage() {
                         <SelectItem value="pending">في الانتظار</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )} />
               </div>
@@ -156,20 +158,23 @@ export function PurchaseCreatePage() {
                       <FormField control={form.control} name={`items.${index}.productId`} render={({ field: itField }) => (
                         <FormItem>
                           <Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} />
+                          <FormMessage />
                         </FormItem>
                       )} />
                     </div>
                     <div className="lg:col-span-2">
                       <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: itField }) => (
                         <FormItem>
-                          <FormControl><Input type="number" {...itField} /></FormControl>
+                          <FormControl><Input type="number" {...itField} onChange={(e) => itField.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
                         </FormItem>
                       )} />
                     </div>
                     <div className="lg:col-span-3">
                       <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: itField }) => (
                         <FormItem>
-                          <FormControl><Input type="number" step="0.01" {...itField} /></FormControl>
+                          <FormControl><Input type="number" step="0.01" {...itField} onChange={(e) => itField.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
                         </FormItem>
                       )} />
                     </div>

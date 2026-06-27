@@ -17,8 +17,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.preprocess((val) => Number(val), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1)),
-    costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة').default(0))
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -139,20 +139,23 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                     <FormField control={form.control} name={`items.${index}.productId`} render={({ field: f }) => (
                       <FormItem>
                         <Autocomplete options={productOptions} value={f.value} onValueChange={f.onChange} placeholder="اختر الدواء..." />
+                        <FormMessage />
                       </FormItem>
                     )} />
                   </div>
                   <div className="md:col-span-2">
                     <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: f }) => (
                       <FormItem>
-                        <FormControl><Input type="number" {...f} placeholder="الكمية" /></FormControl>
+                        <FormControl><Input type="number" {...f} onChange={(e) => f.onChange(e.target.value)} placeholder="الكمية" /></FormControl>
+                        <FormMessage />
                       </FormItem>
                     )} />
                   </div>
                   <div className="md:col-span-3">
                     <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: f }) => (
                       <FormItem>
-                        <FormControl><Input type="number" step="0.01" {...f} placeholder="سعر التكلفة" /></FormControl>
+                        <FormControl><Input type="number" step="0.01" {...f} onChange={(e) => f.onChange(e.target.value)} placeholder="سعر التكلفة" /></FormControl>
+                        <FormMessage />
                       </FormItem>
                     )} />
                   </div>

@@ -41,7 +41,12 @@ export function PosPaymentSection({
     const subtotal = cart.reduce((acc, i) => acc + (Number(i.unitPrice) * Number(i.quantity)), 0);
     const tax = cart.reduce((acc, i) => acc + (Number(i.taxAmount) * Number(i.quantity)), 0);
     const discount = cart.reduce((acc, i) => acc + (Number(i.discountAmount) * Number(i.quantity)), 0);
-    return { subtotal, tax, discount, total: subtotal + tax - discount };
+    return { 
+      subtotal: Number(subtotal), 
+      tax: Number(tax), 
+      discount: Number(discount), 
+      total: Number(subtotal + tax - discount) 
+    };
   }, [cart]);
   const change = useMemo(() => {
     const received = parseFloat(cashReceived) || 0;
@@ -68,13 +73,7 @@ export function PosPaymentSection({
       return;
     }
     let finalCustomerId = customer?.id;
-    // Check if customer is a new string name instead of an existing object with ID
-    // Note: In PosPage, selectedCustomer is Customer | null.
-    // If a user types a new name, we need to handle that.
-    // Here we assume the parent passed a Customer object or we detected it.
-    // In our specific flow, if customer is null but a name was typed in Autocomplete, 
-    // the parent should ideally pass that name or we create it here.
-    // Let's assume for this phase that if 'customer' has no ID but has a name, it's new.
+    // Safety check for unsaved new customer entries
     if (!finalCustomerId && customer?.name) {
       try {
         setIsCreatingCustomer(true);
@@ -106,7 +105,7 @@ export function PosPaymentSection({
     const tx: Transaction = {
       id: crypto.randomUUID(),
       userId: 'u1',
-      customerId: finalCustomerId,
+      customerId: finalCustomerId || undefined,
       items: cart,
       subtotal: totals.subtotal,
       taxTotal: totals.tax,
@@ -170,8 +169,8 @@ export function PosPaymentSection({
             <span dir="ltr">+{totals.tax.toFixed(2)} ر.س</span>
           </div>
           <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
-            <span className="text-rose-400">إجمالي الخصم</span>
-            <span className="text-rose-400" dir="ltr">-{totals.discount.toFixed(2)} ر.س</span>
+            <span className={cn(isReturn ? "text-white" : "text-rose-400")}>إجمالي الخصم</span>
+            <span className={cn(isReturn ? "text-white" : "text-rose-400")} dir="ltr">-{totals.discount.toFixed(2)} ر.س</span>
           </div>
           <div className={cn(
             "pt-3 mt-1 border-t flex justify-between items-center flex-row-reverse",

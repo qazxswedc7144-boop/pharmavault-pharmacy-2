@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
   paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
-  amount: z.preprocess((val) => Number(val), z.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر').default(0)),
+  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر').default(0),
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending'] as const),
@@ -151,6 +151,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         type="number"
                         step="0.01"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.value)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
                     </FormControl>
