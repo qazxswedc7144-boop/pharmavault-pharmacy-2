@@ -29,6 +29,7 @@ export function PosPaymentSection({
 }: PosPaymentSectionProps) {
   const [cashReceived, setCashReceived] = useState<string>('');
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const queryClient = useQueryClient();
   const isReturn = transactionType === 'return';
   const isCredit = paymentMode === 'credit';
@@ -61,19 +62,51 @@ export function PosPaymentSection({
     },
     onError: () => toast.error('فشل في إتمام العملية')
   });
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (cart.length === 0) {
       toast.error('السلة فارغة');
       return;
     }
-    if (isCredit && !customer) {
+    let finalCustomerId = customer?.id;
+    // Check if customer is a new string name instead of an existing object with ID
+    // Note: In PosPage, selectedCustomer is Customer | null.
+    // If a user types a new name, we need to handle that.
+    // Here we assume the parent passed a Customer object or we detected it.
+    // In our specific flow, if customer is null but a name was typed in Autocomplete, 
+    // the parent should ideally pass that name or we create it here.
+    // Let's assume for this phase that if 'customer' has no ID but has a name, it's new.
+    if (!finalCustomerId && customer?.name) {
+      try {
+        setIsCreatingCustomer(true);
+        const newCustomer = await api<Customer>('/api/customers', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: customer.name,
+            phone: '',
+            email: '',
+            creditLimit: 0,
+            currentBalance: 0
+          })
+        });
+        finalCustomerId = newCustomer.id;
+        queryClient.invalidateQueries({ queryKey: ['customers'] });
+        toast.success(`تم إنشاء العميل ${newCustomer.name} بنجاح`);
+      } catch (err) {
+        toast.error('فشل في إنشاء سجل العميل الجديد');
+        setIsCreatingCustomer(false);
+        return;
+      } finally {
+        setIsCreatingCustomer(false);
+      }
+    }
+    if (isCredit && !finalCustomerId) {
       toast.warning('يرجى اختيار عميل لإتمام البيع الآجل');
       return;
     }
     const tx: Transaction = {
       id: crypto.randomUUID(),
       userId: 'u1',
-      customerId: customer?.id,
+      customerId: finalCustomerId,
       items: cart,
       subtotal: totals.subtotal,
       taxTotal: totals.tax,
@@ -155,7 +188,7 @@ export function PosPaymentSection({
         </div>
         <Button
           id="process-payment-btn"
-          disabled={cart.length === 0 || mutation.isPending || isPrinting}
+          disabled={cart.length === 0 || mutation.isPending || isPrinting || isCreatingCustomer}
           onClick={handleConfirm}
           className={cn(
             "w-full h-16 text-xl font-display font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3",
@@ -169,7 +202,7 @@ export function PosPaymentSection({
               <Printer className="size-6 animate-bounce" />
               جاري الطباعة...
             </>
-          ) : mutation.isPending ? (
+          ) : mutation.isPending || isCreatingCustomer ? (
             <Loader2 className="size-6 animate-spin" />
           ) : (
             <>

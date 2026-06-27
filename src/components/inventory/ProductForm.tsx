@@ -43,15 +43,15 @@ const productSchema = z.object({
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
-  price: z.coerce.number().min(0.01, 'السعر مطلوب').default(0),
-  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0),
-  taxRate: z.coerce.number().min(0).max(100).default(0),
-  discountRate: z.coerce.number().min(0).max(100).default(0),
-  stockQuantity: z.coerce.number().min(0).default(0),
+  price: z.preprocess((val) => Number(val), z.number().min(0.01, 'السعر مطلوب').default(0)),
+  costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة').default(0)),
+  taxRate: z.preprocess((val) => Number(val), z.number().min(0).max(100).default(0)),
+  discountRate: z.preprocess((val) => Number(val), z.number().min(0).max(100).default(0)),
+  stockQuantity: z.preprocess((val) => Number(val), z.number().min(0).default(0)),
   unit: z.string().min(1, 'الوحدة مطلوبة'),
   expiryDate: z.string().min(1, 'تاريخ الانتهاء مطلوب'),
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
-  minStockLevel: z.coerce.number().min(0).default(0),
+  minStockLevel: z.preprocess((val) => Number(val), z.number().min(0).default(0)),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {

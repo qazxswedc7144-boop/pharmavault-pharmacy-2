@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Camera, Calendar, User, Hash, FileText, Lock, CheckCircle2 } from 'lucide-react';
+import { Camera, Calendar, User, Hash, FileText, Lock, CheckCircle2, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
-  const customerOptions = useMemo(() => 
+  const customerOptions = useMemo(() =>
     (customersData?.items || []).map(c => ({
       label: `${c.name} (${c.phone})`,
       value: c.id
@@ -36,16 +36,25 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
     setIsFileAttached(true);
     toast.success('تم إرفاق الملف/الصورة بنجاح بالفاتورة');
   };
+  // Determine if the selected value is a new name (not in options list)
+  const isNewCustomer = selectedCustomerId && !customerOptions.some(opt => opt.value === selectedCustomerId);
   return (
     <div className={cn(
       "grid grid-cols-10 gap-4 mb-4 p-4 rounded-3xl border bg-card/50 shadow-sm transition-colors duration-500",
       isReturn ? "border-rose-500/20 bg-rose-50/30" : "border-border"
     )}>
-      {/* Customer Field - Searchable/Creatable via Autocomplete placeholder handling */}
+      {/* Customer Field - Searchable/Creatable */}
       <div className="col-span-10 lg:col-span-3 space-y-2 text-right">
-        <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
-          <User className="size-3" /> العميل المختار
-        </Label>
+        <div className="flex items-center justify-between flex-row-reverse">
+          <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
+            <User className="size-3" /> العميل المختار
+          </Label>
+          {isNewCustomer && (
+            <Badge variant="outline" className="bg-pharmav-primary/10 text-pharmav-primary border-pharmav-primary/20 text-[10px] py-0 h-4 flex items-center gap-1">
+              <UserPlus className="size-2" /> جديد
+            </Badge>
+          )}
+        </div>
         <Autocomplete
           options={customerOptions}
           value={selectedCustomerId}
@@ -85,8 +94,8 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
             <Calendar className="size-3" /> تاريخ اليوم
           </Label>
           <div className="relative">
-            <Input 
-              type="date" 
+            <Input
+              type="date"
               defaultValue={today}
               className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary"
             />
@@ -104,10 +113,10 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={handleSimulateUpload}
                     className={cn(
                       "absolute left-1 top-1/2 -translate-y-1/2 size-10 transition-colors",

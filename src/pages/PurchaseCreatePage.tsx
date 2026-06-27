@@ -20,8 +20,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
+    quantity: z.preprocess((val) => Number(val), z.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1)),
+    costPrice: z.preprocess((val) => Number(val), z.number().min(0, 'التكلفة مطلوبة').default(0))
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -86,7 +86,7 @@ export function PurchaseCreatePage() {
   const productOptions = useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
-      <PurchaseHeader 
+      <PurchaseHeader
         isReturn={isReturn}
         isCredit={isCredit}
         onTypeChange={(val) => form.setValue('isReturn', val)}

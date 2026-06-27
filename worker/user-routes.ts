@@ -9,10 +9,11 @@ import {
   PurchaseOrderEntity,
   AccountEntity,
   JournalEntryEntity,
-  ExpenseEntity
+  ExpenseEntity,
+  CustomerEntity
 } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { Transaction, PurchaseOrder, Expense, Account, Product, Supplier, Category } from "@shared/types";
+import type { Transaction, PurchaseOrder, Expense, Account, Product, Supplier, Category, Customer } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // Stats & Analytics
   app.get('/api/stats', async (c) => {
@@ -37,7 +38,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const inventoryValue = products.items.reduce((acc, p) => acc + (p.stockQuantity * p.costPrice), 0);
     const totalRevenue = transactions.items.reduce((acc, t) => acc + t.totalAmount, 0);
     const totalCost = transactions.items.reduce((acc, t) => {
-      // Simplistic COGS calculation: using current costPrice * quantity sold
       return acc + t.items.reduce((iAcc, item) => {
         const prod = products.items.find(p => p.id === item.productId);
         return iAcc + (item.quantity * (prod?.costPrice || 0));
@@ -50,7 +50,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     });
     return ok(c, {
       inventoryValue,
-      revenueByDay: [], // In real app, group by date
+      revenueByDay: [],
       categoryDistribution: catDist,
       profitSummary: { revenue: totalRevenue, cost: totalCost, profit: totalRevenue - totalCost }
     });
@@ -127,6 +127,24 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.post('/api/categories', async (c) => ok(c, await CategoryEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
   app.put('/api/categories/:id', async (c) => {
     const ent = new CategoryEntity(c.env, c.req.param('id'));
+    if (!(await ent.exists())) return notFound(c);
+    await ent.patch(await c.req.json());
+    return ok(c, await ent.getState());
+  });
+  // Customer CRUD
+  app.get('/api/customers', async (c) => ok(c, await CustomerEntity.list(c.env)));
+  app.post('/api/customers', async (c) => {
+    const data = await c.req.json() as Customer;
+    const customer = await CustomerEntity.create(c.env, {
+      ...data,
+      id: data.id || crypto.randomUUID(),
+      creditLimit: data.creditLimit || 0,
+      currentBalance: data.currentBalance || 0
+    });
+    return ok(c, customer);
+  });
+  app.put('/api/customers/:id', async (c) => {
+    const ent = new CustomerEntity(c.env, c.req.param('id'));
     if (!(await ent.exists())) return notFound(c);
     await ent.patch(await c.req.json());
     return ok(c, await ent.getState());
