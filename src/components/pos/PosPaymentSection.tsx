@@ -128,17 +128,27 @@ export function PosPaymentSection({
           </div>
         )}
         <div className={cn("p-4 rounded-2xl space-y-2", isReturn ? "bg-black/10" : "bg-muted/50")}>
-          <div className="flex justify-between items-center text-sm opacity-80 flex-row-reverse">
-            <span>المجموع:</span>
-            <span>{totals.subtotal.toFixed(2)} ر.س</span>
+          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
+            <span className="opacity-80">المجموع</span>
+            <span dir="ltr">{totals.subtotal.toFixed(2)} ر.س</span>
           </div>
-          <div className="flex justify-between items-center text-sm text-rose-400 flex-row-reverse">
-            <span>إجمالي الخصم:</span>
-            <span>-{totals.discount.toFixed(2)} ر.س</span>
+          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
+            <span className="opacity-80">الضريبة المضافة</span>
+            <span dir="ltr">+{totals.tax.toFixed(2)} ر.س</span>
           </div>
-          <div className="pt-2 border-t border-current/10 flex justify-between items-center flex-row-reverse">
+          <div className="flex justify-between items-center text-sm font-bold flex-row-reverse">
+            <span className="text-rose-400">إجمالي الخصم</span>
+            <span className="text-rose-400" dir="ltr">-{totals.discount.toFixed(2)} ر.س</span>
+          </div>
+          <div className={cn(
+            "pt-3 mt-1 border-t flex justify-between items-center flex-row-reverse",
+            isReturn ? "border-white/20" : "border-border"
+          )}>
             <span className="text-xl font-display font-bold">صافي الفاتورة:</span>
-            <div className="text-3xl font-display font-bold tracking-tighter">
+            <div className={cn(
+              "text-3xl font-display font-bold tracking-tighter",
+              isReturn ? "text-white" : "text-pharmav-primary"
+            )}>
               {totals.total.toFixed(2)} <span className="text-sm font-normal">ر.س</span>
             </div>
           </div>

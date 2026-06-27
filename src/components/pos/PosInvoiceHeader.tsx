@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 interface PosInvoiceHeaderProps {
   selectedCustomerId?: string;
-  onCustomerChange: (id: string) => void;
+  onCustomerChange: (idOrName: string) => void;
   isReturn?: boolean;
 }
 export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isReturn = false }: PosInvoiceHeaderProps) {
@@ -22,7 +22,7 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
-  const customerOptions = useMemo(() =>
+  const customerOptions = useMemo(() => 
     (customersData?.items || []).map(c => ({
       label: `${c.name} (${c.phone})`,
       value: c.id
@@ -41,7 +41,8 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
       "grid grid-cols-10 gap-4 mb-4 p-4 rounded-3xl border bg-card/50 shadow-sm transition-colors duration-500",
       isReturn ? "border-rose-500/20 bg-rose-50/30" : "border-border"
     )}>
-      <div className="col-span-10 lg:col-span-3 space-y-2">
+      {/* Customer Field - Searchable/Creatable via Autocomplete placeholder handling */}
+      <div className="col-span-10 lg:col-span-3 space-y-2 text-right">
         <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
           <User className="size-3" /> العميل المختار
         </Label>
@@ -49,13 +50,14 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
           options={customerOptions}
           value={selectedCustomerId}
           onValueChange={onCustomerChange}
-          placeholder="ابحث عن عميل..."
+          placeholder="اختر عميل أو اكتب اسم جديد..."
           isLoading={isLoading}
-          className="h-12 bg-white"
+          className="h-12 bg-white text-right"
+          emptyText="اضغط ENTER لإضافة هذا العميل الجديد"
         />
       </div>
       <div className="col-span-10 lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 text-right">
           <div className="flex items-center justify-between flex-row-reverse">
             <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
               <Hash className="size-3" /> رقم الفاتورة
@@ -78,19 +80,19 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
             </TooltipProvider>
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 text-right">
           <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
             <Calendar className="size-3" /> تاريخ اليوم
           </Label>
           <div className="relative">
-            <Input
-              type="date"
+            <Input 
+              type="date" 
               defaultValue={today}
               className="h-12 text-center bg-white border-2 border-transparent focus:border-pharmav-primary"
             />
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 text-right">
           <Label className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-2 flex-row-reverse">
             <FileText className="size-3" /> ملاحظات ومرفقات
           </Label>
@@ -102,10 +104,10 @@ export function PosInvoiceHeader({ selectedCustomerId, onCustomerChange, isRetur
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
                     onClick={handleSimulateUpload}
                     className={cn(
                       "absolute left-1 top-1/2 -translate-y-1/2 size-10 transition-colors",

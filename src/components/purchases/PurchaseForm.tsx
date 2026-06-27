@@ -17,8 +17,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),

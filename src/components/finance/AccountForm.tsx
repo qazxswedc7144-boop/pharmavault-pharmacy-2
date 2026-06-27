@@ -15,7 +15,7 @@ const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
-  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح'),
+  balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح').default(0),
   description: z.string().optional()
 });
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -44,8 +44,8 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
     }
   });
   const mutation = useMutation({
-    mutationFn: (values: AccountFormValues) =>
-      account
+    mutationFn: (values: AccountFormValues) => 
+      account 
         ? api<Account>(`/api/accounts/${account.id}`, { method: 'PUT', body: JSON.stringify(values) })
         : api<Account>('/api/accounts', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
@@ -121,11 +121,11 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormItem>
                 <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    className="h-12 text-left font-bold text-xl border-2"
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    {...field} 
+                    className="h-12 text-left font-bold text-xl border-2" 
                   />
                 </FormControl>
                 <FormMessage />

@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
   paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
-  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر'),
+  amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر').default(0),
   category: z.string().min(1, 'الوسم/النوع مطلوب'),
   description: z.string().min(3, 'يرجى كتابة وصف بسيط للمصروف'),
   status: z.enum(['paid', 'pending'] as const),
@@ -147,11 +147,11 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        className="h-12 text-left font-bold text-red-600 text-xl border-2"
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        className="h-12 text-left font-bold text-red-600 text-xl border-2" 
                       />
                     </FormControl>
                     <FormMessage />
@@ -222,9 +222,9 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               />
             </div>
             <DialogFooter className="mt-8">
-              <Button
-                type="submit"
-                disabled={mutation.isPending}
+              <Button 
+                type="submit" 
+                disabled={mutation.isPending} 
                 className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow"
               >
                 {mutation.isPending ? "جاري المعالجة..." : "تسجيل العملية المالية"}

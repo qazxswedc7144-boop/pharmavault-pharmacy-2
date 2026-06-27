@@ -20,8 +20,8 @@ const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة')
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -54,7 +54,11 @@ export function PurchaseCreatePage() {
   const isCredit = form.watch('isCredit');
   const formItems = form.watch('items');
   const totals = useMemo(() => {
-    return (formItems || []).reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.costPrice || 0)), 0);
+    return (formItems || []).reduce((sum, item) => {
+      const q = Number(item.quantity) || 0;
+      const c = Number(item.costPrice) || 0;
+      return sum + (q * c);
+    }, 0);
   }, [formItems]);
   const { data: productsData } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
@@ -82,7 +86,7 @@ export function PurchaseCreatePage() {
   const productOptions = useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
-      <PurchaseHeader
+      <PurchaseHeader 
         isReturn={isReturn}
         isCredit={isCredit}
         onTypeChange={(val) => form.setValue('isReturn', val)}
