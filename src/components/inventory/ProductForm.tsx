@@ -35,11 +35,29 @@ import type { Product, Category, Supplier } from '@shared/types';
 import { toast } from 'sonner';
 import { Info, DollarSign, Package, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-const productSchema = z.object({
+interface ProductFormValues {
+  name: string;
+  tradeName: string;
+  scientificName: string;
+  barcode: string;
+  sku: string;
+  categoryId: string;
+  supplierId: string;
+  price: number;
+  costPrice: number;
+  taxRate: number;
+  discountRate: number;
+  stockQuantity: number;
+  unit: string;
+  expiryDate: string;
+  batchNumber: string;
+  minStockLevel: number;
+}
+const productSchema: z.ZodType<ProductFormValues> = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
-  tradeName: z.string().optional(),
-  scientificName: z.string().optional(),
-  barcode: z.string().optional(),
+  tradeName: z.string().default(''),
+  scientificName: z.string().default(''),
+  barcode: z.string().default(''),
   sku: z.string().min(2, 'كود المنتج مطلوب'),
   categoryId: z.string().min(1, 'التصنيف مطلوب'),
   supplierId: z.string().min(1, 'المورد مطلوب'),
@@ -53,7 +71,6 @@ const productSchema = z.object({
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
   minStockLevel: z.coerce.number().min(0).default(0),
 });
-type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -224,12 +241,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value)}
-                            className="h-14 text-center font-bold text-xl border-2" 
+                          <Input
+                            type="number"
+                            step="0.01"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            className="h-14 text-center font-bold text-xl border-2"
                           />
                         </FormControl>
                         <FormMessage />
@@ -239,12 +256,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value)}
-                            className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary" 
+                          <Input
+                            type="number"
+                            step="0.01"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary"
                           />
                         </FormControl>
                         <FormMessage />
@@ -267,11 +284,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الكمية الحالية</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value)}
-                            className="h-12 text-center font-bold text-lg" 
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            className="h-12 text-center font-bold text-lg"
                           />
                         </FormControl>
                         <FormMessage />
@@ -288,11 +305,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>حد إعادة الطلب</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value)}
-                            className="h-12 text-center" 
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            className="h-12 text-center"
                           />
                         </FormControl>
                         <FormMessage />

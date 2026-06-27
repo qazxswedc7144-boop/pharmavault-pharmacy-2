@@ -11,14 +11,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { api } from '@/lib/api-client';
 import type { Account, AccountType } from '@shared/types';
 import { toast } from 'sonner';
-const accountSchema = z.object({
+interface AccountFormValues {
+  name: string;
+  code: string;
+  type: AccountType;
+  balance: number;
+  description: string;
+}
+const accountSchema: z.ZodType<AccountFormValues> = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح').default(0),
-  description: z.string().optional()
+  description: z.string().default(''),
 });
-type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -125,7 +131,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     type="number"
                     step="0.01"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     className="h-12 text-left font-bold text-xl border-2"
                   />
                 </FormControl>

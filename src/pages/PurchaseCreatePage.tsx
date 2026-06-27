@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,13 +15,25 @@ import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
 import { Trash2, PlusCircle, Package, History, Truck } from 'lucide-react';
 import { toast } from 'sonner';
-const purchaseSchema = z.object({
+import { PurchaseAddItemModal } from '@/components/purchases/PurchaseAddItemModal';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+interface PurchaseFormValues {
+  invoiceNumber: string;
+  supplierId: string;
+  items: { productId: string; quantity: number; costPrice: number }[];
+  status: 'pending' | 'received' | 'cancelled';
+  notes: string;
+  date: string;
+  isCredit: boolean;
+  isReturn: boolean;
+}
+const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
-    costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0)
+    quantity: z.coerce.number().min(1).default(1),
+    costPrice: z.coerce.number().min(0).default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
@@ -29,17 +41,17 @@ const purchaseSchema = z.object({
   isCredit: z.boolean().default(false),
   isReturn: z.boolean().default(false)
 });
-type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 export function PurchaseCreatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const form = useForm<PurchaseFormValues>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
       invoiceNumber: '',
       supplierId: '',
       status: 'received',
-      items: [{ productId: '', quantity: 1, costPrice: 0 }],
+      items: [],
       notes: '',
       date: new Date().toISOString().split('T')[0],
       isCredit: false,
@@ -55,9 +67,7 @@ export function PurchaseCreatePage() {
   const formItems = form.watch('items');
   const totals = useMemo(() => {
     return (formItems || []).reduce((sum, item) => {
-      const q = Number(item.quantity) || 0;
-      const c = Number(item.costPrice) || 0;
-      return sum + (q * c);
+      return sum + (item.quantity * item.costPrice);
     }, 0);
   }, [formItems]);
   const { data: productsData } = useQuery<{ items: Product[] }>({
@@ -83,7 +93,7 @@ export function PurchaseCreatePage() {
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
-  const productOptions = useMemo(() => (productsData?.items || []).map(p => ({ label: p.name, value: p.id })), [productsData]);
+  const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
       <PurchaseHeader
@@ -147,42 +157,44 @@ export function PurchaseCreatePage() {
                   <Package className="size-5 text-pharmav-primary" />
                   <span className="font-display font-bold text-xl">قائمة الأصناف الواردة</span>
                 </div>
-                <Button type="button" onClick={() => append({ productId: '', quantity: 1, costPrice: 0 })} className="gap-2">
-                   إضافة صنف
+                <Button type="button" onClick={() => setIsAddItemOpen(true)} className="gap-2 border-2 font-bold">
+                   <PlusCircle className="size-4" /> إضافة صنف
                 </Button>
               </div>
-              <div className="p-6 space-y-4">
-                {fields.map((f, index) => (
-                  <div key={f.id} className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end bg-muted/5 p-4 rounded-xl border">
-                    <div className="lg:col-span-6">
-                      <FormField control={form.control} name={`items.${index}.productId`} render={({ field: itField }) => (
-                        <FormItem>
-                          <Autocomplete options={productOptions} value={itField.value} onValueChange={itField.onChange} />
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    </div>
-                    <div className="lg:col-span-2">
-                      <FormField control={form.control} name={`items.${index}.quantity`} render={({ field: itField }) => (
-                        <FormItem>
-                          <FormControl><Input type="number" {...itField} onChange={(e) => itField.onChange(e.target.value)} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    </div>
-                    <div className="lg:col-span-3">
-                      <FormField control={form.control} name={`items.${index}.costPrice`} render={({ field: itField }) => (
-                        <FormItem>
-                          <FormControl><Input type="number" step="0.01" {...itField} onChange={(e) => itField.onChange(e.target.value)} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    </div>
-                    <div className="lg:col-span-1">
-                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="size-4" /></Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="p-0">
+                <Table className="text-right">
+                  <TableHeader className="bg-muted/30">
+                    <TableRow>
+                      <TableHead className="text-right">المنتج</TableHead>
+                      <TableHead className="text-center">الكمية</TableHead>
+                      <TableHead className="text-center">سعر التكلفة</TableHead>
+                      <TableHead className="text-left">الإجمالي</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id} className="hover:bg-muted/10">
+                        <TableCell className="font-bold">{getProductName(field.productId)}</TableCell>
+                        <TableCell className="text-center font-display font-bold">{field.quantity}</TableCell>
+                        <TableCell className="text-center">{field.costPrice.toFixed(2)} ر.س</TableCell>
+                        <TableCell className="text-left font-bold">{(field.quantity * field.costPrice).toFixed(2)} ر.س</TableCell>
+                        <TableCell className="text-left">
+                          <Button variant="ghost" size="icon" onClick={() => remove(index)} className="text-destructive">
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {fields.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="py-20 text-center text-muted-foreground italic">
+                          لم يتم إدراج أي أدوية في هذه الفاتورة حتى الآن.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </div>
             <div className="bg-pharmav-primary/10 p-8 rounded-3xl flex justify-between items-center">
@@ -190,13 +202,18 @@ export function PurchaseCreatePage() {
                <span className="text-4xl font-display font-bold text-pharmav-primary">{totals.toLocaleString()} ر.س</span>
             </div>
             <div className="flex justify-end pt-4 pb-12">
-              <Button type="submit" disabled={mutation.isPending} className="h-16 px-16 bg-pharmav-primary font-bold text-xl rounded-2xl shadow-neon-blue">
-                حفظ الفاتورة
+              <Button type="submit" disabled={mutation.isPending || fields.length === 0} className="h-16 px-16 bg-pharmav-primary font-bold text-xl rounded-2xl shadow-neon-blue">
+                حفظ الفاتورة النهائية
               </Button>
             </div>
           </form>
         </Form>
       </div>
+      <PurchaseAddItemModal 
+        open={isAddItemOpen} 
+        onOpenChange={setIsAddItemOpen} 
+        onAdd={(item) => append(item)} 
+      />
     </AppLayout>
   );
 }
