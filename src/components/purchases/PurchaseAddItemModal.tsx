@@ -24,16 +24,20 @@ import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
 import { Package, PlusCircle } from 'lucide-react';
-const addItemSchema = z.object({
+interface AddItemValues {
+  productId: string;
+  quantity: number;
+  costPrice: number;
+}
+const addItemSchema: z.ZodType<AddItemValues> = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
   costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
 });
-type AddItemValues = z.infer<typeof addItemSchema>;
 interface PurchaseAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (item: { productId: string; quantity: number; costPrice: number }) => void;
+  onAdd: (item: AddItemValues) => void;
 }
 export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddItemModalProps) {
   const { data: productsData, isLoading } = useQuery<{ items: Product[] }>({
@@ -100,7 +104,12 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormItem>
                     <FormLabel>الكمية</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} className="h-12 text-center text-lg font-bold" />
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        className="h-12 text-center text-lg font-bold" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -113,7 +122,13 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormItem>
                     <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} className="h-12 text-center text-lg font-bold" />
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        className="h-12 text-center text-lg font-bold" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

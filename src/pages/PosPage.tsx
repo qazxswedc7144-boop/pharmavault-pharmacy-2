@@ -102,25 +102,26 @@ export function PosPage() {
   const isReturn = transactionType === 'return';
   return (
     <div className={`h-screen flex flex-col bg-background overflow-hidden transition-colors duration-500 ${isReturn ? 'bg-rose-50/10 dark:bg-rose-950/20' : ''}`} dir="rtl">
-      <PosHeader
-        type={transactionType}
-        onTypeChange={setTransactionType}
-        mode={paymentMode}
-        onModeChange={setPaymentMode}
+      <PosHeader 
+        type={transactionType} 
+        onTypeChange={setTransactionType} 
+        mode={paymentMode} 
+        onModeChange={setPaymentMode} 
       />
       <main className="flex-1 flex flex-col p-4 gap-4 overflow-hidden">
         <div className="flex items-center justify-between">
-           <PosInvoiceHeader
-            isReturn={isReturn}
+           <PosInvoiceHeader 
+            isReturn={isReturn} 
             selectedCustomerId={selectedCustomer?.id}
-            onCustomerChange={(id) => {
-               // Logic to find customer if it exists, or just store name
+            onCustomerChange={(idOrName) => {
+               // In a real app, this would lookup or temporary store
+               if (!idOrName) setSelectedCustomer(null);
+               else setSelectedCustomer({ name: idOrName } as Customer);
             }}
-            className="flex-1"
           />
           <Button 
             variant="outline" 
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => setIsAddModalOpen(true)} 
             className="mr-4 h-full border-2 font-bold px-6 bg-card hover:bg-muted"
           >
             <PlusCircle className="ml-2 size-5 text-pharmav-primary" />
@@ -132,13 +133,13 @@ export function PosPage() {
             <PosProductGrid onSelect={(p) => addToCart(p)} isReturn={isReturn} />
           </div>
           <div className="w-full lg:w-[450px] flex flex-col gap-4 overflow-hidden order-2">
-            <PosCart
-              items={cart}
-              onUpdateQuantity={updateCartItem}
+            <PosCart 
+              items={cart} 
+              onUpdateQuantity={updateCartItem} 
               onUpdateDiscount={updateDiscount}
               isReturn={isReturn}
             />
-            <PosPaymentSection
+            <PosPaymentSection 
               cart={cart}
               paymentMode={paymentMode}
               transactionType={transactionType}
@@ -151,8 +152,8 @@ export function PosPage() {
       </main>
       <PosAddItemModal 
         open={isAddModalOpen} 
-        onOpenChange={setIsAddModalOpen} 
-        onAdd={(prod, qty, price) => addToCart(prod, qty, price)} 
+        onOpenChange={setIsAddModalOpen}
+        onAdd={(prod, qty, price) => addToCart(prod, qty, price)}
       />
       <footer className="bg-muted/50 border-t px-6 h-10 flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest shrink-0">
         <div className="flex gap-6">

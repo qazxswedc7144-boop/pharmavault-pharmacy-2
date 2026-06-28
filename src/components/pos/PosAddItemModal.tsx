@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,12 +24,16 @@ import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
 import { ShoppingCart, AlertCircle } from 'lucide-react';
-const posAddSchema = z.object({
+interface PosAddValues {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+}
+const posAddSchema: z.ZodType<PosAddValues> = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
   unitPrice: z.coerce.number().min(0, 'السعر مطلوب'),
 });
-type PosAddValues = z.infer<typeof posAddSchema>;
 interface PosAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -114,7 +118,12 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   <FormItem>
                     <FormLabel>الكمية</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} className="h-12 text-center text-lg font-bold" />
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        className="h-12 text-center text-lg font-bold" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,7 +136,13 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   <FormItem>
                     <FormLabel>سعر الوحدة</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} className="h-12 text-center text-lg font-bold" />
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        className="h-12 text-center text-lg font-bold" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

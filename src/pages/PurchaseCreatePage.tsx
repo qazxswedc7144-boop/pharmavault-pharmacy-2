@@ -67,7 +67,7 @@ export function PurchaseCreatePage() {
   const formItems = form.watch('items');
   const totals = useMemo(() => {
     return (formItems || []).reduce((sum, item) => {
-      return sum + (item.quantity * item.costPrice);
+      return sum + (Number(item.quantity || 0) * Number(item.costPrice || 0));
     }, 0);
   }, [formItems]);
   const { data: productsData } = useQuery<{ items: Product[] }>({
@@ -96,9 +96,9 @@ export function PurchaseCreatePage() {
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
-      <PurchaseHeader
-        isReturn={isReturn}
-        isCredit={isCredit}
+      <PurchaseHeader 
+        isReturn={isReturn} 
+        isCredit={isCredit} 
         onTypeChange={(val) => form.setValue('isReturn', val)}
         onModeChange={(val) => form.setValue('isCredit', val === 'credit')}
       />
@@ -131,7 +131,7 @@ export function PurchaseCreatePage() {
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">
                       <History className="size-4" /> تاريخ التوريد
-                    </FormLabel>
+                    </Label>
                     <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
                     <FormMessage />
                   </FormItem>
