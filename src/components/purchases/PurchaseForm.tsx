@@ -65,9 +65,9 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     queryKey: ['suppliers'],
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
-  const formItems = form.watch('items');
+  const formItems = form.watch('items') || [];
   const totals = useMemo(() => {
-    return (formItems || []).reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
+    return formItems.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
   }, [formItems]);
   const mutation = useMutation({
     mutationFn: (values: PurchaseFormValues) => {
@@ -109,6 +109,9 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     }
   }, [open, order, form]);
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
+  const onSubmit = (values: PurchaseFormValues) => {
+    mutation.mutate(values);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
@@ -119,7 +122,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6 pt-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField control={form.control} name="supplierId" render={({ field }) => (
                 <FormItem>
@@ -192,10 +195,10 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
             </DialogFooter>
           </form>
         </Form>
-        <PurchaseAddItemModal 
-          open={isAddItemOpen} 
-          onOpenChange={setIsAddItemOpen} 
-          onAdd={(item) => append(item)} 
+        <PurchaseAddItemModal
+          open={isAddItemOpen}
+          onOpenChange={setIsAddItemOpen}
+          onAdd={(item) => append(item)}
         />
       </DialogContent>
     </Dialog>

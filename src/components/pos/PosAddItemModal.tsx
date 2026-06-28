@@ -75,7 +75,9 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
       form.reset();
     }
   };
-  const currentTotal = (form.watch('quantity') || 0) * (form.watch('unitPrice') || 0);
+  const quantity = form.watch('quantity') || 0;
+  const unitPrice = form.watch('unitPrice') || 0;
+  const currentTotal = quantity * unitPrice;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl text-right" dir="rtl">
@@ -118,11 +120,11 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   <FormItem>
                     <FormLabel>الكمية</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-center text-lg font-bold" 
+                        className="h-12 text-center text-lg font-bold"
                       />
                     </FormControl>
                     <FormMessage />
@@ -136,12 +138,12 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   <FormItem>
                     <FormLabel>سعر الوحدة</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-center text-lg font-bold" 
+                        className="h-12 text-center text-lg font-bold"
                       />
                     </FormControl>
                     <FormMessage />

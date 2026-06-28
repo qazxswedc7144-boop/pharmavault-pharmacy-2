@@ -93,6 +93,9 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
       }
     }
   }, [open, expense, form]);
+  const onSubmit = (values: ExpenseFormValues) => {
+    mutation.mutate(values);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right max-w-lg" dir="rtl">
@@ -100,7 +103,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
           <DialogTitle className="text-right font-display text-xl font-bold">تسجيل مصروفات الصيدلية</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}

@@ -6,17 +6,15 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { 
-  Shield, 
-  Printer, 
-  Building2, 
-  CreditCard, 
-  CloudUpload, 
-  CloudDownload, 
-  Settings2, 
+import {
+  Shield,
+  Building2,
+  CreditCard,
+  CloudUpload,
+  CloudDownload,
+  Settings2,
   Smartphone,
   Globe,
-  Lock,
   Moon,
   Sun
 } from 'lucide-react';
@@ -24,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/lib/offline-store';
 import { useBackup } from '@/hooks/use-backup';
 import { useTheme } from '@/hooks/use-theme';
@@ -60,16 +59,16 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
             <div className="grid gap-4">
               <div className="space-y-2 text-right">
                 <Label>اسم المنشأة</Label>
-                <Input 
-                  value={settings.name} 
+                <Input
+                  value={settings.name}
                   onChange={(e) => updateSettings({ name: e.target.value })}
                   className="h-12 border-2 text-right"
                 />
               </div>
               <div className="space-y-2 text-right">
                 <Label>عنوان الصيدلية (يظهر في الفاتورة)</Label>
-                <Input 
-                  value={settings.address} 
+                <Input
+                  value={settings.address}
                   onChange={(e) => updateSettings({ address: e.target.value })}
                   className="h-12 border-2 text-right"
                 />
@@ -79,7 +78,7 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
                   <div className="font-bold text-sm">الطباعة التلقائية</div>
                   <div className="text-xs text-muted-foreground">طباعة الفاتورة فور تأكيد العملية في POS.</div>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.printInvoiceAuto}
                   onCheckedChange={(val) => updateSettings({ printInvoiceAuto: val })}
                 />
@@ -92,16 +91,16 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
               <Shield className="size-4" /> الأمان والنسخ الاحتياطي
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-24 flex-col gap-2 rounded-3xl border-2 hover:bg-pharmav-primary/5 hover:border-pharmav-primary/40 transition-all"
                 onClick={exportData}
               >
                 <CloudDownload className="size-6 text-pharmav-primary" />
                 <span className="font-bold">تصدير للجهاز</span>
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-24 flex-col gap-2 rounded-3xl border-2 hover:bg-pharmav-primary/5 hover:border-pharmav-primary/40 transition-all"
                 onClick={() => fileInputRef.current?.click()}
               >

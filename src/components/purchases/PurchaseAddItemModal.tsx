@@ -104,11 +104,11 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormItem>
                     <FormLabel>الكمية</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-center text-lg font-bold" 
+                        className="h-12 text-center text-lg font-bold"
                       />
                     </FormControl>
                     <FormMessage />
@@ -122,12 +122,12 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormItem>
                     <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-center text-lg font-bold" 
+                        className="h-12 text-center text-lg font-bold"
                       />
                     </FormControl>
                     <FormMessage />

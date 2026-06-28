@@ -83,6 +83,9 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
       }
     }
   }, [open, account, form]);
+  const onSubmit = (values: AccountFormValues) => {
+    mutation.mutate(values);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="text-right" dir="rtl">
@@ -92,7 +95,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>اسم الحساب</FormLabel>

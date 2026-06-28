@@ -64,9 +64,9 @@ export function PurchaseCreatePage() {
   });
   const isReturn = form.watch('isReturn');
   const isCredit = form.watch('isCredit');
-  const formItems = form.watch('items');
+  const formItems = form.watch('items') || [];
   const totals = useMemo(() => {
-    return (formItems || []).reduce((sum, item) => {
+    return formItems.reduce((sum, item) => {
       return sum + (Number(item.quantity || 0) * Number(item.costPrice || 0));
     }, 0);
   }, [formItems]);
@@ -94,6 +94,9 @@ export function PurchaseCreatePage() {
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
+  const onSubmit = (values: PurchaseFormValues) => {
+    mutation.mutate(values);
+  };
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
       <PurchaseHeader
@@ -104,7 +107,7 @@ export function PurchaseCreatePage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
               <div className="md:col-span-7 bg-card border rounded-3xl p-8 shadow-soft space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

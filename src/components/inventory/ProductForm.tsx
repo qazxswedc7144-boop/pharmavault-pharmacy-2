@@ -149,6 +149,9 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       }
     }
   }, [product, open, form]);
+  const onSubmit = (values: ProductFormValues) => {
+    mutation.mutate(values);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-glass" dir="rtl">
@@ -159,7 +162,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(v => mutation.mutate(v))}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="px-6 bg-muted/30 border-b">
                 <TabsList className="bg-transparent h-14 w-full justify-start gap-8">
