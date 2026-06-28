@@ -41,11 +41,11 @@ export function PosPaymentSection({
     const subtotal = cart.reduce((acc, i) => acc + (Number(i.unitPrice) * Number(i.quantity)), 0);
     const tax = cart.reduce((acc, i) => acc + (Number(i.taxAmount) * Number(i.quantity)), 0);
     const discount = cart.reduce((acc, i) => acc + (Number(i.discountAmount) * Number(i.quantity)), 0);
-    return { 
-      subtotal: Number(subtotal), 
-      tax: Number(tax), 
-      discount: Number(discount), 
-      total: Number(subtotal + tax - discount) 
+    return {
+      subtotal: Number(subtotal),
+      tax: Number(tax),
+      discount: Number(discount),
+      total: Number(subtotal + tax - discount)
     };
   }, [cart]);
   const change = useMemo(() => {
@@ -73,8 +73,9 @@ export function PosPaymentSection({
       return;
     }
     let finalCustomerId = customer?.id;
-    // Safety check for unsaved new customer entries
-    if (!finalCustomerId && customer?.name) {
+    // Check if the current customer is a manual entry (new customer by name)
+    const existingByName = customersData?.items.find(c => c.name === customer?.name);
+    if (!finalCustomerId && customer?.name && !existingByName) {
       try {
         setIsCreatingCustomer(true);
         const newCustomer = await api<Customer>('/api/customers', {
@@ -89,14 +90,16 @@ export function PosPaymentSection({
         });
         finalCustomerId = newCustomer.id;
         queryClient.invalidateQueries({ queryKey: ['customers'] });
-        toast.success(`تم إنشاء العميل ${newCustomer.name} بنجاح`);
+        toast.success(`تم تسجيل العميل الجديد ${newCustomer.name}`);
       } catch (err) {
-        toast.error('فشل في إنشاء سجل العميل الجديد');
+        toast.error('فشل في إنشاء سجل العميل');
         setIsCreatingCustomer(false);
         return;
       } finally {
         setIsCreatingCustomer(false);
       }
+    } else if (existingByName) {
+      finalCustomerId = existingByName.id;
     }
     if (isCredit && !finalCustomerId) {
       toast.warning('يرجى اختيار عميل لإتمام البيع الآجل');
@@ -206,7 +209,7 @@ export function PosPaymentSection({
           ) : (
             <>
               {isReturn ? <RotateCcw className="size-6" /> : <CheckCircle2 className="size-6" />}
-              {isReturn ? 'تأكيد المرتجع' : 'تأكيد البيع (F1)'}
+              {isReturn ? 'تأكيد المرتجع' : 'إتمام العملية (F1)'}
             </>
           )}
         </Button>

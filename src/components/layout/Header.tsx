@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Pill, Menu, X } from 'lucide-react';
+import { Pill, Menu, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
+import { SettingsDrawer } from '@/components/settings/SettingsDrawer';
 export function Header() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const location = useLocation();
   const navLinks = [
     { name: 'لوحة التحكم', href: '/dashboard' },
@@ -42,6 +44,14 @@ export function Header() {
               </Link>
             ))}
             <div className="flex items-center gap-4 border-r pr-8 mr-4 border-border">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsSettingsOpen(true)}
+                className="hover:rotate-45 transition-transform"
+              >
+                <Settings className="size-5 text-muted-foreground" />
+              </Button>
               <ThemeToggle className="static" />
               <Button asChild className="rounded-full px-6 bg-pharmav-primary hover:bg-pharmav-primary/90 font-bold">
                 <Link to="/dashboard">ابدأ الآن</Link>
@@ -49,6 +59,9 @@ export function Header() {
             </div>
           </nav>
           <div className="md:hidden flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)}>
+              <Settings className="size-5" />
+            </Button>
             <ThemeToggle className="static" />
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -77,6 +90,7 @@ export function Header() {
           </Button>
         </div>
       )}
+      <SettingsDrawer open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </header>
   );
 }

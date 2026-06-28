@@ -96,9 +96,9 @@ export function PurchaseCreatePage() {
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
-      <PurchaseHeader 
-        isReturn={isReturn} 
-        isCredit={isCredit} 
+      <PurchaseHeader
+        isReturn={isReturn}
+        isCredit={isCredit}
         onTypeChange={(val) => form.setValue('isReturn', val)}
         onModeChange={(val) => form.setValue('isCredit', val === 'credit')}
       />
@@ -131,7 +131,7 @@ export function PurchaseCreatePage() {
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">
                       <History className="size-4" /> تاريخ التوريد
-                    </Label>
+                    </FormLabel>
                     <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -209,10 +209,10 @@ export function PurchaseCreatePage() {
           </form>
         </Form>
       </div>
-      <PurchaseAddItemModal 
-        open={isAddItemOpen} 
-        onOpenChange={setIsAddItemOpen} 
-        onAdd={(item) => append(item)} 
+      <PurchaseAddItemModal
+        open={isAddItemOpen}
+        onOpenChange={setIsAddItemOpen}
+        onAdd={(item) => append(item)}
       />
     </AppLayout>
   );
