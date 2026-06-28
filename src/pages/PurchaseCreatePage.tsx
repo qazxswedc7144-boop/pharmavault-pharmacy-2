@@ -9,7 +9,6 @@ import { PurchaseHeader } from '@/components/purchases/PurchaseHeader';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
@@ -21,7 +20,6 @@ interface PurchaseFormValues {
   invoiceNumber: string;
   supplierId: string;
   items: { productId: string; quantity: number; costPrice: number }[];
-  status: 'pending' | 'received' | 'cancelled';
   notes: string;
   date: string;
   isCredit: boolean;
@@ -35,7 +33,6 @@ const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
     quantity: z.coerce.number().min(1).default(1),
     costPrice: z.coerce.number().min(0).default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
-  status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب'),
   isCredit: z.boolean().default(false),
@@ -50,7 +47,6 @@ export function PurchaseCreatePage() {
     defaultValues: {
       invoiceNumber: '',
       supplierId: '',
-      status: 'received',
       items: [],
       notes: '',
       date: new Date().toISOString().split('T')[0],
@@ -83,7 +79,12 @@ export function PurchaseCreatePage() {
     mutationFn: (values: PurchaseFormValues) => {
       return api<PurchaseOrder>('/api/purchases', {
         method: 'POST',
-        body: JSON.stringify({ ...values, totalCost: totals, timestamp: new Date(values.date).getTime() })
+        body: JSON.stringify({ 
+          ...values, 
+          status: 'received', // Automatically treat as received to update inventory
+          totalCost: totals, 
+          timestamp: new Date(values.date).getTime() 
+        })
       });
     },
     onSuccess: () => {
@@ -135,21 +136,8 @@ export function PurchaseCreatePage() {
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">
                       <History className="size-4" /> تاريخ التوريد
-                    </Label>
+                    </FormLabel>
                     <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="status" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">حالة الطلبية</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-12 text-right"><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent className="text-right">
-                        <SelectItem value="received">تم الاستلام</SelectItem>
-                        <SelectItem value="pending">في الانتظار</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )} />

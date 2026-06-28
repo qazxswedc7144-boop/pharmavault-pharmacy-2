@@ -18,7 +18,6 @@ interface PurchaseFormValues {
   invoiceNumber: string;
   supplierId: string;
   items: { productId: string; quantity: number; costPrice: number }[];
-  status: 'pending' | 'received' | 'cancelled';
   notes: string;
   date: string;
 }
@@ -30,7 +29,6 @@ const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
     quantity: z.coerce.number().min(1).default(1),
     costPrice: z.coerce.number().min(0).default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
-  status: z.enum(['pending', 'received', 'cancelled'] as const),
   notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
@@ -47,7 +45,6 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     defaultValues: {
       invoiceNumber: '',
       supplierId: '',
-      status: 'pending',
       items: [],
       notes: '',
       date: new Date().toISOString().split('T')[0]
@@ -74,7 +71,12 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     mutationFn: (values: PurchaseFormValues) => {
       return api<PurchaseOrder>(order ? `/api/purchases/${order.id}` : '/api/purchases', {
         method: order ? 'PUT' : 'POST',
-        body: JSON.stringify({ ...values, totalCost: totals, timestamp: new Date(values.date).getTime() })
+        body: JSON.stringify({ 
+          ...values, 
+          status: 'received', // Always received for accuracy
+          totalCost: totals, 
+          timestamp: new Date(values.date).getTime() 
+        })
       });
     },
     onSuccess: () => {
@@ -92,7 +94,6 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         form.reset({
           invoiceNumber: order.invoiceNumber || '',
           supplierId: order.supplierId,
-          status: order.status,
           items: order.items,
           date: new Date(order.timestamp).toISOString().split('T')[0],
           notes: ''
@@ -101,7 +102,6 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         form.reset({
           invoiceNumber: '',
           supplierId: '',
-          status: 'pending',
           items: [],
           notes: '',
           date: new Date().toISOString().split('T')[0]
