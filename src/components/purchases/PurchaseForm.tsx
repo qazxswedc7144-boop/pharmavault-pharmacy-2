@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -65,9 +65,10 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     queryKey: ['suppliers'],
     queryFn: () => api<{ items: Supplier[] }>('/api/suppliers')
   });
-  const formItems = form.watch('items') || [];
+  const formItems = form.watch('items');
   const totals = useMemo(() => {
-    return formItems.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
+    const items = formItems || [];
+    return items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || 0)), 0);
   }, [formItems]);
   const mutation = useMutation({
     mutationFn: (values: PurchaseFormValues) => {
@@ -109,7 +110,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     }
   }, [open, order, form]);
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
-  const onSubmit = (values: PurchaseFormValues) => {
+  const onSubmit: SubmitHandler<PurchaseFormValues> = (values) => {
     mutation.mutate(values);
   };
   return (

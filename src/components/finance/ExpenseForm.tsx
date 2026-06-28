@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -93,7 +93,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
       }
     }
   }, [open, expense, form]);
-  const onSubmit = (values: ExpenseFormValues) => {
+  const onSubmit: SubmitHandler<ExpenseFormValues> = (values) => {
     mutation.mutate(values);
   };
   return (

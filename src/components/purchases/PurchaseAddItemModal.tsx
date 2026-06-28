@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery } from '@tanstack/react-query';
@@ -63,7 +63,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
       form.setValue('costPrice', product.costPrice);
     }
   };
-  const onSubmit = (values: AddItemValues) => {
+  const onSubmit: SubmitHandler<AddItemValues> = (values) => {
     onAdd(values);
     onOpenChange(false);
     form.reset();

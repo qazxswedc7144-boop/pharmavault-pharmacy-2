@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -64,9 +64,10 @@ export function PurchaseCreatePage() {
   });
   const isReturn = form.watch('isReturn');
   const isCredit = form.watch('isCredit');
-  const formItems = form.watch('items') || [];
+  const formItems = form.watch('items');
   const totals = useMemo(() => {
-    return formItems.reduce((sum, item) => {
+    const items = formItems || [];
+    return items.reduce((sum, item) => {
       return sum + (Number(item.quantity || 0) * Number(item.costPrice || 0));
     }, 0);
   }, [formItems]);
@@ -94,7 +95,7 @@ export function PurchaseCreatePage() {
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
   const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
-  const onSubmit = (values: PurchaseFormValues) => {
+  const onSubmit: SubmitHandler<PurchaseFormValues> = (values) => {
     mutation.mutate(values);
   };
   return (
@@ -134,7 +135,7 @@ export function PurchaseCreatePage() {
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">
                       <History className="size-4" /> تاريخ التوريد
-                    </FormLabel>
+                    </Label>
                     <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
                     <FormMessage />
                   </FormItem>
