@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery } from '@tanstack/react-query';
@@ -41,7 +41,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
     queryFn: () => api<{ items: Product[] }>('/api/products'),
   });
   const form = useForm<PosAddValues>({
-    resolver: zodResolver(posAddSchema),
+    resolver: zodResolver(posAddSchema) as Resolver<PosAddValues>,
     defaultValues: {
       productId: '',
       quantity: 1,

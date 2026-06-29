@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
+import { useForm, useFieldArray, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -36,7 +36,7 @@ export function PurchaseCreatePage() {
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [itemSearch, setItemSearch] = useState('');
   const form = useForm<PurchaseFormValues>({
-    resolver: zodResolver(purchaseSchema),
+    resolver: zodResolver(purchaseSchema) as Resolver<PurchaseFormValues>,
     defaultValues: {
       invoiceNumber: '',
       supplierId: '',
@@ -255,7 +255,7 @@ export function PurchaseCreatePage() {
       <PurchaseAddItemModal
         open={isAddItemOpen}
         onOpenChange={setIsAddItemOpen}
-        onAdd={(item) => append(item)}
+        onAdd={(item) => append({ productId: item.productId, quantity: item.quantity, costPrice: item.costPrice })}
       />
     </AppLayout>
   );

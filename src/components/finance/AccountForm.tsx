@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,7 +34,7 @@ const TYPE_LABELS: Record<AccountType, string> = {
 export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(accountSchema) as Resolver<AccountFormValues>,
     defaultValues: {
       name: '',
       code: '',
@@ -90,7 +90,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -102,7 +102,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
                 render={({ field }) => (
@@ -113,7 +113,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<AccountFormValues>
                 control={form.control}
                 name="type"
                 render={({ field }) => (
@@ -136,7 +136,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 )}
               />
             </div>
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="balance"
               render={({ field }) => (
@@ -155,7 +155,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField<AccountFormValues>
               control={form.control}
               name="description"
               render={({ field }) => (

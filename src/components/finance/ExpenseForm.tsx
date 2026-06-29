@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -29,7 +29,7 @@ interface ExpenseFormProps {
 export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<ExpenseFormValues>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(expenseSchema) as Resolver<ExpenseFormValues>,
     defaultValues: {
       status: 'paid',
       amount: 0,
@@ -97,7 +97,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="accountId"
                 render={({ field }) => (
@@ -119,7 +119,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="paymentAccountId"
                 render={({ field }) => (
@@ -143,7 +143,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
@@ -162,7 +162,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -184,7 +184,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 )}
               />
             </div>
-            <FormField
+            <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
               render={({ field }) => (
@@ -198,7 +198,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
                 render={({ field }) => (
@@ -211,7 +211,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
                 render={({ field }) => (

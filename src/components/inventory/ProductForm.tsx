@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -63,7 +63,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('general');
   const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as Resolver<ProductFormValues>,
     defaultValues: {
       name: '', tradeName: '', scientificName: '', barcode: '',
       sku: '', categoryId: '', supplierId: '', price: 0, costPrice: 0,
@@ -273,7 +273,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                           <Input
                             type="number"
                             value={field.value}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                             className="h-12 text-center font-bold text-lg"
                           />
                         </FormControl>
@@ -294,7 +294,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                           <Input
                             type="number"
                             value={field.value}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                             className="h-12 text-center"
                           />
                         </FormControl>

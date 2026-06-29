@@ -1,10 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, RotateCcw, CreditCard, Banknote } from 'lucide-react';
+import { ArrowRight, CreditCard, Banknote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import type { PosTransactionType, PosPaymentMode } from '@/pages/PosPage';
 interface PosHeaderProps {
   type: PosTransactionType;
@@ -21,37 +20,40 @@ export function PosHeader({ type, onTypeChange, mode, onModeChange }: PosHeaderP
     return title;
   };
   return (
-    <header className={`border-b transition-colors duration-500 ${isReturn ? 'bg-rose-500 text-white' : 'bg-background'}`}>
+    <header className="border-b bg-background transition-colors duration-300">
       <div className="max-w-full px-6 h-16 flex items-center justify-between">
-        {/* Right side: Back Button only (Icon-only as requested) */}
+        {/* Right side: Back Button only */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className={isReturn ? 'text-white hover:bg-white/10 rounded-full' : 'rounded-full'}>
+          <Button variant="ghost" size="icon" asChild className="rounded-full">
             <Link to="/dashboard">
               <ArrowRight className="size-5" />
             </Link>
           </Button>
         </div>
-        {/* Center: Return Toggle and Title */}
+        {/* Center: Flat Alert-style Return Toggle and Title */}
         <div className="flex items-center gap-8">
           <motion.h1
             key={getTitle()}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xl font-display font-bold"
+            className={cn(
+              "text-xl font-display font-bold transition-colors duration-300",
+              isReturn ? "text-red-600" : "text-foreground"
+            )}
           >
             {getTitle()}
           </motion.h1>
-          <div className={`flex items-center gap-3 px-4 py-2 rounded-full border transition-all ${isReturn ? 'bg-white/10 border-white/20' : 'bg-muted/50 border-border'}`}>
-            <Label htmlFor="return-mode" className="text-sm font-bold cursor-pointer flex items-center gap-2">
-              <RotateCcw className={`size-3 ${isReturn ? 'animate-spin-slow' : ''}`} />
-              مرتجع
-            </Label>
-            <Switch
-              id="return-mode"
-              checked={isReturn}
-              onCheckedChange={(checked) => onTypeChange(checked ? 'return' : 'sale')}
-            />
-          </div>
+          <button
+            onClick={() => onTypeChange(isReturn ? 'sale' : 'return')}
+            className={cn(
+              "px-6 py-2 rounded-xl border text-sm font-bold transition-all duration-200 active:scale-95 flex items-center gap-2",
+              isReturn 
+                ? "bg-red-50 text-red-600 border-red-200 shadow-sm" 
+                : "bg-gray-50 text-gray-600 border-gray-200"
+            )}
+          >
+            {isReturn ? "وضع المرتجع نشط" : "مرتجع"}
+          </button>
         </div>
         {/* Left side: Payment Mode Toggle */}
         <div className="flex items-center gap-2 bg-muted p-1 rounded-xl relative overflow-hidden">
@@ -62,13 +64,19 @@ export function PosHeader({ type, onTypeChange, mode, onModeChange }: PosHeaderP
           />
           <button
             onClick={() => onModeChange('cash')}
-            className={`relative z-10 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors ${!isCredit ? 'text-pharmav-primary' : 'text-muted-foreground'}`}
+            className={cn(
+              "relative z-10 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors",
+              !isCredit ? 'text-pharmav-primary' : 'text-muted-foreground'
+            )}
           >
             <Banknote className="size-4" /> نقدي
           </button>
           <button
             onClick={() => onModeChange('credit')}
-            className={`relative z-10 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors ${isCredit ? 'text-pharmav-primary' : 'text-muted-foreground'}`}
+            className={cn(
+              "relative z-10 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors",
+              isCredit ? 'text-pharmav-primary' : 'text-muted-foreground'
+            )}
           >
             <CreditCard className="size-4" /> آجل
           </button>
