@@ -110,7 +110,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormLabel>نوع الحساب</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl>
-                    <SelectContent className="text-right">
+                    <SelectContent className="text-right font-sans">
                       {(Object.entries(TYPE_LABELS) as [AccountType, string][]).map(([val, label]) => (
                         <SelectItem key={val} value={val}>{label}</SelectItem>
                       ))}

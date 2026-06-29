@@ -26,8 +26,8 @@ import type { Product } from '@shared/types';
 import { Package, PlusCircle } from 'lucide-react';
 const addItemSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
-  quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
+  quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+  costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0),
 });
 type AddItemValues = z.infer<typeof addItemSchema>;
 interface PurchaseAddItemModalProps {

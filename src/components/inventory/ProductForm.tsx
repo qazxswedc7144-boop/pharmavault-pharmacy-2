@@ -184,7 +184,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>المجموعة العلاجية</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
-                          <SelectContent className="text-right">
+                          <SelectContent className="text-right font-sans">
                             {categoriesData?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
@@ -196,7 +196,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>المورد الافتراضي</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
-                          <SelectContent className="text-right">
+                          <SelectContent className="text-right font-sans">
                             {suppliersData?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                           </SelectContent>
                         </Select>

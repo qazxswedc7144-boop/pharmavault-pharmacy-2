@@ -26,8 +26,8 @@ import type { Product } from '@shared/types';
 import { ShoppingCart, AlertCircle } from 'lucide-react';
 const posAddSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
-  quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
-  unitPrice: z.coerce.number().min(0, 'السعر مطلوب'),
+  quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+  unitPrice: z.coerce.number().min(0, 'السعر مطلوب').default(0),
 });
 type PosAddValues = z.infer<typeof posAddSchema>;
 interface PosAddItemModalProps {
