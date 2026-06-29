@@ -146,16 +146,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
+                        {...fieldProps}
                         type="number"
                         step="0.01"
-                        value={field.value?.toString() ?? "0"}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        value={value?.toString() ?? "0"}
+                        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
                     </FormControl>
@@ -188,13 +188,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
-              render={({ field }) => (
+              render={({ field: { value, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
-                      value={field.value?.toString() ?? ""}
+                      {...fieldProps}
+                      value={value?.toString() ?? ""}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -207,13 +207,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
-                        value={field.value?.toString() ?? ""}
+                        {...fieldProps}
+                        value={value?.toString() ?? ""}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
                       />
@@ -225,14 +225,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
+                        {...fieldProps}
                         type="date"
-                        value={field.value?.toString() ?? ""}
+                        value={value?.toString() ?? ""}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>

@@ -8,7 +8,6 @@ export function Header() {
   const location = useLocation();
   const navLinks = [
     { name: 'لوحة التحكم', href: '/dashboard' },
-    { name: 'المخزون', href: '/inventory' },
     { name: 'الأسعار', href: '/pricing' },
   ];
   const isHome = location.pathname === '/';

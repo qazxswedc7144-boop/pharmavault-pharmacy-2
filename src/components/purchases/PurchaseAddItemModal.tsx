@@ -114,7 +114,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                     value={String(field.value)}
                     onValueChange={handleProductSelect}
                     isLoading={isLoading}
-                    placeholder="اختر الدواء من القائمة..."
+                    placeholder="اكتب اسم الصنف..."
                   />
                   <FormMessage />
                 </FormItem>
@@ -124,15 +124,15 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
               <FormField<AddItemValues>
                 control={form.control}
                 name="quantity"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">الكمية الواردة</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        {...field}
-                        value={String(field.value)}
-                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        {...fieldProps}
+                        value={value?.toString() ?? ""}
+                        onChange={e => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-center text-lg font-bold border-2"
                       />
                     </FormControl>
@@ -143,7 +143,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
               <FormField<AddItemValues>
                 control={form.control}
                 name="expiryDate"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel className="font-bold flex items-center gap-2">
                       <Calendar className="size-3" /> تاريخ الانتهاء
@@ -151,8 +151,8 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                     <FormControl>
                       <Input
                         type="date"
-                        {...field}
-                        value={String(field.value)}
+                        {...fieldProps}
+                        value={value?.toString() ?? ""}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>
@@ -164,16 +164,16 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
             <FormField<AddItemValues>
               control={form.control}
               name="costPrice"
-              render={({ field }) => (
+              render={({ field: { value, onChange, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel className="font-bold">سعر التكلفة للوحدة (ر.س)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
-                      {...field}
-                      value={String(field.value)}
-                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                      {...fieldProps}
+                      value={value?.toString() ?? ""}
+                      onChange={e => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-center text-xl font-bold border-2 text-pharmav-primary"
                     />
                   </FormControl>
@@ -199,11 +199,15 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormField<AddItemValues>
                     control={form.control}
                     name="batchNumber"
-                    render={({ field }) => (
+                    render={({ field: { value, ...fieldProps } }) => (
                       <FormItem>
                         <FormLabel className="text-xs">رقم الدفعة / التشغيلة (Batch)</FormLabel>
                         <div className="relative">
-                          <Input {...field} value={String(field.value)} className="h-10 text-right pr-10 font-mono" />
+                          <Input 
+                            {...fieldProps} 
+                            value={value?.toString() ?? ""} 
+                            className="h-10 text-right pr-10 font-mono" 
+                          />
                           <Barcode className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         </div>
                       </FormItem>
@@ -212,11 +216,16 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormField<AddItemValues>
                     control={form.control}
                     name="notes"
-                    render={({ field }) => (
+                    render={({ field: { value, ...fieldProps } }) => (
                       <FormItem>
                         <FormLabel className="text-xs">ملاحظات التوريد</FormLabel>
                         <FormControl>
-                          <Input {...field} value={String(field.value)} className="h-10 text-right" placeholder="أي ملاحظات فنية..." />
+                          <Input 
+                            {...fieldProps} 
+                            value={value?.toString() ?? ""} 
+                            className="h-10 text-right" 
+                            placeholder="أي ملاحظات فنية..." 
+                          />
                         </FormControl>
                       </FormItem>
                     )}
