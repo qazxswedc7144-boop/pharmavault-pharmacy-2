@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,11 +121,14 @@ export function AppSidebar(): JSX.Element {
             "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 flex-row-reverse",
             isOnline ? "bg-green-500/5 border-green-500/20" : "bg-orange-500/5 border-orange-500/20"
           )}>
-            {isOnline ? (
-              <Wifi className="size-4 text-green-500" />
-            ) : (
-              <WifiOff className="size-4 text-orange-500" />
-            )}
+            <div className="flex-row-reverse flex items-center gap-2">
+              {isOnline ? (
+                <Wifi className="size-4 text-green-500" />
+              ) : (
+                <WifiOff className="size-4 text-orange-500" />
+              )}
+              <ThemeToggle className="static" />
+            </div>
             <div className="flex-1 text-[10px] text-right">
               <div className="font-bold flex flex-row-reverse items-center justify-between">
                 {isOnline ? 'متزامن مع السحابة' : 'وضع العمل بدون اتصال'}
