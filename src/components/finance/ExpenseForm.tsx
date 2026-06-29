@@ -11,16 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { api } from '@/lib/api-client';
 import type { Expense, Account } from '@shared/types';
 import { toast } from 'sonner';
-interface ExpenseFormValues {
-  accountId: string;
-  paymentAccountId: string;
-  amount: number;
-  category: string;
-  description: string;
-  status: 'paid' | 'pending';
-  date: string;
-}
-const expenseSchema: z.ZodType<ExpenseFormValues> = z.object({
+const expenseSchema = z.object({
   accountId: z.string().min(1, 'يجب اختيار تصنيف المصروف'),
   paymentAccountId: z.string().min(1, 'يجب اختيار حساب الدفع'),
   amount: z.coerce.number().min(0.01, 'المبلغ يجب أن يكون أكبر من صفر').default(0),
@@ -29,6 +20,7 @@ const expenseSchema: z.ZodType<ExpenseFormValues> = z.object({
   status: z.enum(['paid', 'pending'] as const),
   date: z.string().min(1, 'تاريخ المصروف مطلوب')
 });
+type ExpenseFormValues = z.infer<typeof expenseSchema>;
 interface ExpenseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

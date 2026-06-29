@@ -16,16 +16,7 @@ import { Trash2, PlusCircle, Package, History, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { PurchaseAddItemModal } from '@/components/purchases/PurchaseAddItemModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-interface PurchaseFormValues {
-  invoiceNumber: string;
-  supplierId: string;
-  items: { productId: string; quantity: number; costPrice: number }[];
-  notes: string;
-  date: string;
-  isCredit: boolean;
-  isReturn: boolean;
-}
-const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
+const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
@@ -38,6 +29,7 @@ const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
   isCredit: z.boolean().default(false),
   isReturn: z.boolean().default(false)
 });
+type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 export function PurchaseCreatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -81,7 +73,7 @@ export function PurchaseCreatePage() {
         method: 'POST',
         body: JSON.stringify({
           ...values,
-          status: 'received', // Automatically set to received to simplify workflow
+          status: 'received',
           totalCost: totals,
           timestamp: new Date(values.date).getTime()
         })

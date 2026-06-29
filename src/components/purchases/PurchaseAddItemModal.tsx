@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,16 +24,12 @@ import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
 import { Package, PlusCircle } from 'lucide-react';
-interface AddItemValues {
-  productId: string;
-  quantity: number;
-  costPrice: number;
-}
-const addItemSchema: z.ZodType<AddItemValues> = z.object({
+const addItemSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
   costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة'),
 });
+type AddItemValues = z.infer<typeof addItemSchema>;
 interface PurchaseAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

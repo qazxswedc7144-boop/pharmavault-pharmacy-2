@@ -24,16 +24,12 @@ import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
 import { ShoppingCart, AlertCircle } from 'lucide-react';
-interface PosAddValues {
-  productId: string;
-  quantity: number;
-  unitPrice: number;
-}
-const posAddSchema: z.ZodType<PosAddValues> = z.object({
+const posAddSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل'),
   unitPrice: z.coerce.number().min(0, 'السعر مطلوب'),
 });
+type PosAddValues = z.infer<typeof posAddSchema>;
 interface PosAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -11,20 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { api } from '@/lib/api-client';
 import type { Account, AccountType } from '@shared/types';
 import { toast } from 'sonner';
-interface AccountFormValues {
-  name: string;
-  code: string;
-  type: AccountType;
-  balance: number;
-  description: string;
-}
-const accountSchema: z.ZodType<AccountFormValues> = z.object({
+const accountSchema = z.object({
   name: z.string().min(2, 'اسم الحساب مطلوب'),
   code: z.string().min(1, 'كود الحساب مطلوب'),
   type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense'] as const),
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح').default(0),
   description: z.string().default(''),
 });
+type AccountFormValues = z.infer<typeof accountSchema>;
 interface AccountFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

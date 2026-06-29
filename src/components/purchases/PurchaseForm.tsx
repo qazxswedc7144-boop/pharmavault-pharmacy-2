@@ -14,14 +14,7 @@ import { Trash2, Package, PlusCircle, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { PurchaseAddItemModal } from './PurchaseAddItemModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-interface PurchaseFormValues {
-  invoiceNumber: string;
-  supplierId: string;
-  items: { productId: string; quantity: number; costPrice: number }[];
-  notes: string;
-  date: string;
-}
-const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
+const purchaseSchema = z.object({
   invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
@@ -32,6 +25,7 @@ const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
   notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
+type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 interface PurchaseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -73,7 +67,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         method: order ? 'PUT' : 'POST',
         body: JSON.stringify({
           ...values,
-          status: 'received', // Automatically treat as received to ensure inventory accuracy
+          status: 'received',
           totalCost: totals,
           timestamp: new Date(values.date).getTime()
         })

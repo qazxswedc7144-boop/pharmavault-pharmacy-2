@@ -35,25 +35,7 @@ import type { Product, Category, Supplier } from '@shared/types';
 import { toast } from 'sonner';
 import { Info, DollarSign, Package, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-interface ProductFormValues {
-  name: string;
-  tradeName: string;
-  scientificName: string;
-  barcode: string;
-  sku: string;
-  categoryId: string;
-  supplierId: string;
-  price: number;
-  costPrice: number;
-  taxRate: number;
-  discountRate: number;
-  stockQuantity: number;
-  unit: string;
-  expiryDate: string;
-  batchNumber: string;
-  minStockLevel: number;
-}
-const productSchema: z.ZodType<ProductFormValues> = z.object({
+const productSchema = z.object({
   name: z.string().min(2, 'الاسم مطلوب'),
   tradeName: z.string().default(''),
   scientificName: z.string().default(''),
@@ -71,6 +53,7 @@ const productSchema: z.ZodType<ProductFormValues> = z.object({
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
   minStockLevel: z.coerce.number().min(0).default(0),
 });
+type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
