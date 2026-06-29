@@ -195,6 +195,12 @@ function runSetupCommands() {
         "react-hook-form",
         "date-fns",
         "react-hotkeys-hook"
+    ],
+    [
+        "bun",
+        "add",
+        "html2pdf.js",
+        "xlsx"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
