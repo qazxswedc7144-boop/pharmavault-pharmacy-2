@@ -26,10 +26,10 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
     { title: 'الأصناف المباعة', value: '4,520', icon: Package, trend: '+15.4%', color: 'text-purple-500' },
   ];
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" id="report-print-area">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
-          <Card key={i} className="glass-card border-none overflow-hidden group">
+          <Card key={i} className="glass-card border-none overflow-hidden group shadow-none">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4 flex-row-reverse">
                 <div className={cn("p-3 rounded-2xl bg-muted group-hover:scale-110 transition-transform", kpi.color)}>
@@ -47,10 +47,10 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
           </Card>
         ))}
       </div>
-      <Card className="glass-card border-none">
+      <Card className="glass-card border-none shadow-none">
         <CardHeader className="flex flex-row-reverse items-center justify-between border-b pb-4">
-          <CardTitle className="text-lg font-display">مخطط الأداء البياني</CardTitle>
-          <div className="flex gap-2">
+          <CardTitle className="text-lg font-display">مخطط الأداء البياني للفترة ({dateRange.from})</CardTitle>
+          <div className="flex gap-2 no-print">
             <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground"><div className="size-2 rounded-full bg-pharmav-primary" /> الإيراد</div>
             <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground"><div className="size-2 rounded-full bg-green-500" /> الربح</div>
           </div>
@@ -58,47 +58,52 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
         <CardContent className="pt-8 h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} orientation="right" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+              <XAxis dataKey="name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} orientation="right" />
               <Tooltip
-                cursor={{fill: 'hsl(var(--muted)/0.3)'}}
+                cursor={{fill: 'rgba(0,0,0,0.05)'}}
                 contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', textAlign: 'right' }}
               />
-              <Bar dataKey="val" fill="hsl(var(--pharmav-primary))" radius={[6, 6, 0, 0]} barSize={40} />
+              <Bar dataKey="val" fill="#2C7BE5" radius={[6, 6, 0, 0]} barSize={40} />
               <Bar dataKey="cost" fill="#28A745" radius={[6, 6, 0, 0]} barSize={40} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
-      <Card className="glass-card border-none overflow-hidden">
+      <Card className="glass-card border-none shadow-none overflow-hidden">
         <div className="p-6 border-b bg-muted/20 flex items-center justify-between flex-row-reverse">
-          <h3 className="font-display font-bold">تفاصيل العمليات</h3>
-          <Badge variant="outline" className="font-mono">CSV / Excel / PDF</Badge>
+          <h3 className="font-display font-bold">تفاصيل العمليات للتقرير: {type.toUpperCase()}</h3>
+          <Badge variant="outline" className="font-mono no-print">تصدير متاح</Badge>
         </div>
-        <Table className="text-right">
-          <TableHeader className="bg-muted/40">
-            <TableRow>
-              <TableHead className="text-right py-4">رقم العملية</TableHead>
-              <TableHead className="text-right">البيان / الوصف</TableHead>
-              <TableHead className="text-right">التاريخ</TableHead>
-              <TableHead className="text-right">المبلغ</TableHead>
-              <TableHead className="text-right">الحالة</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={i} className="hover:bg-muted/30 border-b">
-                <TableCell className="font-mono font-bold text-xs">#INV-2024-00{i+1}</TableCell>
-                <TableCell className="font-medium text-sm">مبيعات صيدلية - فرع 01</TableCell>
-                <TableCell className="text-muted-foreground text-xs">2024-05-{10+i}</TableCell>
-                <TableCell className="font-bold">{(1250 * (i+1)).toLocaleString()} ر.س</TableCell>
-                <TableCell><Badge variant="outline" className="bg-green-500/10 text-green-600 border-none font-bold">مكتمل</Badge></TableCell>
+        <div className="overflow-x-auto">
+          <Table className="text-right border-collapse">
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead className="text-right py-4 font-bold">رقم العملية</TableHead>
+                <TableHead className="text-right font-bold">البيان / الوصف</TableHead>
+                <TableHead className="text-right font-bold">التاريخ</TableHead>
+                <TableHead className="text-right font-bold">المبلغ</TableHead>
+                <TableHead className="text-right font-bold">الحالة</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <TableRow key={i} className="hover:bg-muted/30 border-b">
+                  <TableCell className="font-mono font-bold text-xs">#INV-2024-00{i+1}</TableCell>
+                  <TableCell className="font-medium text-sm">مبيعات صيدلية - فئة {type}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">2024-05-{Math.min(30, 10+i)}</TableCell>
+                  <TableCell className="font-bold">{(1250 * (i+1)).toLocaleString()} ر.س</TableCell>
+                  <TableCell><Badge variant="outline" className="bg-green-500/10 text-green-600 border-none font-bold">مكتمل</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
+      <div className="mt-8 text-center text-[10px] text-muted-foreground hidden print:block">
+        تم استخراج هذا التقرير من نظام فارمافولت في {new Date().toLocaleString('ar-SA')}
+      </div>
     </div>
   );
 }
