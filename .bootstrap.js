@@ -89,8 +89,8 @@ function runSetupCommands() {
     [
         "bun",
         "add",
-        "zod",
         "@hookform/resolvers",
+        "zod",
         "react-hook-form"
     ],
     [
