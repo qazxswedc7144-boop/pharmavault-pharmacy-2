@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-// @ts-expect-error - html2pdf might not have updated types but is needed for reporting
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
 export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
@@ -43,16 +42,16 @@ export function ReportsPage() {
     if (!element) return;
     setIsExporting(true);
     const opt = {
-      margin: [10, 10],
+      margin: [10, 10] as [number, number],
       filename: `PharmaVault_${activeReport}_${dateRange.from}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true, 
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
         letterRendering: true,
-        logging: false 
+        logging: false
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
     };
     try {
       await toast.promise(html2pdf().set(opt).from(element).save(), {
