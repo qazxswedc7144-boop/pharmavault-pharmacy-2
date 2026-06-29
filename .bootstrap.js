@@ -186,6 +186,15 @@ function runSetupCommands() {
         "cmdk",
         "react-hotkeys-hook",
         "date-fns"
+    ],
+    [
+        "bun",
+        "add",
+        "zod",
+        "@hookform/resolvers",
+        "react-hook-form",
+        "date-fns",
+        "react-hotkeys-hook"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
