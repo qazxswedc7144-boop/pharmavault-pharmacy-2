@@ -124,7 +124,7 @@ export function PurchaseCreatePage() {
                       </FormLabel>
                       <Autocomplete
                         options={supplierOptions}
-                        value={field.value}
+                        value={String(field.value)}
                         onValueChange={field.onChange}
                         isLoading={isLoadingSuppliers}
                         placeholder="ابحث عن مورد..."
@@ -144,7 +144,7 @@ export function PurchaseCreatePage() {
                         <History className="size-4 text-pharmav-primary" /> تاريخ التوريد
                       </FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} className="h-12 text-center font-bold border-2" />
+                        <Input type="date" {...field} value={String(field.value)} className="h-12 text-center font-bold border-2" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -161,7 +161,7 @@ export function PurchaseCreatePage() {
                     <FormItem>
                       <FormLabel className="font-bold">رقم فاتورة المورد</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="رقم الفاتورة..." className="h-12 font-mono text-center text-lg border-2" />
+                        <Input {...field} value={String(field.value)} placeholder="رقم الفاتورة..." className="h-12 font-mono text-center text-lg border-2" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +178,7 @@ export function PurchaseCreatePage() {
                         <FileText className="size-4 text-pharmav-primary" /> بيان / ملاحظات إضافية
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." className="h-12 text-right border-2" />
+                        <Input {...field} value={String(field.value)} placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." className="h-12 text-right border-2" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

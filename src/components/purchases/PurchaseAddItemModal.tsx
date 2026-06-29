@@ -83,7 +83,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   <FormLabel>البحث عن منتج</FormLabel>
                   <Autocomplete
                     options={productOptions}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={handleProductSelect}
                     isLoading={isLoading}
                     placeholder="اختر الدواء من القائمة..."

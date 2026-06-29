@@ -93,7 +93,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   <FormLabel>اختيار المنتج</FormLabel>
                   <Autocomplete
                     options={productOptions}
-                    value={field.value}
+                    value={String(field.value)}
                     onValueChange={handleProductSelect}
                     isLoading={isLoading}
                     placeholder="ابحث بالاسم أو الكود..."

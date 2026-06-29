@@ -166,14 +166,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="scientificName" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
-                        <FormControl><Input {...field} className="h-12 text-right border-2" placeholder="المادة الفعالة..." /></FormControl>
+                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2" placeholder="المادة الفعالة..." /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField<ProductFormValues> control={form.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
-                        <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
+                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -182,7 +182,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="categoryId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المجموعة العلاجية</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} value={String(field.value)}>
                           <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger></FormControl>
                           <SelectContent className="text-right font-sans">
                             {categoriesData?.items.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
@@ -194,7 +194,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="supplierId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المورد الافتراضي</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} value={String(field.value)}>
                           <FormControl><SelectTrigger className="h-12 text-right border-2"><SelectValue placeholder="اختر المورد" /></SelectTrigger></FormControl>
                           <SelectContent className="text-right font-sans">
                             {suppliersData?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -208,14 +208,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="sku" render={({ field }) => (
                       <FormItem>
                         <FormLabel>كود المنتج (SKU)</FormLabel>
-                        <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
+                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right font-mono border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField<ProductFormValues> control={form.control} name="barcode" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الباركود</FormLabel>
-                        <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
+                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right font-mono border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -283,7 +283,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="unit" render={({ field }) => (
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
-                        <FormControl><Input {...field} className="h-12 text-center" /></FormControl>
+                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-center" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -306,14 +306,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                      <FormField<ProductFormValues> control={form.control} name="expiryDate" render={({ field }) => (
                         <FormItem>
                           <FormLabel>تاريخ انتهاء الصلاحية</FormLabel>
-                          <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
+                          <FormControl><Input type="date" {...field} value={String(field.value)} className="h-12 text-center font-bold" /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                       <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
                         <FormItem>
                           <FormLabel>رقم التشغيلة / الدفعة</FormLabel>
-                          <FormControl><Input {...field} className="h-12 text-right border-2 font-mono" /></FormControl>
+                          <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2 font-mono" /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />

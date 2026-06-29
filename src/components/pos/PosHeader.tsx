@@ -22,7 +22,6 @@ export function PosHeader({ type, onTypeChange, mode, onModeChange }: PosHeaderP
   return (
     <header className="border-b bg-background transition-colors duration-300">
       <div className="max-w-full px-6 h-16 flex items-center justify-between">
-        {/* Right side: Back Button only */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild className="rounded-full">
             <Link to="/dashboard">
@@ -30,7 +29,6 @@ export function PosHeader({ type, onTypeChange, mode, onModeChange }: PosHeaderP
             </Link>
           </Button>
         </div>
-        {/* Center: Flat Alert-style Return Toggle and Title */}
         <div className="flex items-center gap-8">
           <motion.h1
             key={getTitle()}
@@ -47,15 +45,14 @@ export function PosHeader({ type, onTypeChange, mode, onModeChange }: PosHeaderP
             onClick={() => onTypeChange(isReturn ? 'sale' : 'return')}
             className={cn(
               "px-6 py-2 rounded-xl border text-sm font-bold transition-all duration-200 active:scale-95 flex items-center gap-2",
-              isReturn 
-                ? "bg-red-50 text-red-600 border-red-200 shadow-sm" 
+              isReturn
+                ? "bg-red-50 text-red-600 border-red-200 shadow-sm"
                 : "bg-gray-50 text-gray-600 border-gray-200"
             )}
           >
             {isReturn ? "وضع المرتجع نشط" : "مرتجع"}
           </button>
         </div>
-        {/* Left side: Payment Mode Toggle */}
         <div className="flex items-center gap-2 bg-muted p-1 rounded-xl relative overflow-hidden">
           <motion.div
             className="absolute inset-y-1 bg-background rounded-lg shadow-sm w-[48%]"

@@ -125,7 +125,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>المورد</FormLabel>
-                    <Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
+                    <Autocomplete options={supplierOptions} value={String(field.value)} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -137,7 +137,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                   <FormItem>
                     <FormLabel>رقم فاتورة المورد</FormLabel>
                     <FormControl>
-                      <Input {...field} className="h-12 font-mono text-center text-lg border-2" />
+                      <Input {...field} value={String(field.value)} className="h-12 font-mono text-center text-lg border-2" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
