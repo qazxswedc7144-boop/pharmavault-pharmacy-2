@@ -194,7 +194,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormControl>
                     <Input
                       {...field}
-                      value={String(field.value ?? '')}
+                      value={String(field.value ?? "")}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -213,7 +213,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                     <FormControl>
                       <Input
                         {...field}
-                        value={String(field.value ?? '')}
+                        value={String(field.value ?? "")}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
                       />
@@ -232,7 +232,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                       <Input
                         {...field}
                         type="date"
-                        value={String(field.value ?? '')}
+                        value={String(field.value ?? "")}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>

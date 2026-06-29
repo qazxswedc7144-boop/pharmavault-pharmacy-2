@@ -99,7 +99,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormControl>
                     <Input
                       {...field}
-                      value={String(field.value ?? '')}
+                      value={String(field.value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>
@@ -117,7 +117,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     <FormControl>
                       <Input
                         {...field}
-                        value={String(field.value ?? '')}
+                        value={String(field.value ?? "")}
                         className="h-12 text-right font-mono border-2"
                       />
                     </FormControl>
@@ -177,7 +177,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormControl>
                     <Input
                       {...field}
-                      value={String(field.value ?? '')}
+                      value={String(field.value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>

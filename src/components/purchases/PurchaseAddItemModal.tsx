@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
-import { Package, Calculator, History, Info, Barcode } from 'lucide-react';
+import { Package, Calculator, Info, Barcode, Calendar } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 const addItemSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
@@ -69,9 +69,9 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
     form.setValue('productId', id);
     const product = productsData?.items.find((p) => p.id === id);
     if (product) {
-      form.setValue('costPrice', product.costPrice);
-      form.setValue('expiryDate', product.expiryDate);
-      form.setValue('batchNumber', product.batchNumber);
+      form.setValue('costPrice', product.costPrice || 0);
+      form.setValue('expiryDate', product.expiryDate || '');
+      form.setValue('batchNumber', product.batchNumber || '');
     }
   };
   const onSubmit: SubmitHandler<AddItemValues> = (values) => {
@@ -96,13 +96,13 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full"><Info className="size-4" /></Button>
                 </TooltipTrigger>
-                <TooltipContent>إدراج دواء في فاتورة التوريد مع تحديث التكلفة والكمية وتاريخ الانتهاء.</TooltipContent>
+                <TooltipContent className="text-right">إدراج دواء في فاتورة التوريد مع تحديث التكلفة والكمية وتاريخ الانتهاء.</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-8 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-8 space-y-6 bg-card">
             <FormField<AddItemValues>
               control={form.control}
               name="productId"
@@ -145,7 +145,9 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                 name="expiryDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold flex items-center gap-2">تاريخ الانتهاء</FormLabel>
+                    <FormLabel className="font-bold flex items-center gap-2">
+                      <Calendar className="size-3" /> تاريخ الانتهاء
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -213,7 +215,9 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs">ملاحظات التوريد</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-10 text-right" placeholder="أي ملاحظات فنية..." /></FormControl>
+                        <FormControl>
+                          <Input {...field} value={String(field.value)} className="h-10 text-right" placeholder="أي ملاحظات فنية..." />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -221,19 +225,19 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
               </AccordionItem>
             </Accordion>
             <DialogFooter className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="h-14 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95"
               >
                 إضافة للصنف
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
                 className="h-14 bg-red-600 hover:bg-red-700 text-white border-none font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95"
               >
-                إلغاء
+                إلغاء الأمر
               </Button>
             </DialogFooter>
           </form>

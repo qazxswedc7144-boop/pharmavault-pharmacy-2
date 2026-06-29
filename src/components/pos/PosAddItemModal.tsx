@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
-import { ShoppingCart, AlertCircle, Info, Calculator, Tag, Percent } from 'lucide-react';
+import { ShoppingCart, Info, Calculator, Tag, Percent, Calendar } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 const posAddSchema = z.object({
   productId: z.string().min(1, 'يجب اختيار منتج'),
@@ -77,9 +77,9 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
     const product = productsData?.items.find((p) => p.id === id);
     if (product) {
       form.setValue('unitPrice', product.price);
-      form.setValue('expiryDate', product.expiryDate);
-      form.setValue('batchNumber', product.batchNumber);
-      form.setValue('taxOverride', product.taxRate);
+      form.setValue('expiryDate', product.expiryDate || '');
+      form.setValue('batchNumber', product.batchNumber || '');
+      form.setValue('taxOverride', product.taxRate || 0);
     }
   };
   const onSubmit: SubmitHandler<PosAddValues> = (values) => {
@@ -99,26 +99,30 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
           <DialogTitle className="text-right font-display text-xl font-bold flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingCart className="size-5 text-pharmav-primary" />
-              إضافة صنف مخصص
+              إضافة صنف مخصص (POS)
             </div>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full"><Info className="size-4" /></Button>
                 </TooltipTrigger>
-                <TooltipContent>إضافة منتج من القائمة مع إمكانية تعديل السعر والكمية والضرائب.</TooltipContent>
+                <TooltipContent className="text-right font-sans">
+                  إضافة منتج من القائمة مع إمكانية تعديل السعر والكمية والضرائب بشكل لحظي.
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-8 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-8 space-y-6 bg-card">
             <FormField<PosAddValues>
               control={form.control}
               name="productId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold">اسم المنتج / الدواء</FormLabel>
+                  <FormLabel className="font-bold flex items-center gap-2">
+                    اسم المنتج / الدواء <Info className="size-3 text-muted-foreground" />
+                  </Label>
                   <Autocomplete
                     options={productOptions}
                     value={String(field.value)}
@@ -155,7 +159,9 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                 name="expiryDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold">تاريخ الانتهاء</FormLabel>
+                    <FormLabel className="font-bold flex items-center gap-2">
+                      <Calendar className="size-3" /> تاريخ الانتهاء
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -192,7 +198,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
             <div className="p-4 bg-muted/50 rounded-2xl flex justify-between items-center border-2 border-dashed border-pharmav-primary/20">
               <div className="flex items-center gap-2 font-bold text-muted-foreground">
                 <Calculator className="size-4" />
-                المجموع الفرعي:
+                المجموع الكلي لهذا الصنف:
               </div>
               <span className="text-3xl font-display font-bold text-pharmav-primary">
                 {currentTotal.toFixed(2)} <span className="text-sm font-normal">ر.س</span>
@@ -210,8 +216,10 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                       name="batchNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs">رقم التشغيلة</FormLabel>
-                          <FormControl><Input {...field} value={String(field.value)} className="h-10 text-right font-mono" /></FormControl>
+                          <FormLabel className="text-xs">رقم التشغيلة / الدفعة</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={String(field.value)} className="h-10 text-right font-mono" />
+                          </FormControl>
                         </FormItem>
                       )}
                     />
@@ -258,19 +266,19 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
               </AccordionItem>
             </Accordion>
             <DialogFooter className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="h-14 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95"
               >
-                إضافة
+                تأكيد الإضافة
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
                 className="h-14 bg-red-600 hover:bg-red-700 text-white border-none font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95"
               >
-                إلغاء
+                إلغاء الأمر
               </Button>
             </DialogFooter>
           </form>

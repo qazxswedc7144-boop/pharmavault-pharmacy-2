@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ReportSidebar } from '@/components/reports/ReportSidebar';
@@ -37,21 +37,21 @@ export function ReportsPage() {
     'expiry': 'تنبيهات انتهاء الصلاحية',
     'comparison': 'مقارنة الفترات المالية'
   };
-  const handlePdfExport = async () => {
+  const handlePdfExport = useCallback(async () => {
     const element = document.getElementById('report-print-area');
     if (!element) return;
     setIsExporting(true);
     const opt = {
-      margin: [10, 10] as [number, number],
+      margin: 10 as number,
       filename: `PharmaVault_${activeReport}_${dateRange.from}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: {
         scale: 2,
         useCORS: true,
         letterRendering: true,
         logging: false
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
     };
     try {
       await toast.promise(html2pdf().set(opt).from(element).save(), {
@@ -64,8 +64,8 @@ export function ReportsPage() {
     } finally {
       setIsExporting(false);
     }
-  };
-  const handleExcelExport = () => {
+  }, [activeReport, dateRange.from]);
+  const handleExcelExport = useCallback(() => {
     const table = document.querySelector('#report-print-area table');
     if (!table) {
       toast.error('لا توجد بيانات جدولية لتصديرها لهذا التقرير');
@@ -82,7 +82,7 @@ export function ReportsPage() {
     } finally {
       setIsExporting(false);
     }
-  };
+  }, [activeReport, dateRange.from]);
   return (
     <AppLayout container>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
