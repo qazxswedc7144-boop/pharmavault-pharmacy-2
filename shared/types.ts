@@ -1,7 +1,6 @@
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
-  error?: string;
 }
 export interface User {
   id: string;
@@ -107,14 +106,14 @@ export interface JournalEntry {
   id: string;
   date: number;
   description: string;
-  referenceId: string; // ID of the Sale, Purchase, or Expense
+  referenceId: string;
   items: JournalEntryItem[];
 }
 export interface Expense {
   id: string;
   date: number;
-  accountId: string; // The expense category account
-  paymentAccountId: string; // Cash or Bank account
+  accountId: string;
+  paymentAccountId: string;
   amount: number;
   category: string;
   description: string;
@@ -128,6 +127,24 @@ export interface Alert {
   severity: 'low' | 'medium' | 'high';
   status: 'active' | 'resolved';
   timestamp: number;
+}
+// Subscription Types
+export type BillingCycle = 'monthly' | 'yearly';
+export type SubscriptionPlanId = 'starter' | 'pro' | 'enterprise';
+export type SubscriptionStatus = 'active' | 'past_due' | 'cancelled';
+export interface SubscriptionInfo {
+  planId: SubscriptionPlanId;
+  status: SubscriptionStatus;
+  billingCycle: BillingCycle;
+  nextBillingDate: string;
+}
+export interface BillingRecord {
+  id: string;
+  date: string;
+  amount: number;
+  planId: SubscriptionPlanId;
+  invoiceUrl: string;
+  status: 'paid' | 'pending';
 }
 export interface DashboardStats {
   totalSales: number;

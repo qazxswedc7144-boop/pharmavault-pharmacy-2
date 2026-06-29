@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Transaction } from '@shared/types';
+import type { Transaction, SubscriptionInfo, BillingRecord } from '@shared/types';
 interface PharmacySettings {
   name: string;
   address: string;
@@ -19,6 +19,9 @@ interface AppState {
   isOnline: boolean;
   // Global Settings
   settings: PharmacySettings;
+  // Subscription
+  subscription: SubscriptionInfo;
+  billingHistory: BillingRecord[];
   // Actions
   setLocked: (locked: boolean) => void;
   setPin: (pin: string | null) => void;
@@ -27,6 +30,8 @@ interface AppState {
   clearOfflineQueue: () => void;
   setOnlineStatus: (status: boolean) => void;
   updateSettings: (settings: Partial<PharmacySettings>) => void;
+  setSubscription: (sub: SubscriptionInfo) => void;
+  addBillingRecord: (record: BillingRecord) => void;
 }
 export const useAppStore = create<AppState>()(
   persist(
@@ -44,6 +49,22 @@ export const useAppStore = create<AppState>()(
         currency: 'ر.س',
         printInvoiceAuto: false
       },
+      subscription: {
+        planId: 'pro',
+        status: 'active',
+        billingCycle: 'monthly',
+        nextBillingDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString()
+      },
+      billingHistory: [
+        {
+          id: 'INV-001',
+          date: new Date().toISOString(),
+          amount: 99,
+          planId: 'pro',
+          invoiceUrl: '#',
+          status: 'paid'
+        }
+      ],
       setLocked: (locked) => set({ isLocked: locked }),
       setPin: (pin) => set({ pin }),
       setLoginLockEnabled: (enabled) => set({ loginLockEnabled: enabled }),
@@ -54,6 +75,10 @@ export const useAppStore = create<AppState>()(
       updateSettings: (newSettings) => set((state) => ({
         settings: { ...state.settings, ...newSettings }
       })),
+      setSubscription: (subscription) => set({ subscription }),
+      addBillingRecord: (record) => set((state) => ({ 
+        billingHistory: [record, ...state.billingHistory] 
+      })),
     }),
     {
       name: 'pharmavault-storage',
@@ -63,6 +88,8 @@ export const useAppStore = create<AppState>()(
         loginLockEnabled: state.loginLockEnabled,
         offlineQueue: state.offlineQueue,
         settings: state.settings,
+        subscription: state.subscription,
+        billingHistory: state.billingHistory,
       }),
     }
   )

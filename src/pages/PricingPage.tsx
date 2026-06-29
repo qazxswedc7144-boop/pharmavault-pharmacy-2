@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { PricingCard } from '@/components/ui/pricing-card';
+import { PlanUpgradeModal } from '@/components/settings/PlanUpgradeModal';
+import { useAppStore } from '@/lib/offline-store';
+import type { SubscriptionPlanId } from '@shared/types';
 export function PricingPage() {
+  const subscription = useAppStore(s => s.subscription);
+  const [selectedPlanId, setSelectedPlanId] = useState<SubscriptionPlanId | undefined>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleSelectPlan = (id: SubscriptionPlanId) => {
+    setSelectedPlanId(id);
+    setIsModalOpen(true);
+  };
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
@@ -16,7 +26,7 @@ export function PricingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-stretch">
             <PricingCard
-              title="الباقة الأساسية"
+              title="الباقة المبتدئة"
               price="49 ر.س"
               description="مثالية للصيدليات الصغيرة المستقلة في بداية مشوارها."
               features={[
@@ -26,6 +36,8 @@ export function PricingPage() {
                 "ترخيص لمستخدم واحد",
                 "دعم فني عبر البريد الإلكتروني"
               ]}
+              isCurrent={subscription.planId === 'starter'}
+              onClick={() => handleSelectPlan('starter')}
             />
             <PricingCard
               title="باقة المحترفين"
@@ -40,6 +52,8 @@ export function PricingPage() {
                 "دعم فني ذو أولوية"
               ]}
               featured
+              isCurrent={subscription.planId === 'pro'}
+              onClick={() => handleSelectPlan('pro')}
             />
             <PricingCard
               title="باقة المؤسسات"
@@ -53,6 +67,8 @@ export function PricingPage() {
                 "عدد غير محدود من المستخدمين",
                 "دعم فني عبر الهاتف على مدار الساعة"
               ]}
+              isCurrent={subscription.planId === 'enterprise'}
+              onClick={() => handleSelectPlan('enterprise')}
             />
           </div>
           <div className="mt-32 p-12 rounded-[2.5rem] bg-pharmav-primary/5 border border-pharmav-primary/20 text-center relative overflow-hidden group">
@@ -67,6 +83,11 @@ export function PricingPage() {
           </div>
         </div>
       </main>
+      <PlanUpgradeModal 
+        open={isModalOpen} 
+        onOpenChange={setIsModalOpen} 
+        initialPlanId={selectedPlanId} 
+      />
       <Footer />
     </div>
   );
