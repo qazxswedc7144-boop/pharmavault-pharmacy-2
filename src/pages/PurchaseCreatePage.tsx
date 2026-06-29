@@ -112,7 +112,7 @@ export function PurchaseCreatePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32" dir="rtl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-10 gap-4">
+            <div className="grid grid-cols-10 gap-4 items-end">
               <div className="col-span-10 md:col-span-7">
                 <FormField<PurchaseFormValues>
                   control={form.control}
@@ -152,7 +152,8 @@ export function PurchaseCreatePage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-10 gap-4">
+            {/* Client Requested 30/70 alignment for Invoice Number and Notes */}
+            <div className="grid grid-cols-10 gap-4 items-end">
               <div className="col-span-10 md:col-span-3">
                 <FormField<PurchaseFormValues>
                   control={form.control}
@@ -161,7 +162,12 @@ export function PurchaseCreatePage() {
                     <FormItem>
                       <FormLabel className="font-bold">رقم الفاتورة</FormLabel>
                       <FormControl>
-                        <Input {...field} value={String(field.value)} placeholder="رقم الفاتورة..." className="h-12 font-mono text-center text-lg border-2" />
+                        <Input 
+                          {...field} 
+                          value={String(field.value)} 
+                          placeholder="رقم الفاتورة..." 
+                          className="h-12 font-mono text-center text-lg border-2 bg-background" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +184,12 @@ export function PurchaseCreatePage() {
                         <FileText className="size-4 text-pharmav-primary" /> بيان / ملاحظات إضافية
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} value={String(field.value)} placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." className="h-12 text-right border-2 px-4" />
+                        <Input 
+                          {...field} 
+                          value={String(field.value)} 
+                          placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." 
+                          className="h-12 text-right border-2 px-4 bg-background" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -243,7 +254,6 @@ export function PurchaseCreatePage() {
           </form>
         </Form>
       </div>
-      {/* Sticky Financial Bar */}
       <div className="fixed bottom-0 inset-x-0 bg-background/80 backdrop-blur-lg border-t z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between flex-row-reverse">
           <div className="flex flex-col items-end">
