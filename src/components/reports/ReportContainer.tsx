@@ -26,28 +26,28 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
     { title: 'الأصناف المباعة', value: '4,520', icon: Package, trend: '+15.4%', color: 'text-purple-500' },
   ];
   return (
-    <div className="space-y-6" id="report-print-area">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="space-y-6 bg-white print:bg-white" id="report-print-area">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 print:grid-cols-2">
         {kpis.map((kpi, i) => (
-          <Card key={i} className="glass-card border-none overflow-hidden group shadow-none">
+          <Card key={i} className="glass-card border-none overflow-hidden group shadow-none print:border-solid print:border print:border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4 flex-row-reverse">
-                <div className={cn("p-3 rounded-2xl bg-muted group-hover:scale-110 transition-transform", kpi.color)}>
+                <div className={cn("p-3 rounded-2xl bg-muted group-hover:scale-110 transition-transform print:bg-gray-100", kpi.color)}>
                   <kpi.icon className="size-5" />
                 </div>
-                <Badge variant="outline" className="text-[10px] font-bold bg-green-500/10 text-green-600 border-none">
+                <Badge variant="outline" className="text-[10px] font-bold bg-green-500/10 text-green-600 border-none print:border-green-200 print:text-green-700">
                   {kpi.trend}
                 </Badge>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{kpi.title}</p>
-                <h3 className="text-2xl font-display font-bold">{kpi.value}</h3>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 print:text-gray-600">{kpi.title}</p>
+                <h3 className="text-2xl font-display font-bold print:text-black">{kpi.value}</h3>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-      <Card className="glass-card border-none shadow-none">
+      <Card className="glass-card border-none shadow-none print:border-solid print:border print:border-gray-200">
         <CardHeader className="flex flex-row-reverse items-center justify-between border-b pb-4">
           <CardTitle className="text-lg font-display">مخطط الأداء البياني للفترة ({dateRange.from})</CardTitle>
           <div className="flex gap-2 no-print">
@@ -71,28 +71,28 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
           </ResponsiveContainer>
         </CardContent>
       </Card>
-      <Card className="glass-card border-none shadow-none overflow-hidden">
-        <div className="p-6 border-b bg-muted/20 flex items-center justify-between flex-row-reverse">
+      <Card className="glass-card border-none shadow-none overflow-hidden print:border-solid print:border print:border-gray-200">
+        <div className="p-6 border-b bg-muted/20 flex items-center justify-between flex-row-reverse print:bg-gray-50">
           <h3 className="font-display font-bold">تفاصيل العمليات للتقرير: {type.toUpperCase()}</h3>
           <Badge variant="outline" className="font-mono no-print">تصدير متاح</Badge>
         </div>
         <div className="overflow-x-auto">
-          <Table className="text-right border-collapse">
-            <TableHeader className="bg-muted/40">
+          <Table className="text-right border-collapse w-full">
+            <TableHeader className="bg-muted/40 print:bg-gray-100">
               <TableRow>
-                <TableHead className="text-right py-4 font-bold">رقم العملية</TableHead>
-                <TableHead className="text-right font-bold">البيان / الوصف</TableHead>
-                <TableHead className="text-right font-bold">التاريخ</TableHead>
-                <TableHead className="text-right font-bold">المبلغ</TableHead>
-                <TableHead className="text-right font-bold">الحالة</TableHead>
+                <TableHead className="text-right py-4 font-bold text-black">رقم العملية</TableHead>
+                <TableHead className="text-right font-bold text-black">البيان / الوصف</TableHead>
+                <TableHead className="text-right font-bold text-black">التاريخ</TableHead>
+                <TableHead className="text-right font-bold text-black">المبلغ</TableHead>
+                <TableHead className="text-right font-bold text-black">الحالة</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {Array.from({ length: 12 }).map((_, i) => (
-                <TableRow key={i} className="hover:bg-muted/30 border-b">
+                <TableRow key={i} className="hover:bg-muted/30 border-b print:border-gray-200">
                   <TableCell className="font-mono font-bold text-xs">#INV-2024-00{i+1}</TableCell>
                   <TableCell className="font-medium text-sm">مبيعات صيدلية - فئة {type}</TableCell>
-                  <TableCell className="text-muted-foreground text-xs">2024-05-{Math.min(30, 10+i)}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">{dateRange.from}</TableCell>
                   <TableCell className="font-bold">{(1250 * (i+1)).toLocaleString()} ر.س</TableCell>
                   <TableCell><Badge variant="outline" className="bg-green-500/10 text-green-600 border-none font-bold">مكتمل</Badge></TableCell>
                 </TableRow>

@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+// @ts-ignore
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
 export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
@@ -45,7 +46,7 @@ export function ReportsPage() {
       margin: 10,
       filename: `PharmaVault_Report_${activeReport}_${dateRange.from}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     try {
@@ -54,6 +55,8 @@ export function ReportsPage() {
         success: 'تم تصدير التقرير بنجاح',
         error: 'فشل تصدير PDF'
       });
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsExporting(false);
     }
@@ -66,11 +69,12 @@ export function ReportsPage() {
     }
     setIsExporting(true);
     try {
-      const wb = XLSX.utils.table_to_book(table);
+      const wb = XLSX.utils.table_to_book(table as HTMLTableElement);
       XLSX.writeFile(wb, `PharmaVault_Data_${activeReport}_${dateRange.from}.xlsx`);
       toast.success('تم تصدير ملف Excel بنجاح');
     } catch (e) {
       toast.error('فشل تصدير Excel');
+      console.error(e);
     } finally {
       setIsExporting(false);
     }
