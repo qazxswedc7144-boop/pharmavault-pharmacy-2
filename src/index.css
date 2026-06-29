@@ -88,7 +88,9 @@
   header,
   nav,
   .no-print,
-  button:not(.print-button) {
+  button:not(.print-button),
+  [role="combobox"],
+  .no-print-section {
     display: none !important;
   }
   .max-w-7xl {
@@ -100,8 +102,8 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
-  .glass-card {
-    border: 1px solid #ddd !important;
+  .glass-card, .bg-card {
+    border: 1px solid #eee !important;
     box-shadow: none !important;
     background: white !important;
     border-radius: 0 !important;
@@ -109,6 +111,7 @@
   .recharts-wrapper {
     width: 100% !important;
     height: 300px !important;
+    max-width: 100% !important;
   }
   .recharts-surface {
     width: 100% !important;
@@ -120,7 +123,7 @@
     page-break-inside: auto !important;
   }
   th, td {
-    border: 1px solid #ddd !important;
+    border: 0.5pt solid #ddd !important;
     padding: 6pt !important;
     font-size: 9pt !important;
     text-align: right !important;
@@ -143,6 +146,7 @@
   .grid > div {
     margin-bottom: 15pt !important;
     width: 100% !important;
+    page-break-inside: avoid;
   }
 }
 @layer components {
@@ -161,17 +165,4 @@
   .rtl-flip {
     @apply scale-x-[-1];
   }
-}
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-[cmdk-root] {
-  @apply flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground text-right;
-}
-[cmdk-input] {
-  @apply flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-right;
 }

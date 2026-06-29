@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-// @ts-ignore
+// @ts-expect-error - html2pdf might not have updated types but is needed for reporting
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
 export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
@@ -43,20 +43,25 @@ export function ReportsPage() {
     if (!element) return;
     setIsExporting(true);
     const opt = {
-      margin: 10,
-      filename: `PharmaVault_Report_${activeReport}_${dateRange.from}.pdf`,
+      margin: [10, 10],
+      filename: `PharmaVault_${activeReport}_${dateRange.from}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        logging: false 
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     try {
       await toast.promise(html2pdf().set(opt).from(element).save(), {
         loading: 'جاري توليد ملف PDF عالي الجودة...',
-        success: 'تم تصدير التقرير بنجاح',
-        error: 'فشل تصدير PDF'
+        success: 'تم تصدير التقرير بنجاح بصيغة PDF',
+        error: 'حدث خطأ أثناء تصدير PDF'
       });
     } catch (err) {
-      console.error(err);
+      console.error('PDF Export Error:', err);
     } finally {
       setIsExporting(false);
     }
@@ -70,11 +75,11 @@ export function ReportsPage() {
     setIsExporting(true);
     try {
       const wb = XLSX.utils.table_to_book(table as HTMLTableElement);
-      XLSX.writeFile(wb, `PharmaVault_Data_${activeReport}_${dateRange.from}.xlsx`);
+      XLSX.writeFile(wb, `PharmaVault_${activeReport}_${dateRange.from}.xlsx`);
       toast.success('تم تصدير ملف Excel بنجاح');
     } catch (e) {
       toast.error('فشل تصدير Excel');
-      console.error(e);
+      console.error('Excel Export Error:', e);
     } finally {
       setIsExporting(false);
     }
@@ -95,16 +100,16 @@ export function ReportsPage() {
             <div className="flex gap-3 no-print">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-12 px-6 gap-2 border-2 font-bold">
+                  <Button variant="outline" className="h-12 px-6 gap-2 border-2 font-bold shadow-sm">
                     <FileDown className="size-4" /> تصدير التقرير
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="text-right">
-                  <DropdownMenuItem onClick={handlePdfExport} className="flex-row-reverse gap-2">
-                    <FileText className="size-4 text-rose-500" /> تصدير PDF
+                  <DropdownMenuItem onClick={handlePdfExport} className="flex-row-reverse gap-2 cursor-pointer">
+                    <FileText className="size-4 text-rose-500" /> تصدير PDF احترافي
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExcelExport} className="flex-row-reverse gap-2">
-                    <FileText className="size-4 text-green-600" /> تصدير Excel
+                  <DropdownMenuItem onClick={handleExcelExport} className="flex-row-reverse gap-2 cursor-pointer">
+                    <FileText className="size-4 text-green-600" /> تصدير Excel للبيانات
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -124,12 +129,14 @@ export function ReportsPage() {
               <div className="no-print">
                 <ReportDateFilter value={dateRange} onChange={setDateRange} />
               </div>
-              <ReportContainer type={activeReport} dateRange={dateRange} />
+              <div id="report-print-area">
+                <ReportContainer type={activeReport} dateRange={dateRange} />
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <LoadingOverlay show={isExporting} message="جاري معالجة طلب التصدير..." />
+      <LoadingOverlay show={isExporting} message="جاري معالجة طلب التصدير وتجهيز الملف..." />
     </AppLayout>
   );
 }
