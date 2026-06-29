@@ -201,6 +201,12 @@ function runSetupCommands() {
         "add",
         "html2pdf.js",
         "xlsx"
+    ],
+    [
+        "bun",
+        "add",
+        "framer-motion",
+        "lucide-react"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
