@@ -61,14 +61,17 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
       notes: '',
     },
   });
-  const productOptions = useMemo(
-    () => (productsData?.items || []).map((p) => ({ label: p.name, value: p.id })),
-    [productsData]
-  );
+  const productOptions = useMemo(() => {
+    return (productsData?.items || []).map((p) => ({
+      label: `${p.name} ${p.barcode ? `[${p.barcode}]` : ''} (المخزون: ${p.stockQuantity} ${p.unit})`,
+      value: p.id,
+    }));
+  }, [productsData]);
   const handleProductSelect = (id: string) => {
     form.setValue('productId', id);
     const product = productsData?.items.find((p) => p.id === id);
     if (product) {
+      // Auto-fill form values from the selected product
       form.setValue('costPrice', product.costPrice || 0);
       form.setValue('expiryDate', product.expiryDate || '');
       form.setValue('batchNumber', product.batchNumber || '');
@@ -82,6 +85,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
   const quantity = form.watch('quantity') || 0;
   const costPrice = form.watch('costPrice') || 0;
   const currentTotal = quantity * costPrice;
+  const isProductSelected = !!form.watch('productId');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl p-0 overflow-hidden border-none shadow-glass" dir="rtl">
@@ -108,13 +112,13 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
               name="productId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold">الدواء / المنتج المورد</FormLabel>
+                  <FormLabel className="font-bold">البحث عن الدواء (الاسم أو الباركود)</FormLabel>
                   <Autocomplete
                     options={productOptions}
                     value={String(field.value)}
                     onValueChange={handleProductSelect}
                     isLoading={isLoading}
-                    placeholder="اكتب اسم الصنف..."
+                    placeholder="اكتب اسم الصنف أو امسح الباركود..."
                   />
                   <FormMessage />
                 </FormItem>
@@ -131,9 +135,9 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       <Input
                         type="number"
                         {...fieldProps}
-                        value={value?.toString() ?? ""}
+                        value={String(value ?? "")}
                         onChange={e => onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-center text-lg font-bold border-2"
+                        className="h-12 text-center text-lg font-bold border-2 focus:border-pharmav-primary/40"
                       />
                     </FormControl>
                     <FormMessage />
@@ -152,8 +156,8 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       <Input
                         type="date"
                         {...fieldProps}
-                        value={value?.toString() ?? ""}
-                        className="h-12 text-center border-2 font-bold"
+                        value={String(value ?? "")}
+                        className={`h-12 text-center border-2 font-bold transition-colors ${isProductSelected ? 'bg-pharmav-primary/5 border-pharmav-primary/20' : ''}`}
                       />
                     </FormControl>
                     <FormMessage />
@@ -172,9 +176,9 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       type="number"
                       step="0.01"
                       {...fieldProps}
-                      value={value?.toString() ?? ""}
+                      value={String(value ?? "")}
                       onChange={e => onChange(parseFloat(e.target.value) || 0)}
-                      className="h-12 text-center text-xl font-bold border-2 text-pharmav-primary"
+                      className={`h-12 text-center text-xl font-bold border-2 text-pharmav-primary transition-colors ${isProductSelected ? 'bg-pharmav-primary/5 border-pharmav-primary/30' : ''}`}
                     />
                   </FormControl>
                   <FormMessage />
@@ -203,10 +207,10 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       <FormItem>
                         <FormLabel className="text-xs">رقم الدفعة / التشغيلة (Batch)</FormLabel>
                         <div className="relative">
-                          <Input 
-                            {...fieldProps} 
-                            value={value?.toString() ?? ""} 
-                            className="h-10 text-right pr-10 font-mono" 
+                          <Input
+                            {...fieldProps}
+                            value={String(value ?? "")}
+                            className={`h-10 text-right pr-10 font-mono transition-colors ${isProductSelected ? 'bg-pharmav-primary/5' : ''}`}
                           />
                           <Barcode className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         </div>
@@ -220,11 +224,11 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       <FormItem>
                         <FormLabel className="text-xs">ملاحظات التوريد</FormLabel>
                         <FormControl>
-                          <Input 
-                            {...fieldProps} 
-                            value={value?.toString() ?? ""} 
-                            className="h-10 text-right" 
-                            placeholder="أي ملاحظات فنية..." 
+                          <Input
+                            {...fieldProps}
+                            value={String(value ?? "")}
+                            className="h-10 text-right"
+                            placeholder="أي ملاحظات فنية..."
                           />
                         </FormControl>
                       </FormItem>
@@ -236,6 +240,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
             <DialogFooter className="grid grid-cols-2 gap-4 pt-4 border-t">
               <Button
                 type="submit"
+                disabled={!isProductSelected}
                 className="h-14 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95"
               >
                 إضافة للصنف
