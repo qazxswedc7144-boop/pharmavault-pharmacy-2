@@ -122,7 +122,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                 <FormItem>
                   <FormLabel className="font-bold flex items-center gap-2">
                     اسم المنتج / الدواء <Info className="size-3 text-muted-foreground" />
-                  </Label>
+                  </FormLabel>
                   <Autocomplete
                     options={productOptions}
                     value={String(field.value)}

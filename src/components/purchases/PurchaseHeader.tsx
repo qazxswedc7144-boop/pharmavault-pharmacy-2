@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Pill, RotateCcw, CreditCard, Banknote } from 'lucide-react';
+import { ArrowRight, RotateCcw, CreditCard, Banknote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -20,19 +20,13 @@ export function PurchaseHeader({ isReturn, isCredit, onTypeChange, onModeChange 
   return (
     <header className={`border-b sticky top-0 z-50 transition-all duration-500 ${isReturn ? 'bg-rose-600 text-white shadow-xl' : 'bg-background shadow-sm'}`} dir="rtl">
       <div className="max-w-full px-6 h-20 flex items-center justify-between">
-        {/* Element 1: Back Button & Brand */}
+        {/* Element 1: Back Button */}
         <div className="flex items-center gap-6">
-          <Button variant="ghost" asChild className={isReturn ? 'text-white hover:bg-white/10' : 'text-foreground'}>
-            <Link to="/purchases" className="flex items-center gap-2 font-bold">
-              <ArrowRight className="size-4" /> العودة لقائمة الطلبيات
+          <Button variant="ghost" size="icon" asChild className={isReturn ? 'text-white hover:bg-white/10 rounded-full' : 'text-foreground rounded-full'}>
+            <Link to="/purchases">
+              <ArrowRight className="size-6" />
             </Link>
           </Button>
-          <div className="flex items-center gap-2 pr-6 border-r border-current/20">
-            <Pill className={`size-7 ${isReturn ? 'text-white' : 'text-pharmav-primary'}`} />
-            <span className="font-display font-bold text-xl tracking-tight">
-              فارمافولت <span className="text-xs font-normal opacity-60 uppercase font-sans">Purchases</span>
-            </span>
-          </div>
         </div>
         {/* Element 2: Dynamic Title & Return Toggle */}
         <div className="flex items-center gap-10">

@@ -12,12 +12,12 @@ import { Button } from '@/components/ui/button';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, History, Truck, Search, FileText } from 'lucide-react';
+import { Trash2, PlusCircle, History, Truck, Search, FileText, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PurchaseAddItemModal } from '@/components/purchases/PurchaseAddItemModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 const purchaseSchema = z.object({
-  invoiceNumber: z.string().min(1, 'رقم فاتورة المورد مطلوب'),
+  invoiceNumber: z.string().min(1, 'رقم الفاتورة مطلوب'),
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
@@ -109,7 +109,7 @@ export function PurchaseCreatePage() {
         onTypeChange={(val) => form.setValue('isReturn', val)}
         onModeChange={(val) => form.setValue('isCredit', val === 'credit')}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32" dir="rtl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-10 gap-4">
@@ -159,7 +159,7 @@ export function PurchaseCreatePage() {
                   name="invoiceNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-bold">رقم فاتورة المورد</FormLabel>
+                      <FormLabel className="font-bold">رقم الفاتورة</FormLabel>
                       <FormControl>
                         <Input {...field} value={String(field.value)} placeholder="رقم الفاتورة..." className="h-12 font-mono text-center text-lg border-2" />
                       </FormControl>
@@ -178,7 +178,7 @@ export function PurchaseCreatePage() {
                         <FileText className="size-4 text-pharmav-primary" /> بيان / ملاحظات إضافية
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} value={String(field.value)} placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." className="h-12 text-right border-2" />
+                        <Input {...field} value={String(field.value)} placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." className="h-12 text-right border-2 px-4" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -197,7 +197,7 @@ export function PurchaseCreatePage() {
                     onChange={(e) => setItemSearch(e.target.value)}
                   />
                 </div>
-                <Button type="button" onClick={() => setIsAddItemOpen(true)} className="w-full md:w-auto gap-2 bg-pharmav-primary font-bold px-8 h-11">
+                <Button type="button" onClick={() => setIsAddItemOpen(true)} className="w-full md:w-auto gap-2 bg-pharmav-primary font-bold px-8 h-11 rounded-xl">
                    <PlusCircle className="size-4" /> إضافة صنف
                 </Button>
               </div>
@@ -240,17 +240,42 @@ export function PurchaseCreatePage() {
                 </Table>
               </div>
             </div>
-            <div className="bg-pharmav-primary/10 p-8 rounded-3xl flex justify-between items-center">
-               <span className="text-2xl font-bold">إجمالي قيمة الفاتورة:</span>
-               <span className="text-4xl font-display font-bold text-pharmav-primary">{totals.toLocaleString()} ر.س</span>
-            </div>
-            <div className="flex justify-end pt-4 pb-12">
-              <Button type="submit" disabled={mutation.isPending || fields.length === 0} className="h-16 px-16 bg-pharmav-primary font-bold text-xl rounded-2xl shadow-neon-blue">
-                حفظ الفاتورة النهائية
-              </Button>
-            </div>
           </form>
         </Form>
+      </div>
+      {/* Sticky Financial Bar */}
+      <div className="fixed bottom-0 inset-x-0 bg-background/80 backdrop-blur-lg border-t z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between flex-row-reverse">
+          <div className="flex flex-col items-end">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">إجمالي قيمة الفاتورة</span>
+            <div className="text-3xl font-display font-bold text-pharmav-primary">
+              {totals.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">ر.س</span>
+            </div>
+          </div>
+          <div className="flex gap-4">
+             <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/purchases')}
+              className="h-14 px-8 rounded-2xl border-2 font-bold"
+            >
+              إلغاء
+            </Button>
+            <Button
+              type="button"
+              disabled={mutation.isPending || fields.length === 0}
+              onClick={form.handleSubmit(onSubmit)}
+              className="h-14 px-12 bg-pharmav-primary hover:bg-pharmav-primary/90 font-bold text-lg rounded-2xl shadow-neon-blue flex items-center gap-3"
+            >
+              {mutation.isPending ? "جاري الحفظ..." : (
+                <>
+                  <CheckCircle2 className="size-5" />
+                  حفظ الفاتورة النهائية
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
       <PurchaseAddItemModal
         open={isAddItemOpen}
