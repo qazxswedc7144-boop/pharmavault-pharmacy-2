@@ -1,20 +1,19 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Plus, TrendingUp, TrendingDown, Scale, FolderTree, Building, Wallet, Banknote } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Scale, Wallet, Banknote } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api-client';
 import type { Account, AccountType } from '@shared/types';
 import { cn } from '@/lib/utils';
 export function AccountsPage() {
-  const { data: accountsData, isLoading } = useQuery<{ items: Account[] }>({
+  const { data: accountsData } = useQuery<{ items: Account[] }>({
     queryKey: ['accounts'],
     queryFn: () => api<{ items: Account[] }>('/api/accounts')
   });
-  const accounts = accountsData?.items ?? [];
+  const accounts = useMemo(() => accountsData?.items ?? [], [accountsData?.items]);
   const groupedAccounts = useMemo(() => {
     const groups: Record<AccountType, Account[]> = {
       asset: [],

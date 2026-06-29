@@ -9,8 +9,7 @@ import {
   CreditCard,
   Phone,
   Mail,
-  ChevronRight,
-  Filter
+  ChevronRight
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +27,7 @@ export function CustomersPage() {
     queryKey: ['customers'],
     queryFn: () => api<{ items: Customer[] }>('/api/customers')
   });
-  const customers = customersData?.items ?? [];
+  const customers = useMemo(() => customersData?.items ?? [], [customersData?.items]);
   const filtered = useMemo(() => {
     return customers.filter(c => {
       const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search);
@@ -36,12 +35,12 @@ export function CustomersPage() {
       return matchesSearch && matchesFilter;
     });
   }, [customers, search, filterType]);
-  const stats = [
+  const stats = useMemo(() => [
     { title: 'إجمالي العملاء', value: customers.length.toString(), icon: Users, color: 'text-blue-500' },
     { title: 'الذمم المدينة', value: customers.reduce((sum, c) => sum + c.currentBalance, 0).toLocaleString() + ' ر.س', icon: TrendingUp, color: 'text-rose-500' },
     { title: 'نشطون مؤخراً', value: Math.ceil(customers.length * 0.7).toString(), icon: CreditCard, color: 'text-green-500' },
     { title: 'تجاوز الحد الائتماني', value: customers.filter(c => c.currentBalance > c.creditLimit).length.toString(), icon: AlertCircle, color: 'text-orange-500' },
-  ];
+  ], [customers]);
   const getAgingBadge = (balance: number) => {
     if (balance <= 0) return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">سليم</Badge>;
     if (balance > 5000) return <Badge variant="destructive" className="font-bold">60+ يوم</Badge>;

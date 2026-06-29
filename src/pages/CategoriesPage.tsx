@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Layers, Plus, Search, TrendingUp, Package, Pill, Box, ShieldCheck, Zap } from 'lucide-react';
+import { Layers, Plus, Package, Pill, Box, ShieldCheck, Zap } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { api } from '@/lib/api-client';
 import type { Category, Product } from '@shared/types';
-import { cn } from '@/lib/utils';
 export function CategoriesPage() {
   const { data: categoriesData, isLoading: isCatLoading } = useQuery<{ items: Category[] }>({
     queryKey: ['categories'],
@@ -17,8 +15,8 @@ export function CategoriesPage() {
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
   });
-  const categories = categoriesData?.items ?? [];
-  const products = productsData?.items ?? [];
+  const categories = useMemo(() => categoriesData?.items ?? [], [categoriesData?.items]);
+  const products = useMemo(() => productsData?.items ?? [], [productsData?.items]);
   const categoryStats = useMemo(() => {
     const totalInventoryValue = products.reduce((sum, p) => sum + (p.stockQuantity * p.costPrice), 0);
     return categories.map(cat => {
