@@ -93,37 +93,43 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="name"
-              render={({ field: { value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>اسم الحساب</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...rest}
-                      value={String(value ?? "")}
-                      className="h-12 text-right border-2"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { value, ...rest } = field;
+                return (
+                  <FormItem>
+                    <FormLabel>اسم الحساب</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...rest}
+                        value={String(value ?? "")}
+                        className="h-12 text-right border-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <div className="grid grid-cols-2 gap-4">
               <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
-                render={({ field: { value, ...rest } }) => (
-                  <FormItem>
-                    <FormLabel>كود الحساب</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...rest}
-                        value={String(value ?? "")}
-                        className="h-12 text-right font-mono border-2"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const { value, ...rest } = field;
+                  return (
+                    <FormItem>
+                      <FormLabel>كود الحساب</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...rest}
+                          value={String(value ?? "")}
+                          className="h-12 text-right font-mono border-2"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField<AccountFormValues>
                 control={form.control}
@@ -151,39 +157,45 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="balance"
-              render={({ field: { value, onChange, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...rest}
-                      type="number"
-                      step="0.01"
-                      value={String(value ?? 0)}
-                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                      className="h-12 text-left font-bold text-xl border-2"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { value, onChange, ...rest } = field;
+                return (
+                  <FormItem>
+                    <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...rest}
+                        type="number"
+                        step="0.01"
+                        value={String(value ?? 0)}
+                        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                        className="h-12 text-left font-bold text-xl border-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField<AccountFormValues>
               control={form.control}
               name="description"
-              render={({ field: { value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>البيان / ملاحظات</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...rest}
-                      value={String(value ?? "")}
-                      className="h-12 text-right border-2"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { value, ...rest } = field;
+                return (
+                  <FormItem>
+                    <FormLabel>البيان / ملاحظات</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...rest}
+                        value={String(value ?? "")}
+                        className="h-12 text-right border-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <DialogFooter className="mt-8">
               <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 text-lg bg-pharmav-primary shadow-neon-blue">

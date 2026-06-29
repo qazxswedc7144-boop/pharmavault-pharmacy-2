@@ -146,22 +146,25 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
-                render={({ field: { value, onChange, ...rest } }) => (
-                  <FormItem>
-                    <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...rest}
-                        type="number"
-                        step="0.01"
-                        value={String(value ?? 0)}
-                        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-left font-bold text-red-600 text-xl border-2"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const { value, onChange, ...rest } = field;
+                  return (
+                    <FormItem>
+                      <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...rest}
+                          type="number"
+                          step="0.01"
+                          value={String(value ?? 0)}
+                          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                          className="h-12 text-left font-bold text-red-600 text-xl border-2"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField<ExpenseFormValues>
                 control={form.control}
@@ -188,57 +191,66 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
-              render={({ field: { value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>بيان المصروف (الوصف)</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...rest}
-                      value={String(value ?? "")}
-                      className="h-12 text-right border-2"
-                      placeholder="مثلاً: سداد إيجار الشهر..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField<ExpenseFormValues>
-                control={form.control}
-                name="category"
-                render={({ field: { value, ...rest } }) => (
+              render={({ field }) => {
+                const { value, ...rest } = field;
+                return (
                   <FormItem>
-                    <FormLabel>الوسم / القسم</FormLabel>
+                    <FormLabel>بيان المصروف (الوصف)</FormLabel>
                     <FormControl>
                       <Input
                         {...rest}
                         value={String(value ?? "")}
                         className="h-12 text-right border-2"
-                        placeholder="إيجار، فواتير..."
+                        placeholder="مثلاً: سداد إيجار الشهر..."
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
+                );
+              }}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField<ExpenseFormValues>
+                control={form.control}
+                name="category"
+                render={({ field }) => {
+                  const { value, ...rest } = field;
+                  return (
+                    <FormItem>
+                      <FormLabel>الوسم / القسم</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...rest}
+                          value={String(value ?? "")}
+                          className="h-12 text-right border-2"
+                          placeholder="إيجار، فواتير..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
-                render={({ field: { value, ...rest } }) => (
-                  <FormItem>
-                    <FormLabel>تاريخ العملية</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...rest}
-                        type="date"
-                        value={String(value ?? "")}
-                        className="h-12 text-center border-2 font-bold"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const { value, ...rest } = field;
+                  return (
+                    <FormItem>
+                      <FormLabel>تاريخ العملية</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...rest}
+                          type="date"
+                          value={String(value ?? "")}
+                          className="h-12 text-center border-2 font-bold"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             <DialogFooter className="mt-8">

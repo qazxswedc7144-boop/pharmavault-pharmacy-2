@@ -1,7 +1,7 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
 import React, { StrictMode, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -23,6 +23,11 @@ import { AccountsPage } from '@/pages/AccountsPage';
 import { ExpensesPage } from '@/pages/ExpensesPage';
 import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
+declare global {
+  interface Window {
+    __reactRoot?: Root;
+  }
+}
 enableMapSet();
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,8 +77,10 @@ export function AppRoot() {
 }
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  const root = createRoot(rootElement);
-  root.render(
+  if (!window.__reactRoot) {
+    window.__reactRoot = createRoot(rootElement);
+  }
+  window.__reactRoot.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
