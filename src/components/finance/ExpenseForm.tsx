@@ -153,7 +153,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                       <Input
                         type="number"
                         step="0.01"
-                        value={field.value ?? 0}
+                        value={String(field.value ?? 0)}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -191,7 +191,12 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormItem>
                   <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value ?? ''} className="h-12 text-right border-2" placeholder="مثلاً: سداد إيجار الشهر..." />
+                    <Input 
+                      {...field} 
+                      value={String(field.value ?? '')} 
+                      className="h-12 text-right border-2" 
+                      placeholder="مثلاً: سداد إيجار الشهر..." 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,7 +210,12 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value ?? ''} className="h-12 text-right border-2" placeholder="إيجار، فواتير..." />
+                      <Input 
+                        {...field} 
+                        value={String(field.value ?? '')} 
+                        className="h-12 text-right border-2" 
+                        placeholder="إيجار، فواتير..." 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,7 +228,12 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} value={field.value ?? ''} className="h-12 text-center border-2 font-bold" />
+                      <Input 
+                        type="date" 
+                        {...field} 
+                        value={String(field.value ?? '')} 
+                        className="h-12 text-center border-2 font-bold" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

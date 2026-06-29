@@ -96,7 +96,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>اسم الحساب</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right border-2" /></FormControl>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      value={String(field.value ?? '')} 
+                      className="h-12 text-right border-2" 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -108,7 +114,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>كود الحساب</FormLabel>
-                    <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right font-mono border-2" /></FormControl>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        value={String(field.value ?? '')} 
+                        className="h-12 text-right font-mono border-2" 
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -146,7 +158,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     <Input
                       type="number"
                       step="0.01"
-                      value={field.value ?? 0}
+                      value={String(field.value ?? 0)}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />
@@ -161,7 +173,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>البيان / ملاحظات</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ''} className="h-12 text-right border-2" /></FormControl>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      value={String(field.value ?? '')} 
+                      className="h-12 text-right border-2" 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
