@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,7 +29,7 @@ const purchaseSchema = z.object({
   isCredit: z.boolean().default(false),
   isReturn: z.boolean().default(false)
 });
-type PurchaseFormValues = z.infer<typeof purchaseSchema>;
+type PurchaseFormValues = z.output<typeof purchaseSchema>;
 export function PurchaseCreatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -88,14 +88,16 @@ export function PurchaseCreatePage() {
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
-  const getProductName = (id: string) => productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف';
+  const getProductName = useCallback((id: string) => 
+    productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف', 
+  [productsData]);
   const filteredFields = useMemo(() => {
     if (!itemSearch) return fields;
     return fields.filter(field => {
       const name = getProductName(field.productId).toLowerCase();
       return name.includes(itemSearch.toLowerCase());
     });
-  }, [fields, itemSearch, productsData]);
+  }, [fields, itemSearch, getProductName]);
   const onSubmit: SubmitHandler<PurchaseFormValues> = (values) => {
     mutation.mutate(values);
   };
@@ -110,7 +112,6 @@ export function PurchaseCreatePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Row 1: Supplier (70%) & Date (30%) */}
             <div className="grid grid-cols-10 gap-4">
               <div className="col-span-10 md:col-span-7">
                 <FormField control={form.control} name="supplierId" render={({ field }) => (
@@ -118,10 +119,10 @@ export function PurchaseCreatePage() {
                     <FormLabel className="font-bold flex items-center gap-2">
                       <Truck className="size-4 text-pharmav-primary" /> المورد / الشركة
                     </FormLabel>
-                    <Autocomplete 
-                      options={supplierOptions} 
-                      value={field.value} 
-                      onValueChange={field.onChange} 
+                    <Autocomplete
+                      options={supplierOptions}
+                      value={field.value}
+                      onValueChange={field.onChange}
                       isLoading={isLoadingSuppliers}
                       placeholder="ابحث عن مورد..."
                     />
@@ -143,7 +144,6 @@ export function PurchaseCreatePage() {
                 )} />
               </div>
             </div>
-            {/* Row 2: Invoice Number (30%) & Notes (70%) */}
             <div className="grid grid-cols-10 gap-4">
               <div className="col-span-10 md:col-span-3">
                 <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
@@ -170,13 +170,12 @@ export function PurchaseCreatePage() {
                 )} />
               </div>
             </div>
-            {/* Items Table Section */}
             <div className="bg-card border rounded-3xl overflow-hidden shadow-soft">
               <div className="p-6 border-b bg-muted/20 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="relative flex-1 w-full md:max-w-md">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="ابحث عن صنف في هذه الفاتورة..." 
+                  <Input
+                    placeholder="ابحث عن صنف في هذه الفاتورة..."
                     className="pr-10 h-11 bg-background text-right"
                     value={itemSearch}
                     onChange={(e) => setItemSearch(e.target.value)}
@@ -198,7 +197,7 @@ export function PurchaseCreatePage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredFields.map((field, index) => {
+                    {filteredFields.map((field) => {
                       const realIndex = fields.findIndex(f => f.id === field.id);
                       return (
                         <TableRow key={field.id} className="hover:bg-muted/10">
@@ -218,13 +217,6 @@ export function PurchaseCreatePage() {
                       <TableRow>
                         <TableCell colSpan={5} className="py-20 text-center text-muted-foreground italic">
                           لم يتم إدراج أي أدوية في هذه الفاتورة حتى الآن.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {fields.length > 0 && filteredFields.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5} className="py-10 text-center text-muted-foreground italic">
-                          لا توجد نتائج تطابق البحث في الفاتورة.
                         </TableCell>
                       </TableRow>
                     )}

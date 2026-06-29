@@ -18,7 +18,7 @@ const accountSchema = z.object({
   balance: z.coerce.number().min(0, 'يجب إدخال رقم صحيح').default(0),
   description: z.string().default(''),
 });
-type AccountFormValues = z.infer<typeof accountSchema>;
+type AccountFormValues = z.output<typeof accountSchema>;
 interface AccountFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -29,7 +29,7 @@ const addItemSchema = z.object({
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
   costPrice: z.coerce.number().min(0, 'التكلفة مطلوبة').default(0),
 });
-type AddItemValues = z.infer<typeof addItemSchema>;
+type AddItemValues = z.output<typeof addItemSchema>;
 interface PurchaseAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

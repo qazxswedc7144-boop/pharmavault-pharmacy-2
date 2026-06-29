@@ -25,7 +25,7 @@ const purchaseSchema = z.object({
   notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب')
 });
-type PurchaseFormValues = z.infer<typeof purchaseSchema>;
+type PurchaseFormValues = z.output<typeof purchaseSchema>;
 interface PurchaseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

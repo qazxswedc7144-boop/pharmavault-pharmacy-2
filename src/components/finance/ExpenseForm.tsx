@@ -20,7 +20,7 @@ const expenseSchema = z.object({
   status: z.enum(['paid', 'pending'] as const),
   date: z.string().min(1, 'تاريخ المصروف مطلوب')
 });
-type ExpenseFormValues = z.infer<typeof expenseSchema>;
+type ExpenseFormValues = z.output<typeof expenseSchema>;
 interface ExpenseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

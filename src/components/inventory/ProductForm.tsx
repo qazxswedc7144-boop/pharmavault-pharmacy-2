@@ -53,7 +53,7 @@ const productSchema = z.object({
   batchNumber: z.string().min(1, 'رقم الدفعة مطلوب'),
   minStockLevel: z.coerce.number().min(0).default(0),
 });
-type ProductFormValues = z.infer<typeof productSchema>;
+type ProductFormValues = z.output<typeof productSchema>;
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

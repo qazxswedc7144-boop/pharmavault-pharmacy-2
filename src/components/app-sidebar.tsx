@@ -13,7 +13,9 @@ import {
   WifiOff,
   CloudUpload,
   BookOpen,
-  Receipt
+  Receipt,
+  User as UserIcon,
+  ChevronUp
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -30,25 +32,36 @@ import {
 import { useAppStore } from "@/lib/offline-store";
 import { cn } from "@/lib/utils";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 export function AppSidebar(): JSX.Element {
   const location = useLocation();
   const isOnline = useAppStore(s => s.isOnline);
   const offlineQueue = useAppStore(s => s.offlineQueue);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'pharmacist'>('admin');
   const offlineQueueCount = offlineQueue.length;
   const navItems = [
-    { name: "الرئيسية", icon: <Home className="size-4" />, href: "/dashboard" },
-    { name: "المخزون", icon: <ClipboardList className="size-4" />, href: "/inventory" },
-    { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/pos" },
-    { name: "المشتريات", icon: <Truck className="size-4" />, href: "/purchases" },
-    { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports" },
+    { name: "الرئيسية", icon: <Home className="size-4" />, href: "/dashboard", roles: ['admin', 'pharmacist'] },
+    { name: "المخزون", icon: <ClipboardList className="size-4" />, href: "/inventory", roles: ['admin', 'pharmacist'] },
+    { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/pos", roles: ['admin', 'pharmacist'] },
+    { name: "المشتريات", icon: <Truck className="size-4" />, href: "/purchases", roles: ['admin'] },
+    { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports", roles: ['admin'] },
   ];
   const accountingItems = [
-    { name: "الحسابات", icon: <BookOpen className="size-4" />, href: "/accounts" },
-    { name: "المصاريف", icon: <Receipt className="size-4" />, href: "/expenses" },
-    { name: "الموردون", icon: <Users className="size-4" />, href: "/suppliers" },
-    { name: "الأصناف", icon: <Layers className="size-4" />, href: "/categories" },
+    { name: "الحسابات", icon: <BookOpen className="size-4" />, href: "/accounts", roles: ['admin'] },
+    { name: "المصاريف", icon: <Receipt className="size-4" />, href: "/expenses", roles: ['admin'] },
+    { name: "الموردون", icon: <Users className="size-4" />, href: "/suppliers", roles: ['admin'] },
+    { name: "الأصناف", icon: <Layers className="size-4" />, href: "/categories", roles: ['admin', 'pharmacist'] },
   ];
+  const filteredNav = navItems.filter(i => i.roles.includes(userRole));
+  const filteredAccounting = accountingItems.filter(i => i.roles.includes(userRole));
   return (
     <>
       <Sidebar side="right" className="border-l border-border/50">
@@ -65,7 +78,7 @@ export function AppSidebar(): JSX.Element {
           <SidebarGroup className="mt-4">
             <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">القائمة الرئيسية</div>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {filteredNav.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton
                     asChild
@@ -81,25 +94,27 @@ export function AppSidebar(): JSX.Element {
               ))}
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarGroup className="mt-4">
-            <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">المالية والإعداد</div>
-            <SidebarMenu>
-              {accountingItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === item.href}
-                    className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors flex-row-reverse"
-                  >
-                    <Link to={item.href} className="flex-row-reverse justify-end w-full">
-                      {item.icon}
-                      <span className="font-medium mr-2">{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
+          {filteredAccounting.length > 0 && (
+            <SidebarGroup className="mt-4">
+              <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">المالية والإعداد</div>
+              <SidebarMenu>
+                {filteredAccounting.map((item) => (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname === item.href}
+                      className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors flex-row-reverse"
+                    >
+                      <Link to={item.href} className="flex-row-reverse justify-end w-full">
+                        {item.icon}
+                        <span className="font-medium mr-2">{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          )}
         </SidebarContent>
         <SidebarFooter className="p-4 space-y-4">
           <div className={cn(
@@ -127,15 +142,38 @@ export function AppSidebar(): JSX.Element {
           </div>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton 
-                onClick={() => setIsSettingsOpen(true)}
-                className="hover:bg-muted flex-row-reverse w-full"
-              >
-                <div className="flex flex-row-reverse justify-end w-full items-center">
-                  <Settings className="size-4" />
-                  <span className="mr-2">إعدادات النظام</span>
-                </div>
-              </SidebarMenuButton>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="h-14 p-2 bg-muted/30 rounded-xl flex-row-reverse hover:bg-muted/50 transition-colors">
+                    <Avatar className="size-10 rounded-lg">
+                      <AvatarFallback className="bg-pharmav-primary text-white font-bold">SS</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-right mr-3 overflow-hidden">
+                      <div className="text-xs font-bold truncate">د. سارة سميث</div>
+                      <Badge variant="secondary" className="text-[9px] h-4 px-1.5 bg-pharmav-primary/10 text-pharmav-primary border-none">
+                        {userRole === 'admin' ? 'مدير النظام' : 'صيدلي'}
+                      </Badge>
+                    </div>
+                    <ChevronUp className="size-4 text-muted-foreground" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="top" className="w-56" dir="rtl">
+                  <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest border-b mb-1">تغيير الدور (تجريبي)</div>
+                  <DropdownMenuItem onClick={() => setUserRole('admin')} className="flex items-center justify-between">
+                    <span>مدير النظام</span>
+                    {userRole === 'admin' && <Pill className="size-3 text-pharmav-primary" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setUserRole('pharmacist')} className="flex items-center justify-between">
+                    <span>صيدلي</span>
+                    {userRole === 'pharmacist' && <Pill className="size-3 text-pharmav-primary" />}
+                  </DropdownMenuItem>
+                  <div className="h-px bg-border my-1" />
+                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-2">
+                    <Settings className="size-4" />
+                    <span>إعدادات النظام</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

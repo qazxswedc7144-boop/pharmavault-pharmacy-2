@@ -29,7 +29,7 @@ const posAddSchema = z.object({
   quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
   unitPrice: z.coerce.number().min(0, 'السعر مطلوب').default(0),
 });
-type PosAddValues = z.infer<typeof posAddSchema>;
+type PosAddValues = z.output<typeof posAddSchema>;
 interface PosAddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
