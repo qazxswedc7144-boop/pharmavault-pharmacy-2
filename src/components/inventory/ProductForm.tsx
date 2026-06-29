@@ -163,14 +163,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               <div className="p-8 max-h-[60vh] overflow-y-auto bg-card">
                 <TabsContent value="general" className="mt-0 space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="scientificName" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="scientificName" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right border-2" placeholder="المادة الفعالة..." /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right border-2" /></FormControl>
@@ -179,7 +179,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     )} />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="categoryId" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="categoryId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المجموعة العلاجية</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
@@ -191,7 +191,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="supplierId" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="supplierId" render={({ field }) => (
                       <FormItem>
                         <FormLabel>المورد الافتراضي</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
@@ -205,14 +205,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     )} />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="sku" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="sku" render={({ field }) => (
                       <FormItem>
                         <FormLabel>كود المنتج (SKU)</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="barcode" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="barcode" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الباركود</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-right font-mono border-2" /></FormControl>
@@ -223,7 +223,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 </TabsContent>
                 <TabsContent value="financial" className="mt-0 space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="costPrice" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="costPrice" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                         <FormControl>
@@ -238,7 +238,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="price" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="price" render={({ field }) => (
                       <FormItem>
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
                         <FormControl>
@@ -266,7 +266,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 </TabsContent>
                 <TabsContent value="stock" className="mt-0 space-y-6">
                   <div className="grid grid-cols-3 gap-6">
-                    <FormField control={form.control} name="stockQuantity" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="stockQuantity" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الكمية الحالية</FormLabel>
                         <FormControl>
@@ -280,14 +280,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="unit" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="unit" render={({ field }) => (
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
                         <FormControl><Input {...field} className="h-12 text-center" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="minStockLevel" render={({ field }) => (
+                    <FormField<ProductFormValues> control={form.control} name="minStockLevel" render={({ field }) => (
                       <FormItem>
                         <FormLabel>حد إعادة الطلب</FormLabel>
                         <FormControl>
@@ -303,14 +303,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     )} />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                     <FormField control={form.control} name="expiryDate" render={({ field }) => (
+                     <FormField<ProductFormValues> control={form.control} name="expiryDate" render={({ field }) => (
                         <FormItem>
                           <FormLabel>تاريخ انتهاء الصلاحية</FormLabel>
                           <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
-                      <FormField control={form.control} name="batchNumber" render={({ field }) => (
+                      <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
                         <FormItem>
                           <FormLabel>رقم التشغيلة / الدفعة</FormLabel>
                           <FormControl><Input {...field} className="h-12 text-right border-2 font-mono" /></FormControl>

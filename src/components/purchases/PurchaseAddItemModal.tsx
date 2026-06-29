@@ -75,7 +75,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-            <FormField
+            <FormField<AddItemValues>
               control={form.control}
               name="productId"
               render={({ field }) => (
@@ -93,7 +93,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<AddItemValues>
                 control={form.control}
                 name="quantity"
                 render={({ field }) => (
@@ -111,7 +111,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<AddItemValues>
                 control={form.control}
                 name="costPrice"
                 render={({ field }) => (

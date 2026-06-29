@@ -47,7 +47,7 @@ export function PurchaseCreatePage() {
       isReturn: false
     }
   });
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
     control: form.control,
     name: 'items'
   });
@@ -114,7 +114,7 @@ export function PurchaseCreatePage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-10 gap-4">
               <div className="col-span-10 md:col-span-7">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="supplierId"
                   render={({ field }) => (
@@ -135,7 +135,7 @@ export function PurchaseCreatePage() {
                 />
               </div>
               <div className="col-span-10 md:col-span-3">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="date"
                   render={({ field }) => (
@@ -154,7 +154,7 @@ export function PurchaseCreatePage() {
             </div>
             <div className="grid grid-cols-10 gap-4">
               <div className="col-span-10 md:col-span-3">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="invoiceNumber"
                   render={({ field }) => (
@@ -169,7 +169,7 @@ export function PurchaseCreatePage() {
                 />
               </div>
               <div className="col-span-10 md:col-span-7">
-                <FormField
+                <FormField<PurchaseFormValues>
                   control={form.control}
                   name="notes"
                   render={({ field }) => (

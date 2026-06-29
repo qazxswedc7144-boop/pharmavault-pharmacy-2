@@ -85,7 +85,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-            <FormField
+            <FormField<PosAddValues>
               control={form.control}
               name="productId"
               render={({ field }) => (
@@ -109,7 +109,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
               </div>
             )}
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+              <FormField<PosAddValues>
                 control={form.control}
                 name="quantity"
                 render={({ field }) => (
@@ -127,7 +127,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<PosAddValues>
                 control={form.control}
                 name="unitPrice"
                 render={({ field }) => (

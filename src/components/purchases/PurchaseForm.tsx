@@ -44,7 +44,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
       date: new Date().toISOString().split('T')[0]
     }
   });
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<PurchaseFormValues>({
     control: form.control,
     name: 'items'
   });
@@ -119,7 +119,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
+              <FormField<PurchaseFormValues>
                 control={form.control}
                 name="supplierId"
                 render={({ field }) => (
@@ -130,7 +130,7 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              <FormField<PurchaseFormValues>
                 control={form.control}
                 name="invoiceNumber"
                 render={({ field }) => (
