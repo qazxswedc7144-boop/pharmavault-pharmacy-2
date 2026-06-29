@@ -88,7 +88,7 @@ export function PurchaseCreatePage() {
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
-  const getProductName = useCallback((id: string) => 
+  const getProductName = useCallback((id: string) =>
     productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف',
   [productsData]);
   const filteredFields = useMemo(() => {
