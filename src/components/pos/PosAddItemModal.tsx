@@ -118,7 +118,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                     <FormControl>
                       <Input
                         type="number"
-                        {...field}
+                        value={field.value}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-center text-lg font-bold"
                       />
@@ -137,7 +137,7 @@ export function PosAddItemModal({ open, onOpenChange, onAdd }: PosAddItemModalPr
                       <Input
                         type="number"
                         step="0.01"
-                        {...field}
+                        value={field.value}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-center text-lg font-bold"
                       />

@@ -14,7 +14,6 @@ import {
   CloudUpload,
   BookOpen,
   Receipt,
-  User as UserIcon,
   ChevronUp
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -32,7 +31,7 @@ import {
 import { useAppStore } from "@/lib/offline-store";
 import { cn } from "@/lib/utils";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -157,20 +156,20 @@ export function AppSidebar(): JSX.Element {
                     <ChevronUp className="size-4 text-muted-foreground" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side="top" className="w-56" dir="rtl">
-                  <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest border-b mb-1">تغيير الدور (تجريبي)</div>
-                  <DropdownMenuItem onClick={() => setUserRole('admin')} className="flex items-center justify-between">
+                <DropdownMenuContent side="top" align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest border-b mb-1 text-right">تغيير الدور (تجريبي)</div>
+                  <DropdownMenuItem onClick={() => setUserRole('admin')} className="flex items-center justify-between flex-row-reverse">
                     <span>مدير النظام</span>
                     {userRole === 'admin' && <Pill className="size-3 text-pharmav-primary" />}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setUserRole('pharmacist')} className="flex items-center justify-between">
+                  <DropdownMenuItem onClick={() => setUserRole('pharmacist')} className="flex items-center justify-between flex-row-reverse">
                     <span>صيدلي</span>
                     {userRole === 'pharmacist' && <Pill className="size-3 text-pharmav-primary" />}
                   </DropdownMenuItem>
                   <div className="h-px bg-border my-1" />
-                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-2 flex-row-reverse">
                     <Settings className="size-4" />
-                    <span>إعدادات النظام</span>
+                    <span className="flex-1 text-right">إعدادات النظام</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -102,7 +102,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                     <FormControl>
                       <Input
                         type="number"
-                        {...field}
+                        value={field.value}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-center text-lg font-bold"
                       />
@@ -121,7 +121,7 @@ export function PurchaseAddItemModal({ open, onOpenChange, onAdd }: PurchaseAddI
                       <Input
                         type="number"
                         step="0.01"
-                        {...field}
+                        value={field.value}
                         onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-center text-lg font-bold"
                       />

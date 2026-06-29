@@ -153,7 +153,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                       <Input
                         type="number"
                         step="0.01"
-                        {...field}
+                        value={field.value}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />

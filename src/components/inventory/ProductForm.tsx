@@ -230,7 +230,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                           <Input
                             type="number"
                             step="0.01"
-                            {...field}
+                            value={field.value}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             className="h-14 text-center font-bold text-xl border-2"
                           />
@@ -245,7 +245,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                           <Input
                             type="number"
                             step="0.01"
-                            {...field}
+                            value={field.value}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary"
                           />
@@ -272,7 +272,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormControl>
                           <Input
                             type="number"
-                            {...field}
+                            value={field.value}
                             onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             className="h-12 text-center font-bold text-lg"
                           />
@@ -293,7 +293,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormControl>
                           <Input
                             type="number"
-                            {...field}
+                            value={field.value}
                             onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                             className="h-12 text-center"
                           />

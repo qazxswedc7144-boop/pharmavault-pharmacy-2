@@ -119,22 +119,30 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="supplierId" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>المورد</FormLabel>
-                  <Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>رقم فاتورة المورد</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="h-12 font-mono text-center text-lg border-2" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="supplierId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>المورد</FormLabel>
+                    <Autocomplete options={supplierOptions} value={field.value} onValueChange={field.onChange} isLoading={isLoadingSuppliers} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="invoiceNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>رقم فاتورة المورد</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="h-12 font-mono text-center text-lg border-2" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-row-reverse">
