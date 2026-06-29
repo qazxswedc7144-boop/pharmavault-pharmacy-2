@@ -30,8 +30,8 @@ const purchaseSchema: z.ZodType<PurchaseFormValues> = z.object({
   supplierId: z.string().min(1, 'يجب اختيار المورد'),
   items: z.array(z.object({
     productId: z.string().min(1, 'يجب اختيار المنتج'),
-    quantity: z.coerce.number().min(1).default(1),
-    costPrice: z.coerce.number().min(0).default(0)
+    quantity: z.coerce.number().min(1, 'الكمية يجب أن تكون 1 على الأقل').default(1),
+    costPrice: z.coerce.number().min(0, 'التكلفة يجب أن تكون 0 أو أكثر').default(0)
   })).min(1, 'أضف صنفاً واحداً على الأقل'),
   notes: z.string().default(''),
   date: z.string().min(1, 'تاريخ الفاتورة مطلوب'),
@@ -79,11 +79,11 @@ export function PurchaseCreatePage() {
     mutationFn: (values: PurchaseFormValues) => {
       return api<PurchaseOrder>('/api/purchases', {
         method: 'POST',
-        body: JSON.stringify({ 
-          ...values, 
-          status: 'received', // Automatically treat as received to update inventory
-          totalCost: totals, 
-          timestamp: new Date(values.date).getTime() 
+        body: JSON.stringify({
+          ...values,
+          status: 'received', // Automatically set to received to simplify workflow
+          totalCost: totals,
+          timestamp: new Date(values.date).getTime()
         })
       });
     },
@@ -125,7 +125,9 @@ export function PurchaseCreatePage() {
                   <FormField control={form.control} name="invoiceNumber" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-bold">رقم فاتورة المورد</FormLabel>
-                      <FormControl><Input {...field} className="h-12 font-mono text-center text-lg border-2" /></FormControl>
+                      <FormControl>
+                        <Input {...field} className="h-12 font-mono text-center text-lg border-2" />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -137,7 +139,9 @@ export function PurchaseCreatePage() {
                     <FormLabel className="font-bold flex items-center gap-2">
                       <History className="size-4" /> تاريخ التوريد
                     </FormLabel>
-                    <FormControl><Input type="date" {...field} className="h-12 text-center font-bold" /></FormControl>
+                    <FormControl>
+                      <Input type="date" {...field} className="h-12 text-center font-bold" />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
