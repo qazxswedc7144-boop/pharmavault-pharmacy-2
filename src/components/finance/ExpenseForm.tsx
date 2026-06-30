@@ -168,7 +168,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>حالة السداد</Label>
+                    <FormLabel>حالة السداد</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-12 text-right border-2">
