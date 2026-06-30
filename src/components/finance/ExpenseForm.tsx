@@ -154,7 +154,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         {...fieldProps}
                         type="number"
                         step="0.01"
-                        value={value?.toString() ?? ""}
+                        value={String(value ?? "")}
                         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -168,7 +168,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>حالة السداد</FormLabel>
+                    <FormLabel>حالة السداد</Label>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-12 text-right border-2">
@@ -194,7 +194,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormControl>
                     <Input
                       {...fieldProps}
-                      value={value?.toString() ?? ""}
+                      value={String(value ?? "")}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -207,13 +207,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
-                        value={field.value?.toString() ?? ""}
+                        {...fieldProps}
+                        value={String(value ?? "")}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
                       />
@@ -232,7 +232,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                       <Input
                         {...fieldProps}
                         type="date"
-                        value={value?.toString() ?? ""}
+                        value={String(value ?? "")}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>

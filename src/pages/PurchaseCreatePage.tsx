@@ -152,7 +152,6 @@ export function PurchaseCreatePage() {
                 />
               </div>
             </div>
-            {/* Client Requested 30/70 alignment for Invoice Number and Notes */}
             <div className="grid grid-cols-10 gap-4 items-end">
               <div className="col-span-10 md:col-span-3">
                 <FormField<PurchaseFormValues>
@@ -162,11 +161,11 @@ export function PurchaseCreatePage() {
                     <FormItem>
                       <FormLabel className="font-bold">رقم الفاتورة</FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
-                          value={String(field.value)} 
-                          placeholder="رقم الفاتورة..." 
-                          className="h-12 font-mono text-center text-lg border-2 bg-background" 
+                        <Input
+                          {...field}
+                          value={String(field.value)}
+                          placeholder="رقم الفاتورة..."
+                          className="h-12 font-mono text-center text-lg border-2 bg-background"
                         />
                       </FormControl>
                       <FormMessage />
@@ -184,11 +183,11 @@ export function PurchaseCreatePage() {
                         <FileText className="size-4 text-pharmav-primary" /> بيان / ملاحظات إضافية
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
-                          value={String(field.value)} 
-                          placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." 
-                          className="h-12 text-right border-2 px-4 bg-background" 
+                        <Input
+                          {...field}
+                          value={String(field.value)}
+                          placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..."
+                          className="h-12 text-right border-2 px-4 bg-background"
                         />
                       </FormControl>
                       <FormMessage />
@@ -255,22 +254,9 @@ export function PurchaseCreatePage() {
         </Form>
       </div>
       <div className="fixed bottom-0 inset-x-0 bg-background/80 backdrop-blur-lg border-t z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between flex-row-reverse">
-          <div className="flex flex-col items-end">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">إجمالي قيمة الفاتورة</span>
-            <div className="text-3xl font-display font-bold text-pharmav-primary">
-              {totals.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">ر.س</span>
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between" dir="rtl">
+          {/* Group 1: Right Aligned Actions */}
           <div className="flex gap-4">
-             <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/purchases')}
-              className="h-14 px-8 rounded-2xl border-2 font-bold"
-            >
-              إلغاء
-            </Button>
             <Button
               type="button"
               disabled={mutation.isPending || fields.length === 0}
@@ -284,6 +270,21 @@ export function PurchaseCreatePage() {
                 </>
               )}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/purchases')}
+              className="h-14 px-8 rounded-2xl border-2 font-bold"
+            >
+              إلغاء
+            </Button>
+          </div>
+          {/* Group 2: Left Aligned Total */}
+          <div className="flex flex-col items-start">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">إجمالي قيمة الفاتورة</span>
+            <div className="text-3xl font-display font-bold text-pharmav-primary">
+              {totals.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">ر.س</span>
+            </div>
           </div>
         </div>
       </div>
