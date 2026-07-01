@@ -147,18 +147,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
-                render={({ field: { value, name, onBlur, ref, onChange } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
                       <Input
-                        name={name}
-                        onBlur={onBlur}
-                        ref={ref}
+                        {...field}
                         type="number"
                         step="0.01"
-                        value={String(value ?? "")}
-                        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                        value={field.value?.toString() ?? ""}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
                     </FormControl>
@@ -191,16 +189,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
-              render={({ field: { value, name, onBlur, ref } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
                     <Input
-                      name={name}
-                      onBlur={onBlur}
-                      ref={ref}
-                      value={String(value ?? "")}
-                      onChange={(e) => form.setValue(name, e.target.value)}
+                      {...field}
+                      value={field.value?.toString() ?? ""}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -213,16 +208,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
-                render={({ field: { value, name, onBlur, ref } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
                       <Input
-                        name={name}
-                        onBlur={onBlur}
-                        ref={ref}
-                        value={String(value ?? "")}
-                        onChange={(e) => form.setValue(name, e.target.value)}
+                        {...field}
+                        value={field.value?.toString() ?? ""}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
                       />
@@ -234,17 +226,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
-                render={({ field: { value, name, onBlur, ref } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
                     <FormControl>
                       <Input
-                        name={name}
-                        onBlur={onBlur}
-                        ref={ref}
+                        {...field}
                         type="date"
-                        value={String(value ?? "")}
-                        onChange={(e) => form.setValue(name, e.target.value)}
+                        value={field.value?.toString() ?? ""}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>
