@@ -99,7 +99,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormControl>
                     <Input
                       {...field}
-                      value={field.value?.toString() ?? ""}
+                      value={String(field.value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>
@@ -117,7 +117,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                     <FormControl>
                       <Input
                         {...field}
-                        value={field.value?.toString() ?? ""}
+                        value={String(field.value ?? "")}
                         className="h-12 text-right font-mono border-2"
                       />
                     </FormControl>
@@ -159,7 +159,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       {...field}
                       type="number"
                       step="0.01"
-                      value={field.value?.toString() ?? ""}
+                      value={String(field.value ?? "")}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />
@@ -177,7 +177,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormControl>
                     <Input
                       {...field}
-                      value={field.value?.toString() ?? ""}
+                      value={String(field.value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>

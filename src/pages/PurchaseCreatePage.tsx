@@ -90,8 +90,8 @@ export function PurchaseCreatePage() {
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
   const supplierOptions = useMemo(() => (suppliersData?.items || []).map(s => ({ label: s.name, value: s.id })), [suppliersData]);
-  const getProductName = useCallback((id: string) => 
-    productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف', 
+  const getProductName = useCallback((id: string) =>
+    productsData?.items.find(p => p.id === id)?.name || 'منتج غير معروف',
   [productsData]);
   const filteredFields = useMemo(() => {
     if (!itemSearch) return fields;
@@ -105,7 +105,7 @@ export function PurchaseCreatePage() {
   };
   return (
     <AppLayout className="bg-muted/10 min-h-screen">
-      <PurchaseHeader 
+      <PurchaseHeader
         isReturn={isReturn}
         isCredit={isCredit}
         onTypeChange={(val) => form.setValue('isReturn', val)}
@@ -124,10 +124,10 @@ export function PurchaseCreatePage() {
                       <FormLabel className="font-bold flex items-center gap-2">
                         <Truck className="size-4 text-pharmav-primary" /> المورد / الشركة
                       </FormLabel>
-                      <Autocomplete 
-                        options={supplierOptions} 
-                        value={String(field.value)} 
-                        onValueChange={field.onChange} 
+                      <Autocomplete
+                        options={supplierOptions}
+                        value={String(field.value)}
+                        onValueChange={field.onChange}
                         isLoading={isLoadingSuppliers}
                         placeholder="ابحث عن مورد..."
                       />
@@ -163,11 +163,11 @@ export function PurchaseCreatePage() {
                     <FormItem>
                       <FormLabel className="font-bold">رقم الفاتورة</FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
+                        <Input
+                          {...field}
                           value={String(field.value)}
-                          placeholder="رقم الفاتورة..." 
-                          className="h-12 font-mono text-center text-lg border-2 bg-background" 
+                          placeholder="رقم الفاتورة..."
+                          className="h-12 font-mono text-center text-lg border-2 bg-background"
                         />
                       </FormControl>
                       <FormMessage />
@@ -185,11 +185,11 @@ export function PurchaseCreatePage() {
                         <FileText className="size-4 text-pharmav-primary" /> بيان / ملاحظات إضافية
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
+                        <Input
+                          {...field}
                           value={String(field.value)}
-                          placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..." 
-                          className="h-12 text-right border-2 px-4 bg-background" 
+                          placeholder="أدخل أي تفاصيل إضافية عن هذه الفاتورة..."
+                          className="h-12 text-right border-2 px-4 bg-background"
                         />
                       </FormControl>
                       <FormMessage />
@@ -202,8 +202,8 @@ export function PurchaseCreatePage() {
               <div className="p-6 border-b bg-muted/20 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="relative flex-1 w-full md:max-w-md">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="ابحث عن صنف في هذه الفاتورة..." 
+                  <Input
+                    placeholder="ابحث عن صنف في هذه الفاتورة..."
                     className="pr-10 h-11 bg-background text-right"
                     value={itemSearch}
                     onChange={(e) => setItemSearch(e.target.value)}
@@ -257,6 +257,7 @@ export function PurchaseCreatePage() {
       </div>
       <div className="fixed bottom-0 inset-x-0 bg-background/80 backdrop-blur-lg border-t z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between" dir="rtl">
+          {/* CLIENT FEEDBACK: Reordered to put Buttons on the RIGHT and Total on the LEFT in RTL */}
           <div className="flex gap-4">
             <Button
               type="button"
@@ -267,7 +268,7 @@ export function PurchaseCreatePage() {
               {mutation.isPending ? "جاري الحفظ..." : (
                 <>
                   <CheckCircle2 className="size-5" />
-                  حفظ الفاتورة النهائية
+                  حفظ وترحيل الفاتورة
                 </>
               )}
             </Button>
@@ -280,7 +281,7 @@ export function PurchaseCreatePage() {
               إلغاء
             </Button>
           </div>
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-end">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">إجمالي قيمة الفاتورة</span>
             <div className="text-3xl font-display font-bold text-pharmav-primary">
               {totals.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">ر.س</span>
