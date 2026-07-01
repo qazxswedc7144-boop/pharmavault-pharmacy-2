@@ -288,6 +288,20 @@ function runSetupCommands() {
         "bun",
         "add",
         "framer-motion"
+    ],
+    [
+        "bun",
+        "add",
+        "date-fns",
+        "react-hotkeys-hook",
+        "html2pdf.js",
+        "xlsx",
+        "recharts",
+        "@tanstack/react-query",
+        "hono",
+        "zustand",
+        "next-themes",
+        "sonner"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
