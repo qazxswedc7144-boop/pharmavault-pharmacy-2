@@ -93,13 +93,16 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="name"
-              render={({ field: { value, ...fieldProps } }) => (
+              render={({ field: { value, name, onBlur, ref } }) => (
                 <FormItem>
                   <FormLabel>اسم الحساب</FormLabel>
                   <FormControl>
                     <Input
-                      {...fieldProps}
+                      name={name}
+                      onBlur={onBlur}
+                      ref={ref}
                       value={String(value ?? "")}
+                      onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>
@@ -111,13 +114,16 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
-                render={({ field: { value, ...fieldProps } }) => (
+                render={({ field: { value, name, onBlur, ref } }) => (
                   <FormItem>
                     <FormLabel>كود الحساب</FormLabel>
                     <FormControl>
                       <Input
-                        {...fieldProps}
+                        name={name}
+                        onBlur={onBlur}
+                        ref={ref}
                         value={String(value ?? "")}
+                        onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-right font-mono border-2"
                       />
                     </FormControl>
@@ -151,15 +157,17 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="balance"
-              render={({ field: { value, onChange, ...fieldProps } }) => (
+              render={({ field: { value, name, onBlur, ref, onChange } }) => (
                 <FormItem>
                   <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                   <FormControl>
                     <Input
-                      {...fieldProps}
+                      name={name}
+                      onBlur={onBlur}
+                      ref={ref}
                       type="number"
                       step="0.01"
-                      value={value?.toString() ?? ""}
+                      value={String(value ?? "")}
                       onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />
@@ -171,13 +179,16 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="description"
-              render={({ field: { value, ...fieldProps } }) => (
+              render={({ field: { value, name, onBlur, ref } }) => (
                 <FormItem>
                   <FormLabel>البيان / ملاحظات</FormLabel>
                   <FormControl>
                     <Input
-                      {...fieldProps}
+                      name={name}
+                      onBlur={onBlur}
+                      ref={ref}
                       value={String(value ?? "")}
+                      onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>

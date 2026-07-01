@@ -14,14 +14,12 @@ import {
   AlertEntity
 } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { Transaction, PurchaseOrder, Expense, Account, Product, Supplier, Category, Customer, Alert } from "@shared/types";
+import type { Transaction, PurchaseOrder, Expense, Alert } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
-  // Alerts Core Logic
   const checkAlerts = async (env: Env) => {
     const products = await ProductEntity.list(env);
     const now = Date.now();
     for (const p of products.items) {
-      // 1. Stock Check
       if (p.stockQuantity <= p.minStockLevel) {
         await AlertEntity.create(env, {
           id: `stock-${p.id}`,
@@ -33,7 +31,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
           timestamp: now
         });
       }
-      // 2. Expiry Check
       if (p.expiryDate) {
         const expiry = new Date(p.expiryDate).getTime();
         const daysToExpiry = (expiry - now) / (1000 * 60 * 60 * 24);
@@ -51,24 +48,24 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       }
     }
   };
-  // Stats & Analytics
   app.get('/api/stats', async (c) => {
     await ProductEntity.ensureSeed(c.env);
     await AccountEntity.ensureSeed(c.env);
-    await checkAlerts(c.env); // Auto-check alerts on stats fetch
+    await checkAlerts(c.env);
     const products = await ProductEntity.list(c.env);
     const transactions = await TransactionEntity.list(c.env, null, 10);
+    const alerts = await AlertEntity.list(c.env);
     const lowStock = products.items.filter(p => p.stockQuantity <= p.minStockLevel).length;
+    const expiredSoon = alerts.items.filter(a => a.type === 'expiry' && a.status === 'active').length;
     const totalSales = transactions.items.reduce((acc, t) => acc + t.totalAmount, 0);
     return ok(c, {
       totalSales,
       totalOrders: transactions.items.length,
       lowStockItems: lowStock,
-      expiredSoonCount: 0,
+      expiredSoonCount: expiredSoon,
       recentSales: transactions.items
     });
   });
-  // Alerts API
   app.get('/api/alerts', async (c) => {
     const list = await AlertEntity.list(c.env);
     return ok(c, list);
@@ -88,7 +85,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     await AlertEntity.delete(c.env, c.req.param('id'));
     return ok(c, { deleted: true });
   });
-  // Inventory
   app.get('/api/products', async (c) => ok(c, await ProductEntity.list(c.env)));
   app.post('/api/products', async (c) => ok(c, await ProductEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
   app.put('/api/products/:id', async (c) => {
@@ -97,11 +93,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     await ent.patch(await c.req.json());
     return ok(c, await ent.getState());
   });
-  // Transactions with Auto-Alerts & Journaling
   app.post('/api/transactions', async (c) => {
     const data = await c.req.json() as Transaction;
     const transaction = await TransactionEntity.create(c.env, { ...data, id: data.id || crypto.randomUUID(), timestamp: Date.now() });
-    // 1. Stock Adjustment & High Severity Alerts
     for (const item of data.items) {
       const pEnt = new ProductEntity(c.env, item.productId);
       if (await pEnt.exists()) {
@@ -119,7 +113,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         }
       }
     }
-    // 2. Customer Balance Update for Credit Sales
     if (data.customerId) {
       const custEnt = new CustomerEntity(c.env, data.customerId);
       if (await custEnt.exists()) {
@@ -137,34 +130,30 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         }
       }
     }
-    // 3. Accounting Integration
     const cashAcc = new AccountEntity(c.env, 'acc-cash');
     const salesAcc = new AccountEntity(c.env, 'acc-sales');
     await cashAcc.mutate(s => ({ ...s, balance: s.balance + transaction.totalAmount }));
     await salesAcc.mutate(s => ({ ...s, balance: s.balance + transaction.totalAmount }));
     await JournalEntryEntity.create(c.env, {
-      id: crypto.randomUUID(), 
-      date: Date.now(), 
-      description: `Sale #${transaction.id.slice(0, 8)}`, 
+      id: crypto.randomUUID(),
+      date: Date.now(),
+      description: `Sale #${transaction.id.slice(0, 8)}`,
       referenceId: transaction.id,
       items: [
-        { accountId: 'acc-cash', debit: transaction.totalAmount, credit: 0 }, 
+        { accountId: 'acc-cash', debit: transaction.totalAmount, credit: 0 },
         { accountId: 'acc-sales', debit: 0, credit: transaction.totalAmount }
       ]
     });
     return ok(c, transaction);
   });
-  // Purchases with Supplier Balance & Journaling
   app.post('/api/purchases', async (c) => {
     const data = await c.req.json() as PurchaseOrder;
     const order = await PurchaseOrderEntity.create(c.env, { ...data, id: crypto.randomUUID(), timestamp: Date.now() });
     if (order.status === 'received') {
-      // 1. Stock & Cost Update
       for (const item of order.items) {
         const pEnt = new ProductEntity(c.env, item.productId);
         if (await pEnt.exists()) await pEnt.mutate(s => ({ ...s, stockQuantity: s.stockQuantity + item.quantity, costPrice: item.costPrice }));
       }
-      // 2. Accounting & Supplier Balance
       const invAcc = new AccountEntity(c.env, 'acc-inv');
       const cashAcc = new AccountEntity(c.env, 'acc-cash');
       await invAcc.mutate(s => ({ ...s, balance: s.balance + order.totalCost }));

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -6,7 +6,7 @@ import { ReportSidebar } from '@/components/reports/ReportSidebar';
 import { ReportDateFilter } from '@/components/reports/ReportDateFilter';
 import { ReportContainer } from '@/components/reports/ReportContainer';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { FileText, Printer, FileDown, Share2, RefreshCw, Clock } from 'lucide-react';
+import { FileText, Printer, FileDown, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
@@ -42,18 +43,14 @@ export function ReportsPage() {
     'expiry': 'تنبيهات انتهاء الصلاحية',
     'comparison': 'مقارنة الفترات المالية'
   };
-  // Shared polling and refetching logic for the report data
   const { isFetching } = useQuery({
     queryKey: ['report-data', activeReport, dateRange],
     queryFn: async () => {
-      // In a real implementation, this would fetch specific report data
-      // For now, we reuse existing analytics endpoint to simulate dynamic updates
-      const data = await fetch(`/api/reports/analytics?from=${dateRange.from}&to=${dateRange.to}`).then(res => res.json());
       setLastRefreshed(new Date());
-      return data;
+      return { success: true };
     },
     staleTime: 0,
-    refetchInterval: 60000 // Refetch every 1 minute
+    refetchInterval: 60000 
   });
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['report-data'] });
@@ -64,25 +61,17 @@ export function ReportsPage() {
     if (!element) return;
     setIsExporting(true);
     const opt = {
-      margin: 10 as number,
+      margin: 10,
       filename: `PharmaVault_${activeReport}_${dateRange.from}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        logging: false
-      },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     try {
-      await toast.promise(html2pdf().set(opt).from(element).save(), {
-        loading: 'جاري توليد ملف PDF عالي الجودة...',
-        success: 'تم تصدير التقرير بنجاح بصيغة PDF',
-        error: 'حدث خطأ أثناء تصدير PDF'
-      });
+      await html2pdf().set(opt).from(element).save();
+      toast.success('تم تصدير التقرير بنجاح بصيغة PDF');
     } catch (err) {
-      console.error('PDF Export Error:', err);
+      toast.error('حدث خطأ أثناء تصدير PDF');
     } finally {
       setIsExporting(false);
     }
@@ -100,7 +89,6 @@ export function ReportsPage() {
       toast.success('تم تصدير ملف Excel بنجاح');
     } catch (e) {
       toast.error('فشل تصدير Excel');
-      console.error('Excel Export Error:', e);
     } finally {
       setIsExporting(false);
     }
@@ -120,9 +108,9 @@ export function ReportsPage() {
               </div>
             </div>
             <div className="flex gap-3 no-print">
-              <Button 
-                variant="outline" 
-                onClick={handleRefresh} 
+              <Button
+                variant="outline"
+                onClick={handleRefresh}
                 disabled={isFetching}
                 className="h-12 px-4 border-2 font-bold"
               >

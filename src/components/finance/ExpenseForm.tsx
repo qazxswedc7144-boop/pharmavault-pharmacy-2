@@ -146,15 +146,17 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="amount"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
+                render={({ field: { value, name, onBlur, ref, onChange } }) => (
                   <FormItem>
                     <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
                       <Input
-                        {...fieldProps}
+                        name={name}
+                        onBlur={onBlur}
+                        ref={ref}
                         type="number"
                         step="0.01"
-                        value={value?.toString() ?? ""}
+                        value={String(value ?? "")}
                         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -188,13 +190,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
-              render={({ field: { value, ...fieldProps } }) => (
+              render={({ field: { value, name, onBlur, ref } }) => (
                 <FormItem>
                   <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
                     <Input
-                      {...fieldProps}
+                      name={name}
+                      onBlur={onBlur}
+                      ref={ref}
                       value={String(value ?? "")}
+                      onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -207,13 +212,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
-                render={({ field: { value, ...fieldProps } }) => (
+                render={({ field: { value, name, onBlur, ref } }) => (
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
                       <Input
-                        {...fieldProps}
+                        name={name}
+                        onBlur={onBlur}
+                        ref={ref}
                         value={String(value ?? "")}
+                        onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
                       />
@@ -225,14 +233,17 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
-                render={({ field: { value, ...fieldProps } }) => (
+                render={({ field: { value, name, onBlur, ref } }) => (
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
                     <FormControl>
                       <Input
-                        {...fieldProps}
+                        name={name}
+                        onBlur={onBlur}
+                        ref={ref}
                         type="date"
                         value={String(value ?? "")}
+                        onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>

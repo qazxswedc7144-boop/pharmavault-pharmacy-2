@@ -122,7 +122,7 @@ export interface Expense {
 }
 export interface Alert {
   id: string;
-  type: 'expiry' | 'stock';
+  type: 'expiry' | 'stock' | 'credit' | 'system';
   productId: string;
   message: string;
   severity: 'low' | 'medium' | 'high';

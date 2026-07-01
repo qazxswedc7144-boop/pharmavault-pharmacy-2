@@ -10,7 +10,9 @@ import {
   ArrowLeft,
   Plus,
   Receipt,
-  ShoppingCart
+  ShoppingCart,
+  Activity,
+  Calendar
 } from 'lucide-react';
 import {
   LineChart,
@@ -26,7 +28,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api-client';
-import type { DashboardStats } from '@shared/types';
+import type { DashboardStats, Alert } from '@shared/types';
 import { ProductForm } from '@/components/inventory/ProductForm';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
 const chartData = [
@@ -45,6 +47,12 @@ export function DashboardPage() {
     queryKey: ['dashboard-stats'],
     queryFn: () => api<DashboardStats>('/api/stats')
   });
+  const { data: alertsData } = useQuery<{ items: Alert[] }>({
+    queryKey: ['alerts'],
+    queryFn: () => api<{ items: Alert[] }>('/api/alerts')
+  });
+  const activeAlerts = alertsData?.items.filter(a => a.status === 'active') ?? [];
+  const highAlerts = activeAlerts.filter(a => a.severity === 'high').length;
   const cards = [
     {
       title: 'إجمالي الإيرادات',
@@ -56,19 +64,19 @@ export function DashboardPage() {
       title: 'حجم المبيعات',
       value: stats?.totalOrders?.toString() ?? '0',
       icon: <ShoppingBag className="h-4 w-4 text-blue-500" />,
-      desc: 'عملية اليوم'
+      desc: 'عملية مكتملة'
     },
     {
-      title: 'تنبيهات المخزون',
+      title: 'نقص المخزون',
       value: stats?.lowStockItems?.toString() ?? '0',
       icon: <AlertTriangle className="h-4 w-4 text-orange-500" />,
-      desc: 'تحتاج للمراجعة'
+      desc: 'أصناف تحتاج طلب'
     },
     {
-      title: 'سلامة المخزون',
-      value: '94%',
-      icon: <PackageCheck className="h-4 w-4 text-pharmav-primary" />,
-      desc: 'مستويات مستقرة'
+      title: 'أدوية منتهية قريباً',
+      value: stats?.expiredSoonCount?.toString() ?? '0',
+      icon: <Calendar className="h-4 w-4 text-rose-500" />,
+      desc: 'خلال 30 يوم'
     },
   ];
   return (
@@ -77,7 +85,7 @@ export function DashboardPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-right">
             <h1 className="text-3xl font-display font-bold">لوحة التحكم</h1>
-            <p className="text-muted-foreground">أهلاً بك مجدداً. إليك نظرة سريعة على أداء اليوم.</p>
+            <p className="text-muted-foreground">مرحباً بك مجدداً. إليك لمحة سريعة عن صحة الصيدلية اليوم.</p>
           </div>
           <div className="flex gap-2 flex-row-reverse">
             <Button asChild className="rounded-xl h-12 px-6 bg-pharmav-primary shadow-neon-blue font-bold">
@@ -91,6 +99,23 @@ export function DashboardPage() {
             </Button>
           </div>
         </div>
+        {/* System Health Section */}
+        {highAlerts > 0 && (
+          <div className="bg-rose-500/10 border border-rose-500/20 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center gap-4 flex-row-reverse text-right">
+              <div className="size-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 animate-pulse">
+                <Activity className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-rose-700">تنبيهات حرجة تتطلب تدخلاً</h3>
+                <p className="text-rose-600/80 text-sm">هناك {highAlerts} تنبيهاً شديد الخطورة في النظام حالياً.</p>
+              </div>
+            </div>
+            <Button asChild variant="destructive" className="rounded-xl font-bold px-8 h-11">
+              <Link to="/alerts">معالجة التنبيهات</Link>
+            </Button>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {cards.map((card, i) => (
             <Card key={i} className="glass-card text-right">
@@ -143,7 +168,7 @@ export function DashboardPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-medium">{sale.paymentMethod === 'card' ? 'بطاقة' : 'نقداً'}</div>
-                        <div className="text-xs text-muted-foreground">منذ دقيقتين</div>
+                        <div className="text-xs text-muted-foreground">بواسطة الصيدلي</div>
                       </div>
                     </div>
                     <div className="text-left">
