@@ -55,7 +55,7 @@ export function AppSidebar(): JSX.Element {
   const { data: alertsCount } = useQuery<{ count: number }>({
     queryKey: ['alerts-count'],
     queryFn: () => api<{ count: number }>('/api/alerts/count'),
-    refetchInterval: 30000,
+    refetchInterval: 10000, // Faster sync for system health awareness
     enabled: isOnline
   });
   const navItems = [

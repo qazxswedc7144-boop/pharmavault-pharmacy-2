@@ -10,9 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Autocomplete } from '@/components/ui/autocomplete';
+import { TransactionSummary } from '@/components/finance/TransactionSummary';
 import { api } from '@/lib/api-client';
 import type { Product, Supplier, PurchaseOrder } from '@shared/types';
-import { Trash2, PlusCircle, History, Truck, Search, FileText, CheckCircle2 } from 'lucide-react';
+import { Trash2, PlusCircle, History, Truck, Search, FileText, CheckCircle2, Package, FileSpreadsheet, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 import { PurchaseAddItemModal } from '@/components/purchases/PurchaseAddItemModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,6 +36,7 @@ export function PurchaseCreatePage() {
   const queryClient = useQueryClient();
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [itemSearch, setItemSearch] = useState('');
+  const [summaryData, setSummaryData] = useState<{ open: boolean; total: number; id: string } | null>(null);
   const form = useForm<PurchaseFormValues>({
     resolver: zodResolver(purchaseSchema) as Resolver<PurchaseFormValues>,
     defaultValues: {
@@ -80,12 +82,12 @@ export function PurchaseCreatePage() {
         })
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['report-data'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('تم تسجيل فاتورة المشتريات بنجاح');
-      navigate('/purchases');
+      setSummaryData({ open: true, total: totals, id: data.id });
     },
     onError: () => toast.error('فشل في حفظ الفاتورة')
   });
@@ -255,6 +257,23 @@ export function PurchaseCreatePage() {
           </form>
         </Form>
       </div>
+      {summaryData && (
+        <TransactionSummary
+          open={summaryData.open}
+          onOpenChange={(open) => {
+            setSummaryData(prev => prev ? { ...prev, open } : null);
+            if (!open) navigate('/purchases');
+          }}
+          title="تم استلام المشتريات"
+          amount={summaryData.total}
+          journalId={summaryData.id}
+          steps={[
+            { label: 'إضافة للمخزون', description: 'تم زيادة الكميات في المستودع', icon: Package, status: 'success' },
+            { label: 'القيد المحاسبي', description: 'تم إنشاء قيد توريد آلي', icon: FileSpreadsheet, status: 'success' },
+            { label: 'حساب المورد', description: 'تحديث مديونية المورد أو الصندوق', icon: Banknote, status: 'success' },
+          ]}
+        />
+      )}
       <div className="fixed bottom-0 inset-x-0 bg-background/80 backdrop-blur-lg border-t z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between" dir="rtl">
           {/* CLIENT FEEDBACK: Reordered to put Buttons on the RIGHT and Total on the LEFT in RTL */}

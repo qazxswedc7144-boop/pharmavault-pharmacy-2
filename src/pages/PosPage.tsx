@@ -6,9 +6,10 @@ import { PosProductGrid } from '@/components/pos/PosProductGrid';
 import { PosCart } from '@/components/pos/PosCart';
 import { PosPaymentSection } from '@/components/pos/PosPaymentSection';
 import { PosAddItemModal } from '@/components/pos/PosAddItemModal';
+import { TransactionSummary } from '@/components/finance/TransactionSummary';
 import type { Product, SaleItem, Customer } from '@shared/types';
 import { toast } from 'sonner';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ShoppingBag, Package, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 export type PosTransactionType = 'sale' | 'return';
 export type PosPaymentMode = 'cash' | 'credit';
@@ -18,6 +19,7 @@ export function PosPage() {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [summaryData, setSummaryData] = useState<{ open: boolean; total: number; journalId?: string } | null>(null);
   // Keyboard Shortcuts
   useHotkeys('f1', (e) => {
     e.preventDefault();
@@ -145,13 +147,36 @@ export function PosPage() {
               transactionType={transactionType}
               customer={selectedCustomer}
               onCustomerChange={setSelectedCustomer}
-              onSuccess={clearCart}
+              onSuccess={() => {
+                clearCart();
+              }}
+              onTransactionComplete={(data) => {
+                setSummaryData({
+                  open: true,
+                  total: data.transaction.totalAmount,
+                  journalId: data.journalItems?.[0]?.accountId ? data.transaction.id : undefined
+                });
+              }}
             />
           </div>
         </div>
       </main>
-      <PosAddItemModal 
-        open={isAddModalOpen} 
+      {summaryData && (
+        <TransactionSummary
+          open={summaryData.open}
+          onOpenChange={(open) => setSummaryData(prev => prev ? { ...prev, open } : null)}
+          title={transactionType === 'return' ? 'تم معالجة المرتجع' : 'تمت عملية البيع'}
+          amount={summaryData.total}
+          journalId={summaryData.journalId}
+          steps={[
+            { label: 'تحديث المخزون', description: 'تم خصم الكميات المباعة تلقائياً', icon: Package, status: 'success' },
+            { label: 'القيد المحاسبي', description: 'تم ترحيل العملية لدفتر الأستاذ', icon: FileSpreadsheet, status: 'success' },
+            { label: 'الصندوق والبنك', description: 'تم تحديث رصيد الحساب المالي', icon: ShoppingBag, status: 'success' },
+          ]}
+        />
+      )}
+      <PosAddItemModal
+        open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
         onAdd={(prod, qty, price) => addToCart(prod, qty, price)}
       />

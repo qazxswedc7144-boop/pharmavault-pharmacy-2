@@ -81,7 +81,7 @@ export class JournalEntryEntity extends IndexedEntity<JournalEntry> {
   static readonly entityName = "journal_entry";
   static readonly indexName = "journal_entries";
   static readonly initialState: JournalEntry = {
-    id: "", date: 0, description: "", referenceId: "", items: []
+    id: "", date: 0, description: "", referenceId: "", sourceType: 'sale', sourceId: "", items: []
   };
 }
 export class ExpenseEntity extends IndexedEntity<Expense> {

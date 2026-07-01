@@ -18,6 +18,7 @@ interface PosPaymentSectionProps {
   customer: Customer | null;
   onCustomerChange: (c: Customer | null) => void;
   onSuccess: () => void;
+  onTransactionComplete?: (data: any) => void;
 }
 export function PosPaymentSection({
   cart,
@@ -25,7 +26,8 @@ export function PosPaymentSection({
   transactionType,
   customer,
   onCustomerChange,
-  onSuccess
+  onSuccess,
+  onTransactionComplete
 }: PosPaymentSectionProps) {
   const [cashReceived, setCashReceived] = useState<string>('');
   const [isPrinting, setIsPrinting] = useState(false);
@@ -54,13 +56,14 @@ export function PosPaymentSection({
     return diff > 0 ? diff : 0;
   }, [cashReceived, totals.total]);
   const mutation = useMutation({
-    mutationFn: (tx: Transaction) => api<Transaction>('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
-    onSuccess: () => {
+    mutationFn: (tx: Transaction) => api<any>('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
+    onSuccess: (data) => {
       setIsPrinting(true);
       queryClient.invalidateQueries({ queryKey: ['report-data'] });
       setTimeout(() => {
         setIsPrinting(false);
         toast.success(isReturn ? 'تمت عملية الاسترجاع بنجاح' : 'تمت عملية البيع بنجاح');
+        if (onTransactionComplete) onTransactionComplete(data);
         onSuccess();
         setCashReceived('');
         queryClient.invalidateQueries({ queryKey: ['products'] });

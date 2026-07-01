@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api-client';
+import { Badge } from '@/components/ui/badge';
 import type { Account } from '@shared/types';
 import { cn } from '@/lib/utils';
 interface TrialBalanceAccount extends Account {
@@ -17,7 +18,7 @@ export function TrialBalancePage() {
     queryKey: ['trial-balance'],
     queryFn: () => api<{ items: TrialBalanceAccount[] }>('/api/trial-balance')
   });
-  const accounts = balanceData?.items ?? [];
+  const accounts = useMemo(() => balanceData?.items ?? [], [balanceData?.items]);
   const totals = useMemo(() => {
     return accounts.reduce((acc, curr) => ({
       debit: acc.debit + curr.totalDebit,

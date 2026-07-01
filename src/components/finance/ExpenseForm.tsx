@@ -155,7 +155,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         {...fieldProps}
                         type="number"
                         step="0.01"
-                        value={String(value ?? "")}
+                        value={value?.toString() ?? ""}
                         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -195,7 +195,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormControl>
                     <Input
                       {...fieldProps}
-                      value={String(value ?? "")}
+                      value={value?.toString() ?? ""}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
                     />
@@ -211,13 +211,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...fieldProps}
-                        value={String(value ?? "")}
-                        className="h-12 text-right border-2"
-                        placeholder="إيجار، فواتير..."
-                      />
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      value={value?.toString() ?? ""}
+                      className="h-12 text-right border-2"
+                      placeholder="إيجار، فواتير..."
+                    />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -229,14 +229,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...fieldProps}
-                        type="date"
-                        value={String(value ?? "")}
-                        className="h-12 text-center border-2 font-bold"
-                      />
-                    </FormControl>
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      type="date"
+                      value={value?.toString() ?? ""}
+                      className="h-12 text-center border-2 font-bold"
+                    />
+                  </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
