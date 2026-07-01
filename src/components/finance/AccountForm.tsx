@@ -101,7 +101,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       name={name}
                       onBlur={onBlur}
                       ref={ref}
-                      value={String(value ?? "")}
+                      value={(value ?? "").toString()}
                       onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                     />
@@ -122,7 +122,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                         name={name}
                         onBlur={onBlur}
                         ref={ref}
-                        value={String(value ?? "")}
+                        value={(value ?? "").toString()}
                         onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-right font-mono border-2"
                       />
@@ -167,7 +167,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       ref={ref}
                       type="number"
                       step="0.01"
-                      value={String(value ?? "")}
+                      value={(value ?? "").toString()}
                       onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />
@@ -187,7 +187,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       name={name}
                       onBlur={onBlur}
                       ref={ref}
-                      value={String(value ?? "")}
+                      value={(value ?? "").toString()}
                       onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                     />

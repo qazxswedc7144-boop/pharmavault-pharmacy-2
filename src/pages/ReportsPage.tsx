@@ -50,7 +50,7 @@ export function ReportsPage() {
       return { success: true };
     },
     staleTime: 0,
-    refetchInterval: 60000 
+    refetchInterval: 60000
   });
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['report-data'] });
@@ -63,9 +63,9 @@ export function ReportsPage() {
     const opt = {
       margin: 10,
       filename: `PharmaVault_${activeReport}_${dateRange.from}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
     };
     try {
       await html2pdf().set(opt).from(element).save();
