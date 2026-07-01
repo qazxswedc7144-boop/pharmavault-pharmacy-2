@@ -224,6 +224,17 @@ function runSetupCommands() {
         "clsx",
         "tailwind-merge",
         "date-fns"
+    ],
+    [
+        "bun",
+        "add",
+        "html2pdf.js",
+        "xlsx",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge",
+        "date-fns"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
