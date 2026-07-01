@@ -215,6 +215,15 @@ function runSetupCommands() {
         "xlsx",
         "framer-motion",
         "lucide-react"
+    ],
+    [
+        "bun",
+        "add",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge",
+        "date-fns"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
