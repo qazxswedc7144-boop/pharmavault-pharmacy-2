@@ -86,12 +86,18 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         : api<Product>('/api/products', { method: 'POST', body: JSON.stringify(values) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(product ? 'تم تحديث بيانات الدواء بنجاح' : 'تمت إضافة الدواء بنجاح للمخزن');
+      toast.success(product ? 'تم تحديث بيانات الدواء' : 'تمت إضافة الدواء بنجاح');
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('حدث خطأ أثناء حفظ بيانات الدواء')
+    onError: () => toast.error('حدث خطأ أثناء حفظ البيانات')
   });
+  useEffect(() => {
+    if (open) {
+      if (product) form.reset(product);
+      else form.reset();
+    }
+  }, [product, open, form]);
   const price = form.watch('price');
   const cost = form.watch('costPrice');
   const margin = useMemo(() => {
@@ -100,38 +106,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     if (p <= 0) return 0;
     return ((p - c) / p) * 100;
   }, [price, cost]);
-  useEffect(() => {
-    if (open) {
-      if (product) {
-        form.reset({
-          name: product.name,
-          tradeName: product.tradeName ?? '',
-          scientificName: product.scientificName ?? '',
-          barcode: product.barcode ?? '',
-          sku: product.sku,
-          categoryId: product.categoryId,
-          supplierId: product.supplierId,
-          price: product.price,
-          costPrice: product.costPrice,
-          taxRate: product.taxRate || 0,
-          discountRate: product.discountRate || 0,
-          stockQuantity: product.stockQuantity,
-          unit: product.unit,
-          expiryDate: product.expiryDate,
-          batchNumber: product.batchNumber,
-          minStockLevel: product.minStockLevel,
-        });
-      } else {
-        form.reset({
-          name: '', tradeName: '', scientificName: '', barcode: '',
-          sku: '', categoryId: '', supplierId: '',
-          price: 0, costPrice: 0, taxRate: 0, discountRate: 0,
-          stockQuantity: 0, unit: 'قرص',
-          expiryDate: '', batchNumber: '', minStockLevel: 10
-        });
-      }
-    }
-  }, [product, open, form]);
   const onSubmit: SubmitHandler<ProductFormValues> = (values) => {
     mutation.mutate(values);
   };
@@ -167,14 +141,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-right border-2" 
-                            placeholder="المادة الفعالة..." 
+                            className="h-12 text-right border-2"
+                            placeholder="المادة الفعالة..."
                           />
                         </FormControl>
                         <FormMessage />
@@ -184,13 +158,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-right border-2" 
+                            className="h-12 text-right border-2"
                           />
                         </FormControl>
                         <FormMessage />
@@ -219,40 +193,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                             {suppliersData?.items.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <FormField<ProductFormValues> control={form.control} name="sku" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>كود المنتج (SKU)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            name={field.name}
-                            ref={field.ref}
-                            onBlur={field.onBlur}
-                            value={String(field.value ?? "")}
-                            onChange={field.onChange}
-                            className="h-12 text-right font-mono border-2" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField<ProductFormValues> control={form.control} name="barcode" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>الباركود</FormLabel>
-                        <FormControl>
-                          <Input 
-                            name={field.name}
-                            ref={field.ref}
-                            onBlur={field.onBlur}
-                            value={String(field.value ?? "")}
-                            onChange={field.onChange}
-                            className="h-12 text-right font-mono border-2" 
-                          />
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -330,13 +270,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-center" 
+                            className="h-12 text-center"
                           />
                         </FormControl>
                         <FormMessage />
@@ -359,41 +299,6 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormMessage />
                       </FormItem>
                     )} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                     <FormField<ProductFormValues> control={form.control} name="expiryDate" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>تاريخ انتهاء الصلاحية</FormLabel>
-                          <FormControl>
-                            <Input 
-                              name={field.name}
-                              ref={field.ref}
-                              onBlur={field.onBlur}
-                              type="date" 
-                              value={String(field.value ?? "")}
-                              onChange={field.onChange}
-                              className="h-12 text-center font-bold" 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>رقم التشغيلة / الدفعة</FormLabel>
-                          <FormControl>
-                            <Input 
-                              name={field.name}
-                              ref={field.ref}
-                              onBlur={field.onBlur}
-                              value={String(field.value ?? "")}
-                              onChange={field.onChange}
-                              className="h-12 text-right border-2 font-mono" 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
                   </div>
                 </TabsContent>
               </div>

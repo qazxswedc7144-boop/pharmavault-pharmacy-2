@@ -54,8 +54,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['report-data'] });
-      toast.success('تم تسجيل المصروف وتحديث أرصدة الحسابات بنجاح');
+      toast.success('تم تسجيل المصروف بنجاح');
       onOpenChange(false);
       form.reset();
     },

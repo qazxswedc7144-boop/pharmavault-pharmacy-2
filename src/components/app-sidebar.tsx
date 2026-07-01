@@ -11,7 +11,6 @@ import {
   Layers,
   Wifi,
   WifiOff,
-  CloudUpload,
   BookOpen,
   Receipt,
   ChevronUp,
@@ -165,10 +164,10 @@ export function AppSidebar(): JSX.Element {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton className="h-14 p-2 bg-muted/30 rounded-xl flex-row-reverse hover:bg-muted/50 transition-colors">
                     <Avatar className="size-10 rounded-lg">
-                      <AvatarFallback className="bg-pharmav-primary text-white font-bold">SS</AvatarFallback>
+                      <AvatarFallback className="bg-pharmav-primary text-white font-bold">AD</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 text-right mr-3 overflow-hidden">
-                      <div className="text-xs font-bold truncate">د. سارة سميث</div>
+                      <div className="text-xs font-bold truncate">المدير العام</div>
                       <Badge variant="secondary" className="text-[9px] h-4 px-1.5 bg-pharmav-primary/10 text-pharmav-primary border-none">
                         {userRole === 'admin' ? 'مدير' : 'صيدلي'}
                       </Badge>

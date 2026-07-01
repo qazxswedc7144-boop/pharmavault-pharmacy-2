@@ -142,29 +142,29 @@ export function DashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.salesSeries}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
+                    <XAxis
+                      dataKey="date"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
                       reversed
                     />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      orientation="right" 
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      orientation="right"
                     />
                     <Tooltip
                       cursor={{fill: 'hsl(var(--muted)/0.3)'}}
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        borderRadius: '16px', 
-                        border: '1px solid hsl(var(--border))', 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        borderRadius: '16px',
+                        border: '1px solid hsl(var(--border))',
                         textAlign: 'right',
-                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                       }}
                     />
                     <Bar dataKey="amount" fill="hsl(var(--pharmav-primary))" radius={[8, 8, 0, 0]} barSize={40}>

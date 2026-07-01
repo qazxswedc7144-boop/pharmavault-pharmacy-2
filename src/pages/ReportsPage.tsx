@@ -20,6 +20,7 @@ import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { api } from '@/lib/api-client';
 export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
 export function ReportsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,10 +48,10 @@ export function ReportsPage() {
     queryKey: ['report-data', activeReport, dateRange],
     queryFn: async () => {
       setLastRefreshed(new Date());
-      return { success: true };
+      // Real aggregation would happen here or in specialized backend endpoints
+      return api<any>(`/api/stats`);
     },
-    staleTime: 0,
-    refetchInterval: 5000 
+    staleTime: 5000
   });
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['report-data'] });
