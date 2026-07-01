@@ -273,6 +273,21 @@ function runSetupCommands() {
         "zustand",
         "next-themes",
         "sonner"
+    ],
+    [
+        "bun",
+        "add",
+        "@tanstack/react-query"
+    ],
+    [
+        "bun",
+        "add",
+        "lucide-react"
+    ],
+    [
+        "bun",
+        "add",
+        "framer-motion"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
