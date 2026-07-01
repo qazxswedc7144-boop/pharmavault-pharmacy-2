@@ -257,6 +257,22 @@ function runSetupCommands() {
         "zustand",
         "next-themes",
         "sonner"
+    ],
+    [
+        "bun",
+        "add",
+        "html2pdf.js",
+        "xlsx",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge",
+        "date-fns",
+        "@tanstack/react-query",
+        "hono",
+        "zustand",
+        "next-themes",
+        "sonner"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
