@@ -17,7 +17,8 @@ import {
   ChevronUp,
   Bell,
   Scale,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Users2
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -55,7 +56,7 @@ export function AppSidebar(): JSX.Element {
   const { data: alertsCount } = useQuery<{ count: number }>({
     queryKey: ['alerts-count'],
     queryFn: () => api<{ count: number }>('/api/alerts/count'),
-    refetchInterval: 10000, // Faster sync for system health awareness
+    refetchInterval: 5000,
     enabled: isOnline
   });
   const navItems = [
@@ -67,6 +68,7 @@ export function AppSidebar(): JSX.Element {
     { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports", roles: ['admin'] },
   ];
   const accountingItems = [
+    { name: "الموظفين", icon: <Users2 className="size-4" />, href: "/users", roles: ['admin'] },
     { name: "دفتر الأستاذ", icon: <FileSpreadsheet className="size-4" />, href: "/ledger", roles: ['admin'] },
     { name: "ميزان المراجعة", icon: <Scale className="size-4" />, href: "/trial-balance", roles: ['admin'] },
     { name: "الحسابات", icon: <BookOpen className="size-4" />, href: "/accounts", roles: ['admin'] },
@@ -115,7 +117,7 @@ export function AppSidebar(): JSX.Element {
           </SidebarGroup>
           {filteredAccounting.length > 0 && (
             <SidebarGroup className="mt-4">
-              <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">المالية والإعداد</div>
+              <div className="px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-right">الإدارة والمالية</div>
               <SidebarMenu>
                 {filteredAccounting.map((item) => (
                   <SidebarMenuItem key={item.name}>
@@ -126,7 +128,7 @@ export function AppSidebar(): JSX.Element {
                     >
                       <Link to={item.href} className="flex-row-reverse justify-end w-full">
                         {item.icon}
-                        <span className="font-medium mr-2">{item.name}</span>
+                        <span className="font-medium mr-2 flex-1 text-right">{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -150,15 +152,10 @@ export function AppSidebar(): JSX.Element {
             </div>
             <div className="flex-1 text-[10px] text-right">
               <div className="font-bold flex flex-row-reverse items-center justify-between">
-                {isOnline ? 'متزامن مع السحابة' : 'وضع العمل بدون اتصال'}
-                {offlineQueueCount > 0 && (
-                  <span className="flex items-center gap-1 animate-pulse text-pharmav-primary">
-                    <CloudUpload className="size-3" /> {offlineQueueCount}
-                  </span>
-                )}
+                {isOnline ? 'متصل بالسحابة' : 'وضع غير متصل'}
               </div>
               <div className="text-muted-foreground/70 tracking-tighter uppercase">
-                {isOnline ? 'جميع البيانات مؤمنة' : `هناك ${offlineQueueCount} عملية معلقة`}
+                {offlineQueueCount > 0 ? `${offlineQueueCount} عملية معلقة` : 'البيانات مؤمنة'}
               </div>
             </div>
           </div>
@@ -173,14 +170,14 @@ export function AppSidebar(): JSX.Element {
                     <div className="flex-1 text-right mr-3 overflow-hidden">
                       <div className="text-xs font-bold truncate">د. سارة سميث</div>
                       <Badge variant="secondary" className="text-[9px] h-4 px-1.5 bg-pharmav-primary/10 text-pharmav-primary border-none">
-                        {userRole === 'admin' ? 'مدير النظام' : 'صيدلي'}
+                        {userRole === 'admin' ? 'مدير' : 'صيدلي'}
                       </Badge>
                     </div>
                     <ChevronUp className="size-4 text-muted-foreground" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="top" align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest border-b mb-1 text-right">تغيير الدور (تجريبي)</div>
+                  <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest border-b mb-1 text-right">تغيير الدور</div>
                   <DropdownMenuItem onClick={() => setUserRole('admin')} className="flex items-center justify-between flex-row-reverse">
                     <span>مدير النظام</span>
                     {userRole === 'admin' && <Pill className="size-3 text-pharmav-primary" />}

@@ -24,6 +24,8 @@ import { ExpensesPage } from '@/pages/ExpensesPage';
 import { AlertsPage } from '@/pages/AlertsPage';
 import { LedgerPage } from '@/pages/LedgerPage';
 import { TrialBalancePage } from '@/pages/TrialBalancePage';
+import { UsersPage } from '@/pages/UsersPage';
+import { CustomersPage } from '@/pages/CustomersPage';
 import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
 declare global {
@@ -58,6 +60,8 @@ const router = createBrowserRouter([
   { path: "/alerts", element: <AlertsPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/ledger", element: <LedgerPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/trial-balance", element: <TrialBalancePage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/users", element: <UsersPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/customers", element: <CustomersPage />, errorElement: <RouteErrorBoundary /> },
 ]);
 export function OnlineStatusManager() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);

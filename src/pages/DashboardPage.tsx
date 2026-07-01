@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import {
   ShoppingBag,
   AlertTriangle,
-  PackageCheck,
   TrendingUp,
   Clock,
   ArrowLeft,
@@ -12,16 +11,18 @@ import {
   Receipt,
   ShoppingCart,
   Activity,
-  Calendar
+  Calendar,
+  Layers
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from 'recharts';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -31,21 +32,13 @@ import { api } from '@/lib/api-client';
 import type { DashboardStats, Alert } from '@shared/types';
 import { ProductForm } from '@/components/inventory/ProductForm';
 import { ExpenseForm } from '@/components/finance/ExpenseForm';
-const chartData = [
-  { name: 'الإثنين', sales: 4000 },
-  { name: 'الثلاثاء', sales: 3000 },
-  { name: 'الأربعاء', sales: 2000 },
-  { name: 'الخميس', sales: 2780 },
-  { name: 'الجمعة', sales: 1890 },
-  { name: 'السبت', sales: 2390 },
-  { name: 'الأحد', sales: 3490 },
-];
 export function DashboardPage() {
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
-    queryFn: () => api<DashboardStats>('/api/stats')
+    queryFn: () => api<DashboardStats>('/api/stats'),
+    refetchInterval: 10000
   });
   const { data: alertsData } = useQuery<{ items: Alert[] }>({
     queryKey: ['alerts'],
@@ -55,13 +48,13 @@ export function DashboardPage() {
   const highAlerts = activeAlerts.filter(a => a.severity === 'high').length;
   const cards = [
     {
-      title: 'إجمالي الإيرادات',
+      title: 'إجمالي المبيعات',
       value: `${stats?.totalSales?.toLocaleString() ?? '0'} ر.س`,
       icon: <TrendingUp className="h-4 w-4 text-green-500" />,
-      desc: '+12.5% منذ الشهر الماضي'
+      desc: 'إجمالي المحصل اليوم'
     },
     {
-      title: 'حجم المبيعات',
+      title: 'حجم العمليات',
       value: stats?.totalOrders?.toString() ?? '0',
       icon: <ShoppingBag className="h-4 w-4 text-blue-500" />,
       desc: 'عملية مكتملة'
@@ -70,10 +63,10 @@ export function DashboardPage() {
       title: 'نقص المخزون',
       value: stats?.lowStockItems?.toString() ?? '0',
       icon: <AlertTriangle className="h-4 w-4 text-orange-500" />,
-      desc: 'أصناف تحتاج طلب'
+      desc: 'أصناف تحتاج توريد'
     },
     {
-      title: 'أدوية منتهية قريباً',
+      title: 'تنبيهات الصلاحية',
       value: stats?.expiredSoonCount?.toString() ?? '0',
       icon: <Calendar className="h-4 w-4 text-rose-500" />,
       desc: 'خلال 30 يوم'
@@ -85,7 +78,7 @@ export function DashboardPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-right">
             <h1 className="text-3xl font-display font-bold">لوحة التحكم</h1>
-            <p className="text-muted-foreground">مرحباً بك مجدداً. إليك لمحة سريعة عن صحة الصيدلية اليوم.</p>
+            <p className="text-muted-foreground">نظرة شاملة على أداء الصيدلية ونظام الربط المالي.</p>
           </div>
           <div className="flex gap-2 flex-row-reverse">
             <Button asChild className="rounded-xl h-12 px-6 bg-pharmav-primary shadow-neon-blue font-bold">
@@ -99,7 +92,6 @@ export function DashboardPage() {
             </Button>
           </div>
         </div>
-        {/* System Health Section */}
         {highAlerts > 0 && (
           <div className="bg-rose-500/10 border border-rose-500/20 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex items-center gap-4 flex-row-reverse text-right">
@@ -107,8 +99,8 @@ export function DashboardPage() {
                 <Activity className="size-6" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-rose-700">تنبيهات حرجة تتطلب تدخلاً</h3>
-                <p className="text-rose-600/80 text-sm">هناك {highAlerts} تنبيهاً شديد الخطورة في النظام حالياً.</p>
+                <h3 className="font-display font-bold text-rose-700">تنبيهات النظام الحرجة ({highAlerts})</h3>
+                <p className="text-rose-600/80 text-sm">تم الكشف عن أدوية منتهية أو نقص حاد في المخزون يتطلب تدخلاً فورياً.</p>
               </div>
             </div>
             <Button asChild variant="destructive" className="rounded-xl font-bold px-8 h-11">
@@ -136,53 +128,85 @@ export function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2 glass-card text-right">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">نظرة عامة على المبيعات</CardTitle>
+            <CardHeader className="flex flex-row-reverse items-center justify-between">
+              <CardTitle className="text-base font-semibold">تحليل المبيعات (7 أيام)</CardTitle>
+              <Activity className="size-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="h-[300px] w-full pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} orientation="right" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))', textAlign: 'right' }}
-                  />
-                  <Line type="monotone" dataKey="sales" stroke="hsl(var(--pharmav-primary))" strokeWidth={3} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+            <CardContent className="h-[350px] w-full pt-4">
+              {!stats?.salesSeries || stats.salesSeries.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-4">
+                  <Layers className="size-12 opacity-10" />
+                  <p className="text-sm italic">لا توجد بيانات كافية لعرض الرسم البياني</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.salesSeries}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      reversed
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      orientation="right" 
+                    />
+                    <Tooltip
+                      cursor={{fill: 'hsl(var(--muted)/0.3)'}}
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        borderRadius: '16px', 
+                        border: '1px solid hsl(var(--border))', 
+                        textAlign: 'right',
+                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+                      }}
+                    />
+                    <Bar dataKey="amount" fill="hsl(var(--pharmav-primary))" radius={[8, 8, 0, 0]} barSize={40}>
+                      {stats.salesSeries.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fillOpacity={0.8 + (index / 10)} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
-          <Card className="glass-card text-right">
-            <CardHeader className="flex flex-row-reverse items-center justify-between">
-              <CardTitle className="text-base font-semibold">أحدث العمليات</CardTitle>
+          <Card className="glass-card text-right flex flex-col">
+            <CardHeader className="flex flex-row-reverse items-center justify-between border-b pb-4">
+              <CardTitle className="text-base font-semibold">سجل العمليات الأخير</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6 flex-1 overflow-y-auto">
               {stats?.recentSales && stats.recentSales.length > 0 ? (
                 stats.recentSales.map((sale) => (
-                  <div key={sale.id} className="flex flex-row-reverse items-center justify-between group">
+                  <div key={sale.id} className="flex flex-row-reverse items-center justify-between group border-b border-muted/30 pb-3 last:border-none">
                     <div className="flex flex-row-reverse items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-xs">
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-bold text-xs">
                         #{sale.id.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-medium">{sale.paymentMethod === 'card' ? 'بطاقة' : 'نقداً'}</div>
-                        <div className="text-xs text-muted-foreground">بواسطة الصيدلي</div>
+                        <div className="text-sm font-bold">{sale.paymentMethod === 'card' ? 'بطاقة بنكية' : 'دفع نقدي'}</div>
+                        <div className="text-[10px] text-muted-foreground">رقم: {sale.id.slice(0, 8)}</div>
                       </div>
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-bold text-green-600 dark:text-green-400">+{sale.totalAmount.toFixed(2)} ر.س</div>
-                      <Badge variant="outline" className="text-[10px] py-0">مكتمل</Badge>
+                      <div className="text-sm font-bold text-pharmav-primary">{sale.totalAmount.toLocaleString()} ر.س</div>
+                      <Badge variant="outline" className="text-[9px] py-0 border-green-500/30 text-green-600 bg-green-500/5">مكتمل</Badge>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="py-10 text-center text-muted-foreground italic text-sm">لا توجد عمليات بيع حديثة.</div>
+                <div className="py-20 text-center text-muted-foreground italic text-sm">لا توجد عمليات بيع مسجلة لليوم.</div>
               )}
-              <div className="pt-4 border-t">
-                <Link to="/sales" className="text-sm font-medium text-pharmav-primary flex flex-row-reverse items-center gap-1 hover:underline">
-                  عرض كل العمليات <ArrowLeft className="h-3 w-3" />
+              <div className="pt-4 mt-auto">
+                <Link to="/sales" className="text-sm font-bold text-pharmav-primary flex flex-row-reverse items-center justify-center gap-1 hover:underline p-3 bg-pharmav-primary/5 rounded-xl transition-colors">
+                  عرض دفتر المبيعات الكامل <ArrowLeft className="h-3 w-3" />
                 </Link>
               </div>
             </CardContent>

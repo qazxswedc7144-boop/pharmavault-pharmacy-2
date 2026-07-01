@@ -142,7 +142,21 @@ export interface Alert {
   status: 'active' | 'resolved';
   timestamp: number;
 }
-// Subscription Types
+export interface DashboardStats {
+  totalSales: number;
+  totalOrders: number;
+  lowStockItems: number;
+  expiredSoonCount: number;
+  recentSales: Transaction[];
+  salesSeries: { date: string; amount: number; volume: number }[];
+}
+export interface AnalyticsReport {
+  inventoryValue: number;
+  totalExpenses: number;
+  revenueByDay: { date: string; amount: number }[];
+  categoryDistribution: { category: string; count: number; value: number }[];
+  profitSummary: { revenue: number; cost: number; profit: number };
+}
 export type BillingCycle = 'monthly' | 'yearly';
 export type SubscriptionPlanId = 'starter' | 'pro' | 'enterprise';
 export type SubscriptionStatus = 'active' | 'past_due' | 'cancelled';
@@ -159,17 +173,4 @@ export interface BillingRecord {
   planId: SubscriptionPlanId;
   invoiceUrl: string;
   status: 'paid' | 'pending';
-}
-export interface DashboardStats {
-  totalSales: number;
-  totalOrders: number;
-  lowStockItems: number;
-  expiredSoonCount: number;
-  recentSales: Transaction[];
-}
-export interface AnalyticsReport {
-  inventoryValue: number;
-  revenueByDay: { date: string; amount: number }[];
-  categoryDistribution: { category: string; count: number; value: number }[];
-  profitSummary: { revenue: number; cost: number; profit: number };
 }

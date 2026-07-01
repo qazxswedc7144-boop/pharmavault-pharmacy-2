@@ -14,7 +14,7 @@ import {
   AlertEntity
 } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { Transaction, PurchaseOrder, Expense, Alert, JournalEntry, Payment } from "@shared/types";
+import type { Transaction, PurchaseOrder, Expense, Alert, JournalEntry, Payment, User } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   const checkAlerts = async (env: Env) => {
     const products = await ProductEntity.list(env);
@@ -63,18 +63,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
           { accountId: "acc-cash", debit: 10000, credit: 0 },
           { accountId: "acc-bank", debit: 0, credit: 10000 }
         ]
-      },
-      {
-        id: crypto.randomUUID(),
-        date: Date.now() - 86400000 * 4,
-        description: "دفع إيجار الصيدلية - شهر مايو",
-        referenceId: "EXP-501",
-        sourceType: "expense",
-        sourceId: "sys",
-        items: [
-          { accountId: "acc-rent", debit: 2500, credit: 0 },
-          { accountId: "acc-cash", debit: 0, credit: 2500 }
-        ]
       }
     ];
     for (const e of entries) {
@@ -84,21 +72,56 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/stats', async (c) => {
     await ProductEntity.ensureSeed(c.env);
     await AccountEntity.ensureSeed(c.env);
+    await UserEntity.ensureSeed(c.env);
     await seedLedger(c.env);
     await checkAlerts(c.env);
     const products = await ProductEntity.list(c.env);
-    const transactions = await TransactionEntity.list(c.env, null, 10);
+    const transactions = await TransactionEntity.list(c.env, null, 100);
     const alerts = await AlertEntity.list(c.env);
+    const accounts = await AccountEntity.list(c.env);
     const lowStock = products.items.filter(p => p.stockQuantity <= p.minStockLevel).length;
     const expiredSoon = alerts.items.filter(a => a.type === 'expiry' && a.status === 'active').length;
     const totalSales = transactions.items.reduce((acc, t) => acc + t.totalAmount, 0);
+    // Time-series generation (Last 7 Days)
+    const salesSeries = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toLocaleDateString('ar-SA', { weekday: 'short' });
+      const dayStart = new Date(d.setHours(0,0,0,0)).getTime();
+      const dayEnd = new Date(d.setHours(23,59,59,999)).getTime();
+      const dayTxs = transactions.items.filter(t => t.timestamp >= dayStart && t.timestamp <= dayEnd);
+      salesSeries.push({
+        date: dateStr,
+        amount: dayTxs.reduce((acc, t) => acc + t.totalAmount, 0),
+        volume: dayTxs.length
+      });
+    }
     return ok(c, {
       totalSales,
       totalOrders: transactions.items.length,
       lowStockItems: lowStock,
       expiredSoonCount: expiredSoon,
-      recentSales: transactions.items
+      recentSales: transactions.items.slice(0, 10),
+      salesSeries
     });
+  });
+  // User Management
+  app.get('/api/users', async (c) => ok(c, await UserEntity.list(c.env)));
+  app.post('/api/users', async (c) => {
+    const data = await c.req.json();
+    const user = await UserEntity.create(c.env, { ...data, id: crypto.randomUUID() });
+    return ok(c, user);
+  });
+  app.put('/api/users/:id', async (c) => {
+    const ent = new UserEntity(c.env, c.req.param('id'));
+    if (!(await ent.exists())) return notFound(c);
+    await ent.patch(await c.req.json());
+    return ok(c, await ent.getState());
+  });
+  app.delete('/api/users/:id', async (c) => {
+    await UserEntity.delete(c.env, c.req.param('id'));
+    return ok(c, { success: true });
   });
   app.get('/api/ledger', async (c) => {
     const list = await JournalEntryEntity.list(c.env);
@@ -135,21 +158,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     for (const item of data.items) {
       const pEnt = new ProductEntity(c.env, item.productId);
       if (await pEnt.exists()) {
-        const prod = await pEnt.mutate(s => {
-          totalCOGS += s.costPrice * item.quantity;
+        await pEnt.mutate(s => {
+          totalCOGS += (s.costPrice || 0) * item.quantity;
           return { ...s, stockQuantity: Math.max(0, s.stockQuantity - item.quantity) };
         });
-        if (prod.stockQuantity <= prod.minStockLevel) {
-          await AlertEntity.create(c.env, {
-            id: `stock-${prod.id}`,
-            type: 'stock',
-            productId: prod.id,
-            message: `تحذير نقص مخزون: ${prod.name} وصل لـ ${prod.stockQuantity}`,
-            severity: prod.stockQuantity === 0 ? 'high' : 'medium',
-            status: 'active',
-            timestamp: Date.now()
-          });
-        }
       }
     }
     const journalItems = [
@@ -167,7 +179,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       sourceId: txId,
       items: journalItems
     });
-    // Update account balances
     for (const item of journalItems) {
       const acc = new AccountEntity(c.env, item.accountId);
       await acc.mutate(s => ({ ...s, balance: s.balance + (item.debit - item.credit) }));
@@ -203,28 +214,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
     return ok(c, order);
   });
-  app.post('/api/payments', async (c) => {
-    const data = await c.req.json() as Payment;
-    const paymentId = crypto.randomUUID();
-    if (data.entityType === 'customer') {
-      const cust = new CustomerEntity(c.env, data.entityId);
-      await cust.mutate(s => ({ ...s, currentBalance: s.currentBalance - data.amount }));
-      const journalItems = [
-        { accountId: data.method === 'bank' ? 'acc-bank' : 'acc-cash', debit: data.amount, credit: 0 },
-        { accountId: 'acc-bank', debit: 0, credit: 0 } // AR placeholder
-      ];
-      await JournalEntryEntity.create(c.env, {
-        id: paymentId,
-        date: data.date,
-        description: `تحصيل من عميل: ${data.entityId}`,
-        referenceId: data.reference || '',
-        sourceType: 'payment',
-        sourceId: paymentId,
-        items: journalItems
-      });
-    }
-    return ok(c, { success: true });
-  });
   app.get('/api/alerts', async (c) => ok(c, await AlertEntity.list(c.env)));
   app.get('/api/alerts/count', async (c) => {
     const list = await AlertEntity.list(c.env);
@@ -249,6 +238,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     await ent.patch(await c.req.json());
     return ok(c, await ent.getState());
   });
+  app.delete('/api/products/:id', async (c) => {
+    await ProductEntity.delete(c.env, c.req.param('id'));
+    return ok(c, { success: true });
+  });
   app.get('/api/accounts', async (c) => ok(c, await AccountEntity.list(c.env)));
   app.post('/api/accounts', async (c) => ok(c, await AccountEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
   app.get('/api/expenses', async (c) => ok(c, await ExpenseEntity.list(c.env)));
@@ -263,7 +256,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       await JournalEntryEntity.create(c.env, {
         id: crypto.randomUUID(),
         date: Date.now(),
-        description: `Expense: ${exp.description}`,
+        description: `مصروف: ${exp.description}`,
         referenceId: exp.id,
         sourceType: 'expense',
         sourceId: exp.id,

@@ -166,14 +166,33 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="scientificName" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2" placeholder="المادة الفعالة..." /></FormControl>
+                        <FormControl>
+                          <Input 
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? "")}
+                            onChange={field.onChange}
+                            className="h-12 text-right border-2" 
+                            placeholder="المادة الفعالة..." 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField<ProductFormValues> control={form.control} name="name" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2" /></FormControl>
+                        <FormControl>
+                          <Input 
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? "")}
+                            onChange={field.onChange}
+                            className="h-12 text-right border-2" 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -208,14 +227,32 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="sku" render={({ field }) => (
                       <FormItem>
                         <FormLabel>كود المنتج (SKU)</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right font-mono border-2" /></FormControl>
+                        <FormControl>
+                          <Input 
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? "")}
+                            onChange={field.onChange}
+                            className="h-12 text-right font-mono border-2" 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField<ProductFormValues> control={form.control} name="barcode" render={({ field }) => (
                       <FormItem>
                         <FormLabel>الباركود</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right font-mono border-2" /></FormControl>
+                        <FormControl>
+                          <Input 
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? "")}
+                            onChange={field.onChange}
+                            className="h-12 text-right font-mono border-2" 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -228,9 +265,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                         <FormControl>
                           <Input
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
                             type="number"
                             step="0.01"
-                            value={field.value}
+                            value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             className="h-14 text-center font-bold text-xl border-2"
                           />
@@ -243,9 +283,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
                         <FormControl>
                           <Input
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
                             type="number"
                             step="0.01"
-                            value={field.value}
+                            value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary"
                           />
@@ -271,8 +314,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>الكمية الحالية</FormLabel>
                         <FormControl>
                           <Input
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
                             type="number"
-                            value={field.value}
+                            value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                             className="h-12 text-center font-bold text-lg"
                           />
@@ -283,7 +329,16 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     <FormField<ProductFormValues> control={form.control} name="unit" render={({ field }) => (
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
-                        <FormControl><Input {...field} value={String(field.value)} className="h-12 text-center" /></FormControl>
+                        <FormControl>
+                          <Input 
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={String(field.value ?? "")}
+                            onChange={field.onChange}
+                            className="h-12 text-center" 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -292,8 +347,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                         <FormLabel>حد إعادة الطلب</FormLabel>
                         <FormControl>
                           <Input
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
                             type="number"
-                            value={field.value}
+                            value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                             className="h-12 text-center"
                           />
@@ -306,14 +364,33 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                      <FormField<ProductFormValues> control={form.control} name="expiryDate" render={({ field }) => (
                         <FormItem>
                           <FormLabel>تاريخ انتهاء الصلاحية</FormLabel>
-                          <FormControl><Input type="date" {...field} value={String(field.value)} className="h-12 text-center font-bold" /></FormControl>
+                          <FormControl>
+                            <Input 
+                              name={field.name}
+                              ref={field.ref}
+                              onBlur={field.onBlur}
+                              type="date" 
+                              value={String(field.value ?? "")}
+                              onChange={field.onChange}
+                              className="h-12 text-center font-bold" 
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                       <FormField<ProductFormValues> control={form.control} name="batchNumber" render={({ field }) => (
                         <FormItem>
                           <FormLabel>رقم التشغيلة / الدفعة</FormLabel>
-                          <FormControl><Input {...field} value={String(field.value)} className="h-12 text-right border-2 font-mono" /></FormControl>
+                          <FormControl>
+                            <Input 
+                              name={field.name}
+                              ref={field.ref}
+                              onBlur={field.onBlur}
+                              value={String(field.value ?? "")}
+                              onChange={field.onChange}
+                              className="h-12 text-right border-2 font-mono" 
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
