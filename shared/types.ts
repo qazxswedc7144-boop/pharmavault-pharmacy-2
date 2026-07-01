@@ -97,6 +97,7 @@ export interface Account {
   type: AccountType;
   balance: number;
   description?: string;
+  isSystem?: boolean;
 }
 export interface JournalEntryItem {
   accountId: string;
@@ -108,7 +109,19 @@ export interface JournalEntry {
   date: number;
   description: string;
   referenceId: string;
+  sourceType: 'sale' | 'purchase' | 'expense' | 'payment' | 'return';
+  sourceId: string;
   items: JournalEntryItem[];
+}
+export interface Payment {
+  id: string;
+  date: number;
+  entityId: string; // Customer or Supplier ID
+  entityType: 'customer' | 'supplier';
+  amount: number;
+  method: 'cash' | 'bank';
+  reference?: string;
+  notes?: string;
 }
 export interface Expense {
   id: string;

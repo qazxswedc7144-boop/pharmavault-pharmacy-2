@@ -22,7 +22,7 @@ export function LedgerPage() {
     queryKey: ['ledger', selectedAccountId],
     queryFn: () => api<{ items: JournalEntry[] }>(`/api/ledger${selectedAccountId !== 'all' ? `?accountId=${selectedAccountId}` : ''}`)
   });
-  const ledgerEntries = useMemo(() => ledgerData?.items ?? [], [ledgerData?.items]);
+  const ledgerEntries = ledgerData?.items ?? [];
   const accounts = accountsData?.items ?? [];
   const filteredEntries = useMemo(() => {
     return ledgerEntries.filter(e => 

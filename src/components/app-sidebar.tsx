@@ -15,7 +15,9 @@ import {
   BookOpen,
   Receipt,
   ChevronUp,
-  Bell
+  Bell,
+  Scale,
+  FileSpreadsheet
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -65,6 +67,8 @@ export function AppSidebar(): JSX.Element {
     { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports", roles: ['admin'] },
   ];
   const accountingItems = [
+    { name: "دفتر الأستاذ", icon: <FileSpreadsheet className="size-4" />, href: "/ledger", roles: ['admin'] },
+    { name: "ميزان المراجعة", icon: <Scale className="size-4" />, href: "/trial-balance", roles: ['admin'] },
     { name: "الحسابات", icon: <BookOpen className="size-4" />, href: "/accounts", roles: ['admin'] },
     { name: "المصاريف", icon: <Receipt className="size-4" />, href: "/expenses", roles: ['admin'] },
     { name: "الموردون", icon: <Users className="size-4" />, href: "/suppliers", roles: ['admin'] },
