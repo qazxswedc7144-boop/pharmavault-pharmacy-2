@@ -109,9 +109,9 @@ export function ReportsPage() {
               </div>
             </div>
             <div className="flex gap-3 no-print">
-              <Button
-                variant="outline"
-                onClick={handleRefresh}
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh} 
                 disabled={isFetching}
                 className="h-12 px-4 border-2 font-bold"
               >

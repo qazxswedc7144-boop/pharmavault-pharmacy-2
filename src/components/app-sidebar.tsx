@@ -95,8 +95,8 @@ export function AppSidebar(): JSX.Element {
             <SidebarMenu>
               {filteredNav.map((item) => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton
-                    asChild
+                  <SidebarMenuButton 
+                    asChild 
                     isActive={location.pathname === item.href}
                     className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors flex-row-reverse"
                   >
@@ -120,8 +120,8 @@ export function AppSidebar(): JSX.Element {
               <SidebarMenu>
                 {filteredAccounting.map((item) => (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton
-                      asChild
+                    <SidebarMenuButton 
+                      asChild 
                       isActive={location.pathname === item.href}
                       className="hover:bg-pharmav-primary/5 hover:text-pharmav-primary transition-colors flex-row-reverse"
                     >

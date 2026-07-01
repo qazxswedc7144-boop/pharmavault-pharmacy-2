@@ -108,9 +108,9 @@ export function UsersPage() {
                       <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-pharmav-primary">
                         <Edit2 className="size-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
                         className="rounded-full text-muted-foreground hover:text-red-500"
                         onClick={() => {
                           if (confirm('هل أنت متأكد من حذف هذا الحساب؟')) deleteMutation.mutate(user.id);
