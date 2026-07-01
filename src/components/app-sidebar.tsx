@@ -14,9 +14,11 @@ import {
   CloudUpload,
   BookOpen,
   Receipt,
-  ChevronUp
+  ChevronUp,
+  Bell
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAppStore } from "@/lib/offline-store";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api-client";
 import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -47,9 +50,16 @@ export function AppSidebar(): JSX.Element {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [userRole, setUserRole] = useState<'admin' | 'pharmacist'>('admin');
   const offlineQueueCount = offlineQueue.length;
+  const { data: alertsCount } = useQuery<{ count: number }>({
+    queryKey: ['alerts-count'],
+    queryFn: () => api<{ count: number }>('/api/alerts/count'),
+    refetchInterval: 30000,
+    enabled: isOnline
+  });
   const navItems = [
     { name: "الرئيسية", icon: <Home className="size-4" />, href: "/dashboard", roles: ['admin', 'pharmacist'] },
     { name: "المخزون", icon: <ClipboardList className="size-4" />, href: "/inventory", roles: ['admin', 'pharmacist'] },
+    { name: "التنبيهات", icon: <Bell className="size-4" />, href: "/alerts", roles: ['admin', 'pharmacist'], badge: alertsCount?.count },
     { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/pos", roles: ['admin', 'pharmacist'] },
     { name: "المشتريات", icon: <Truck className="size-4" />, href: "/purchases", roles: ['admin'] },
     { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports", roles: ['admin'] },
@@ -87,7 +97,12 @@ export function AppSidebar(): JSX.Element {
                   >
                     <Link to={item.href} className="flex-row-reverse justify-end w-full">
                       {item.icon}
-                      <span className="font-medium mr-2">{item.name}</span>
+                      <span className="font-medium mr-2 flex-1 text-right">{item.name}</span>
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <Badge variant="destructive" className="ml-auto mr-1 h-5 min-w-5 justify-center px-1 font-bold">
+                          {item.badge}
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

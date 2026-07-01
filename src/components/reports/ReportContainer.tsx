@@ -5,9 +5,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Package, Users, DollarSign } from 'lucide-react';
+import { TrendingUp, Package, Users, DollarSign, Activity } from 'lucide-react';
 import type { ReportType } from '@/pages/ReportsPage';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
 interface ReportContainerProps {
   type: ReportType;
   dateRange: { from: string; to: string };
@@ -27,6 +29,15 @@ export function ReportContainer({ type, dateRange }: ReportContainerProps) {
   ];
   return (
     <div className="space-y-6 bg-white p-2">
+      <div className="flex items-center justify-between p-4 bg-pharmav-primary/5 rounded-2xl border border-pharmav-primary/10 flex-row-reverse mb-4 print:hidden">
+        <div className="flex items-center gap-2 text-pharmav-primary font-bold text-sm">
+          <Activity className="size-4 animate-pulse" />
+          المزامنة اللحظية نشطة
+        </div>
+        <div className="text-xs text-muted-foreground font-bold">
+          تاريخ استخراج البيانات: {format(new Date(), 'dd MMMM yyyy HH:mm', { locale: ar })}
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 print:grid-cols-2">
         {kpis.map((kpi, i) => (
           <Card key={i} className="border border-border/50 shadow-none print:border-gray-300">

@@ -159,7 +159,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                       {...fieldProps}
                       type="number"
                       step="0.01"
-                      value={String(value ?? "")}
+                      value={value?.toString() ?? ""}
                       onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />

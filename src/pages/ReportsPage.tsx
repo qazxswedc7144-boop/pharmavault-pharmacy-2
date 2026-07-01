@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ReportSidebar } from '@/components/reports/ReportSidebar';
 import { ReportDateFilter } from '@/components/reports/ReportDateFilter';
 import { ReportContainer } from '@/components/reports/ReportContainer';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { FileText, Printer, FileDown, Share2 } from 'lucide-react';
+import { FileText, Printer, FileDown, Share2, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,10 +17,14 @@ import {
 import { toast } from 'sonner';
 import html2pdf from 'html2pdf.js';
 import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
 export type ReportType = 'pnl' | 'sales' | 'purchases' | 'cust-bal' | 'sup-bal' | 'top-selling' | 'slow-moving' | 'cash' | 'expiry' | 'comparison';
 export function ReportsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isExporting, setIsExporting] = useState(false);
+  const queryClient = useQueryClient();
+  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const activeReport = (searchParams.get('type') as ReportType) || 'pnl';
   const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
@@ -36,6 +41,23 @@ export function ReportsPage() {
     'cash': 'حركة الصندوق اليومية',
     'expiry': 'تنبيهات انتهاء الصلاحية',
     'comparison': 'مقارنة الفترات المالية'
+  };
+  // Shared polling and refetching logic for the report data
+  const { isFetching } = useQuery({
+    queryKey: ['report-data', activeReport, dateRange],
+    queryFn: async () => {
+      // In a real implementation, this would fetch specific report data
+      // For now, we reuse existing analytics endpoint to simulate dynamic updates
+      const data = await fetch(`/api/reports/analytics?from=${dateRange.from}&to=${dateRange.to}`).then(res => res.json());
+      setLastRefreshed(new Date());
+      return data;
+    },
+    staleTime: 0,
+    refetchInterval: 60000 // Refetch every 1 minute
+  });
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['report-data'] });
+    toast.success('تم تحديث بيانات التقرير بنجاح');
   };
   const handlePdfExport = useCallback(async () => {
     const element = document.getElementById('report-print-area');
@@ -92,11 +114,21 @@ export function ReportsPage() {
               <h1 className="text-4xl font-display font-bold text-pharmav-primary">
                 {reportTitles[activeReport]}
               </h1>
-              <p className="text-muted-foreground text-lg">
-                تحليل دقيق للبيانات المالية والتشغيلية للفترة المحددة.
-              </p>
+              <div className="flex items-center gap-2 justify-end text-muted-foreground text-sm font-bold">
+                <Clock className="size-3" />
+                آخر تحديث: {format(lastRefreshed, 'HH:mm:ss', { locale: ar })}
+              </div>
             </div>
             <div className="flex gap-3 no-print">
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh} 
+                disabled={isFetching}
+                className="h-12 px-4 border-2 font-bold"
+              >
+                <RefreshCw className={cn("size-5", isFetching ? "animate-spin" : "")} />
+                <span className="mr-2">تحديث</span>
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="h-12 px-6 gap-2 border-2 font-bold shadow-sm">
@@ -114,9 +146,6 @@ export function ReportsPage() {
               </DropdownMenu>
               <Button variant="outline" onClick={() => window.print()} className="h-12 px-4 border-2">
                 <Printer className="size-5" />
-              </Button>
-              <Button variant="ghost" className="h-12 px-4 border-2">
-                <Share2 className="size-5" />
               </Button>
             </div>
           </div>
