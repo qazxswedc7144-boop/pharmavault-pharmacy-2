@@ -54,6 +54,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['report-data'] });
       toast.success('تم تسجيل المصروف وتحديث أرصدة الحسابات بنجاح');
       onOpenChange(false);
       form.reset();
@@ -156,7 +157,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         ref={ref}
                         type="number"
                         step="0.01"
-                        value={(value ?? "").toString()}
+                        value={String(value ?? "")}
                         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                         className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
@@ -198,7 +199,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                       name={name}
                       onBlur={onBlur}
                       ref={ref}
-                      value={(value ?? "").toString()}
+                      value={String(value ?? "")}
                       onChange={(e) => form.setValue(name, e.target.value)}
                       className="h-12 text-right border-2"
                       placeholder="مثلاً: سداد إيجار الشهر..."
@@ -220,7 +221,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         name={name}
                         onBlur={onBlur}
                         ref={ref}
-                        value={(value ?? "").toString()}
+                        value={String(value ?? "")}
                         onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-right border-2"
                         placeholder="إيجار، فواتير..."
@@ -242,7 +243,7 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                         onBlur={onBlur}
                         ref={ref}
                         type="date"
-                        value={(value ?? "").toString()}
+                        value={String(value ?? "")}
                         onChange={(e) => form.setValue(name, e.target.value)}
                         className="h-12 text-center border-2 font-bold"
                       />

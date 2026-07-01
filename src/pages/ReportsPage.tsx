@@ -47,10 +47,11 @@ export function ReportsPage() {
     queryKey: ['report-data', activeReport, dateRange],
     queryFn: async () => {
       setLastRefreshed(new Date());
+      // In a real app, this would be a specialized aggregator API
       return { success: true };
     },
     staleTime: 0,
-    refetchInterval: 60000
+    refetchInterval: 2000 // Real-time intelligence: poll every 2 seconds
   });
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['report-data'] });

@@ -75,6 +75,8 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['report-data'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(order ? 'تم تحديث فاتورة المشتريات' : 'تم إنشاء فاتورة مشتريات جديدة بنجاح');
       onOpenChange(false);
       form.reset();
@@ -200,10 +202,10 @@ export function PurchaseForm({ open, onOpenChange, order }: PurchaseFormProps) {
             </DialogFooter>
           </form>
         </Form>
-        <PurchaseAddItemModal
-          open={isAddItemOpen}
-          onOpenChange={setIsAddItemOpen}
-          onAdd={(item) => append(item)}
+        <PurchaseAddItemModal 
+          open={isAddItemOpen} 
+          onOpenChange={setIsAddItemOpen} 
+          onAdd={(item) => append(item)} 
         />
       </DialogContent>
     </Dialog>

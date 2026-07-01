@@ -57,12 +57,14 @@ export function PosPaymentSection({
     mutationFn: (tx: Transaction) => api<Transaction>('/api/transactions', { method: 'POST', body: JSON.stringify(tx) }),
     onSuccess: () => {
       setIsPrinting(true);
+      queryClient.invalidateQueries({ queryKey: ['report-data'] });
       setTimeout(() => {
         setIsPrinting(false);
         toast.success(isReturn ? 'تمت عملية الاسترجاع بنجاح' : 'تمت عملية البيع بنجاح');
         onSuccess();
         setCashReceived('');
         queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       }, 1500);
     },
     onError: () => toast.error('فشل في إتمام العملية')
@@ -73,7 +75,6 @@ export function PosPaymentSection({
       return;
     }
     let finalCustomerId = customer?.id;
-    // Check if the current customer is a manual entry (new customer by name)
     const existingByName = customersData?.items.find(c => c.name === customer?.name);
     if (!finalCustomerId && customer?.name && !existingByName) {
       try {

@@ -99,6 +99,8 @@ export function SalesPage() {
       setCart([]);
       setDiscountPercent(0);
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['report-data'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
     },
     onError: () => toast.error('خطأ في الخادم. فشلت العملية.')
   });
@@ -128,7 +130,6 @@ export function SalesPage() {
   return (
     <AppLayout container contentClassName="max-w-full lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]" dir="rtl">
-        {/* Cart Area (Left in Arabic Layout) */}
         <div className="w-full lg:w-[400px] flex flex-col gap-4 order-2 lg:order-1">
           <Card className="flex-1 flex flex-col glass-card border-none shadow-glow overflow-hidden">
             <CardHeader className="border-b pb-4 text-right">
@@ -175,9 +176,9 @@ export function SalesPage() {
               </ScrollArea>
               <div className="p-4 bg-muted/30 border-t space-y-3">
                 <div className="flex items-center gap-2 mb-2 flex-row-reverse">
-                  <Input
-                    type="number"
-                    placeholder="خصم إضافي %"
+                  <Input 
+                    type="number" 
+                    placeholder="خصم إضافي %" 
                     className="h-9 text-xs text-right"
                     value={discountPercent || ''}
                     onChange={e => setDiscountPercent(Number(e.target.value))}
@@ -206,7 +207,7 @@ export function SalesPage() {
                     </Button>
                   ))}
                 </div>
-                <Button
+                <Button 
                   className="w-full h-14 text-lg font-bold shadow-neon-blue bg-pharmav-primary"
                   disabled={cart.length === 0 || saleMutation.isPending}
                   onClick={handleProcessSale}
@@ -217,13 +218,12 @@ export function SalesPage() {
             </CardContent>
           </Card>
         </div>
-        {/* Product Grid (Right in Arabic Layout) */}
         <div className="flex-1 flex flex-col gap-4 overflow-hidden order-1 lg:order-2">
           <div className="flex items-center gap-4 flex-row-reverse">
             <div className="relative flex-1">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="ابحث عن دواء أو امسح الباركود..."
+              <Input 
+                placeholder="ابحث عن دواء أو امسح الباركود..." 
                 className="pr-10 h-12 text-lg glass-card text-right"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
