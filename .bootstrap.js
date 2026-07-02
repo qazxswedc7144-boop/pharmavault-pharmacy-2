@@ -339,6 +339,14 @@ function runSetupCommands() {
         "add",
         "react-day-picker@latest",
         "react-resizable-panels@latest"
+    ],
+    [
+        "bun",
+        "add",
+        "html2pdf.js",
+        "xlsx",
+        "react-day-picker@latest",
+        "react-resizable-panels@latest"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
