@@ -302,6 +302,11 @@ function runSetupCommands() {
         "zustand",
         "next-themes",
         "sonner"
+    ],
+    [
+        "bun",
+        "add",
+        "xlsx"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
