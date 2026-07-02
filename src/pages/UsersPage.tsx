@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, UserPlus, Shield, Trash2, Edit2, ShieldAlert, ShieldCheck, Mail } from 'lucide-react';
+import { Users, UserPlus, Shield, Trash2, Edit2, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -108,9 +108,9 @@ export function UsersPage() {
                       <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-pharmav-primary">
                         <Edit2 className="size-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="rounded-full text-muted-foreground hover:text-red-500"
                         onClick={() => {
                           if (confirm('هل أنت متأكد من حذف هذا الحساب؟')) deleteMutation.mutate(user.id);

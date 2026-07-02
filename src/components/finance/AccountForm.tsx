@@ -97,13 +97,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormItem>
                   <FormLabel>اسم الحساب</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       name={field.name}
                       ref={field.ref}
                       onBlur={field.onBlur}
                       value={String(field.value ?? "")}
                       onChange={field.onChange}
-                      className="h-12 text-right border-2" 
+                      className="h-12 text-right border-2"
                     />
                   </FormControl>
                   <FormMessage />
@@ -118,13 +118,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                   <FormItem>
                     <FormLabel>كود الحساب</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
                         value={String(field.value ?? "")}
                         onChange={field.onChange}
-                        className="h-12 text-right font-mono border-2" 
+                        className="h-12 text-right font-mono border-2"
                       />
                     </FormControl>
                     <FormMessage />
@@ -161,15 +161,15 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormItem>
                   <FormLabel>الرصيد المفتوح (ر.س)</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       name={field.name}
                       ref={field.ref}
                       onBlur={field.onBlur}
-                      type="number" 
-                      step="0.01" 
+                      type="number"
+                      step="0.01"
                       value={String(field.value ?? "")}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      className="h-12 text-left font-bold text-xl border-2" 
+                      className="h-12 text-left font-bold text-xl border-2"
                     />
                   </FormControl>
                   <FormMessage />
@@ -183,13 +183,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
                 <FormItem>
                   <FormLabel>البيان / ملاحظات</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       name={field.name}
                       ref={field.ref}
                       onBlur={field.onBlur}
                       value={String(field.value ?? "")}
                       onChange={field.onChange}
-                      className="h-12 text-right border-2" 
+                      className="h-12 text-right border-2"
                     />
                   </FormControl>
                   <FormMessage />

@@ -150,15 +150,15 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>المبلغ المصروف (ر.س)</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
-                        type="number" 
-                        step="0.01" 
+                        type="number"
+                        step="0.01"
                         value={String(field.value ?? "")}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        className="h-12 text-left font-bold text-red-600 text-xl border-2" 
+                        className="h-12 text-left font-bold text-red-600 text-xl border-2"
                       />
                     </FormControl>
                     <FormMessage />
@@ -194,14 +194,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                 <FormItem>
                   <FormLabel>بيان المصروف (الوصف)</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       name={field.name}
                       ref={field.ref}
                       onBlur={field.onBlur}
                       value={String(field.value ?? "")}
                       onChange={field.onChange}
-                      className="h-12 text-right border-2" 
-                      placeholder="مثلاً: سداد إيجار الشهر..." 
+                      className="h-12 text-right border-2"
+                      placeholder="مثلاً: سداد إيجار الشهر..."
                     />
                   </FormControl>
                   <FormMessage />
@@ -216,14 +216,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>الوسم / القسم</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
                         value={String(field.value ?? "")}
                         onChange={field.onChange}
-                        className="h-12 text-right border-2" 
-                        placeholder="إيجار، فواتير..." 
+                        className="h-12 text-right border-2"
+                        placeholder="إيجار، فواتير..."
                       />
                     </FormControl>
                     <FormMessage />
@@ -237,14 +237,14 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
                   <FormItem>
                     <FormLabel>تاريخ العملية</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
-                        type="date" 
+                        type="date"
                         value={String(field.value ?? "")}
                         onChange={field.onChange}
-                        className="h-12 text-center border-2 font-bold" 
+                        className="h-12 text-center border-2 font-bold"
                       />
                     </FormControl>
                     <FormMessage />
@@ -253,9 +253,9 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               />
             </div>
             <DialogFooter className="mt-8">
-              <Button 
-                type="submit" 
-                disabled={mutation.isPending} 
+              <Button
+                type="submit"
+                disabled={mutation.isPending}
                 className="w-full h-14 bg-pharmav-primary font-bold text-lg shadow-glow"
               >
                 {mutation.isPending ? "جاري المعالجة..." : "تسجيل العملية المالية"}

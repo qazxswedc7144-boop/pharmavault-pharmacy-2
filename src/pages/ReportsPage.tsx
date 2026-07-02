@@ -48,7 +48,6 @@ export function ReportsPage() {
     queryKey: ['report-data', activeReport, dateRange],
     queryFn: async () => {
       setLastRefreshed(new Date());
-      // Real aggregation would happen here or in specialized backend endpoints
       return api<any>(`/api/stats`);
     },
     staleTime: 5000
@@ -109,9 +108,9 @@ export function ReportsPage() {
               </div>
             </div>
             <div className="flex gap-3 no-print">
-              <Button 
-                variant="outline" 
-                onClick={handleRefresh} 
+              <Button
+                variant="outline"
+                onClick={handleRefresh}
                 disabled={isFetching}
                 className="h-12 px-4 border-2 font-bold"
               >

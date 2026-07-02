@@ -141,14 +141,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الاسم العلمي</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-right border-2" 
-                            placeholder="المادة الفعالة..." 
+                            className="h-12 text-right border-2"
+                            placeholder="المادة الفعالة..."
                           />
                         </FormControl>
                         <FormMessage />
@@ -158,13 +158,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الاسم التجاري الأساسي</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-right border-2" 
+                            className="h-12 text-right border-2"
                           />
                         </FormControl>
                         <FormMessage />
@@ -204,15 +204,15 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>سعر التكلفة (ر.س)</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
-                            type="number" 
-                            step="0.01" 
+                            type="number"
+                            step="0.01"
                             value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            className="h-14 text-center font-bold text-xl border-2" 
+                            className="h-14 text-center font-bold text-xl border-2"
                           />
                         </FormControl>
                         <FormMessage />
@@ -222,15 +222,15 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>سعر البيع للجمهور (ر.س)</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
-                            type="number" 
-                            step="0.01" 
+                            type="number"
+                            step="0.01"
                             value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary" 
+                            className="h-14 text-center font-bold text-xl border-2 text-pharmav-primary"
                           />
                         </FormControl>
                         <FormMessage />
@@ -253,14 +253,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>الكمية الحالية</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
-                            type="number" 
+                            type="number"
                             value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
-                            className="h-12 text-center font-bold text-lg" 
+                            className="h-12 text-center font-bold text-lg"
                           />
                         </FormControl>
                         <FormMessage />
@@ -270,13 +270,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>وحدة الصرف</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={String(field.value ?? "")}
                             onChange={field.onChange}
-                            className="h-12 text-center" 
+                            className="h-12 text-center"
                           />
                         </FormControl>
                         <FormMessage />
@@ -286,14 +286,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       <FormItem>
                         <FormLabel>حد إعادة الطلب</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
-                            type="number" 
+                            type="number"
                             value={String(field.value ?? "")}
                             onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
-                            className="h-12 text-center" 
+                            className="h-12 text-center"
                           />
                         </FormControl>
                         <FormMessage />

@@ -59,10 +59,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     await checkAlerts(c.env);
     const transactions = await TransactionEntity.list(c.env, null, 500);
     const alerts = await AlertEntity.list(c.env);
-    const accounts = await AccountEntity.list(c.env);
+    const expenses = await ExpenseEntity.list(c.env);
     const lowStock = alerts.items.filter(a => a.type === 'stock' && a.status === 'active').length;
     const expiredSoon = alerts.items.filter(a => a.type === 'expiry' && a.status === 'active').length;
-    // Last 7 Days Time-Series
+    // 7-day sales series
     const salesSeries = [];
     const now = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -79,6 +79,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       });
     }
     const totalSales = transactions.items.reduce((sum, t) => sum + t.totalAmount, 0);
+    const totalExpenses = expenses.items.reduce((sum, e) => sum + e.amount, 0);
     return ok(c, {
       totalSales,
       totalOrders: transactions.items.length,
@@ -88,7 +89,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       salesSeries
     });
   });
-  // User Management CRUD
+  // User Management
   app.get('/api/users', async (c) => ok(c, await UserEntity.list(c.env)));
   app.post('/api/users', async (c) => {
     const data = await c.req.json();
@@ -105,7 +106,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     await UserEntity.delete(c.env, c.req.param('id'));
     return ok(c, { success: true });
   });
-  // Existing entity routes
+  // Other endpoints
   app.get('/api/products', async (c) => ok(c, await ProductEntity.list(c.env)));
   app.post('/api/products', async (c) => ok(c, await ProductEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
   app.put('/api/products/:id', async (c) => {
@@ -171,10 +172,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     if (!(await ent.exists())) return notFound(c);
     await ent.patch(await c.req.json());
     return ok(c, await ent.getState());
-  });
-  app.delete('/api/alerts/:id', async (c) => {
-    await AlertEntity.delete(c.env, c.req.param('id'));
-    return ok(c, { deleted: true });
   });
   app.get('/api/purchases', async (c) => ok(c, await PurchaseOrderEntity.list(c.env)));
   app.post('/api/purchases', async (c) => ok(c, await PurchaseOrderEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID(), timestamp: Date.now() })));
