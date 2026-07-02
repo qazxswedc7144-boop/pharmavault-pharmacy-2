@@ -59,13 +59,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field: { value, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>اسم الحساب</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
-                      value={String(field.value ?? "")}
+                      {...fieldProps}
+                      value={String(value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>
@@ -77,13 +77,13 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
               <FormField<AccountFormValues>
                 control={form.control}
                 name="code"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>كود الحساب</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
-                        value={String(field.value ?? "")}
+                        {...fieldProps}
+                        value={String(value ?? "")}
                         className="h-12 font-mono border-2"
                       />
                     </FormControl>
@@ -108,16 +108,16 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             <FormField<AccountFormValues>
               control={form.control}
               name="balance"
-              render={({ field }) => (
+              render={({ field: { value, onChange, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>الرصيد الافتتاحي</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
+                      {...fieldProps}
                       type="number"
                       step="0.01"
-                      value={String(field.value ?? "0")}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      value={String(value ?? "0")}
+                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold text-xl border-2"
                     />
                   </FormControl>

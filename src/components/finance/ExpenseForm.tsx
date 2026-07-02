@@ -89,16 +89,16 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="amount"
-              render={({ field }) => (
+              render={({ field: { value, onChange, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>المبلغ</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
+                      {...fieldProps}
                       type="number"
                       step="0.01"
-                      value={String(field.value ?? "")}
-                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                      value={String(value ?? "")}
+                      onChange={e => onChange(parseFloat(e.target.value) || 0)}
                       className="h-12 text-left font-bold border-2"
                     />
                   </FormControl>
@@ -108,13 +108,13 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
             <FormField<ExpenseFormValues>
               control={form.control}
               name="description"
-              render={({ field }) => (
+              render={({ field: { value, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>الوصف</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
-                      value={String(field.value ?? "")}
+                      {...fieldProps}
+                      value={String(value ?? "")}
                       className="h-12 text-right border-2"
                     />
                   </FormControl>
@@ -125,20 +125,20 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="category"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>القسم</FormLabel>
-                    <FormControl><Input {...field} value={String(field.value ?? "")} className="h-12 text-right border-2" /></FormControl>
+                    <FormControl><Input {...fieldProps} value={String(value ?? "")} className="h-12 text-right border-2" /></FormControl>
                   </FormItem>
                 )}
               />
               <FormField<ExpenseFormValues>
                 control={form.control}
                 name="date"
-                render={({ field }) => (
+                render={({ field: { value, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>التاريخ</FormLabel>
-                    <FormControl><Input type="date" {...field} value={String(field.value ?? "")} className="h-12 text-center border-2 font-bold" /></FormControl>
+                    <FormControl><Input type="date" {...fieldProps} value={String(value ?? "")} className="h-12 text-center border-2 font-bold" /></FormControl>
                   </FormItem>
                 )}
               />

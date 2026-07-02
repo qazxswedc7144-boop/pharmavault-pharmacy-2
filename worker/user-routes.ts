@@ -39,7 +39,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const filteredPurchases = purchases.items.filter(p => p.timestamp >= from && p.timestamp <= to);
     const filteredExpenses = expenses.items.filter(e => e.date >= from && e.date <= to);
     switch (type) {
-      case 'pnl':
+      case 'pnl': {
         const revenue = filteredTxs.reduce((s, t) => s + t.totalAmount, 0);
         const expenseTotal = filteredExpenses.reduce((s, e) => s + e.amount, 0);
         const cogs = filteredTxs.reduce((s, t) => {
@@ -49,26 +49,29 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
           }, 0);
         }, 0);
         return ok(c, { revenue, cogs, expenseTotal, netProfit: revenue - cogs - expenseTotal });
+      }
       case 'sales':
         return ok(c, { items: filteredTxs });
       case 'purchases':
         return ok(c, { items: filteredPurchases });
       case 'cust-bal':
         return ok(c, { items: customers.items.filter(cust => cust.currentBalance > 0) });
-      case 'top-selling':
+      case 'top-selling': {
         const salesMap = new Map<string, number>();
         filteredTxs.forEach(t => t.items.forEach(i => salesMap.set(i.productId, (salesMap.get(i.productId) || 0) + i.quantity)));
         const sorted = Array.from(salesMap.entries())
           .map(([id, qty]) => ({ product: products.items.find(p => p.id === id), quantity: qty }))
           .sort((a, b) => b.quantity - a.quantity);
         return ok(c, { items: sorted.slice(0, 10) });
-      case 'expiry':
+      }
+      case 'expiry': {
         const ninetyDays = Date.now() + (90 * 24 * 60 * 60 * 1000);
         const expiring = products.items.filter(p => {
           const exp = new Date(p.expiryDate).getTime();
           return exp <= ninetyDays;
         });
         return ok(c, { items: expiring });
+      }
       default:
         return ok(c, { items: [] });
     }
