@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, MiddlewareHandler } from "hono";
 import type { Env } from './core-utils';
 import {
   ProductEntity,
@@ -14,8 +14,16 @@ import {
   AlertEntity
 } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { Transaction, PurchaseOrder, Expense, Alert, JournalEntry, User, Account } from "@shared/types";
+import type { Transaction, PurchaseOrder, Expense, Alert, JournalEntry, User, Account, Role } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
+  // RBAC Middleware
+  const requireRole = (allowedRoles: Role[]): MiddlewareHandler => async (c, next) => {
+    const role = c.req.header('x-user-role') as Role;
+    if (!role || !allowedRoles.includes(role)) {
+      return c.json({ success: false, error: 'غير مصرح لك بالوصول لهذا القسم (403)' }, 403);
+    }
+    await next();
+  };
   const checkAlerts = async (env: Env) => {
     const products = await ProductEntity.list(env);
     const now = Date.now();
@@ -64,35 +72,52 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       salesSeries
     });
   });
-  // Operations Linking: Transactions (Sales)
-  app.post('/api/transactions', async (c) => {
+  // Protected Admin Routes
+  app.get('/api/users', requireRole(['admin']), async (c) => ok(c, await UserEntity.list(c.env)));
+  app.post('/api/users', requireRole(['admin']), async (c) => {
+    const data = await c.req.json();
+    return ok(c, await UserEntity.create(c.env, { ...data, id: crypto.randomUUID() }));
+  });
+  app.get('/api/accounts', requireRole(['admin', 'pharmacist']), async (c) => ok(c, await AccountEntity.list(c.env)));
+  app.post('/api/accounts', requireRole(['admin']), async (c) => ok(c, await AccountEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
+  app.get('/api/ledger', requireRole(['admin']), async (c) => ok(c, await JournalEntryEntity.list(c.env)));
+  app.get('/api/trial-balance', requireRole(['admin']), async (c) => {
+    const accounts = await AccountEntity.list(c.env);
+    const entries = await JournalEntryEntity.list(c.env);
+    const items = accounts.items.map(acc => {
+      let debit = 0;
+      let credit = 0;
+      entries.items.forEach(e => {
+        e.items.forEach(i => {
+          if (i.accountId === acc.id) {
+            debit += i.debit;
+            credit += i.credit;
+          }
+        });
+      });
+      return { ...acc, totalDebit: debit, totalCredit: credit };
+    });
+    return ok(c, { items });
+  });
+  // Pharmacist & Admin Operations
+  app.post('/api/transactions', requireRole(['admin', 'pharmacist']), async (c) => {
     const data = await c.req.json() as Transaction;
     const txId = data.id || crypto.randomUUID();
     const timestamp = Date.now();
-    // 1. Update Inventory & Record COGS
     for (const item of data.items) {
       const productEnt = new ProductEntity(c.env, item.productId);
       if (await productEnt.exists()) {
-        await productEnt.mutate(p => ({
-          ...p,
-          stockQuantity: p.stockQuantity - item.quantity
-        }));
+        await productEnt.mutate(p => ({ ...p, stockQuantity: p.stockQuantity - item.quantity }));
       }
     }
-    // 2. Update Customer Balance if credit
     if (data.customerId && data.paymentMethod === 'transfer') {
       const custEnt = new CustomerEntity(c.env, data.customerId);
       if (await custEnt.exists()) {
-        await custEnt.mutate(cust => ({
-          ...cust,
-          currentBalance: cust.currentBalance + data.totalAmount
-        }));
+        await custEnt.mutate(cust => ({ ...cust, currentBalance: cust.currentBalance + data.totalAmount }));
       }
     }
-    // 3. Create Journal Entry
-    const journalId = crypto.randomUUID();
     const entry: JournalEntry = {
-      id: journalId,
+      id: crypto.randomUUID(),
       date: timestamp,
       description: `فاتورة مبيعات رقم ${data.invoiceNumber || txId.slice(0,8)}`,
       referenceId: data.invoiceNumber || txId.slice(0,8),
@@ -107,26 +132,18 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const transaction = await TransactionEntity.create(c.env, { ...data, id: txId, timestamp });
     return ok(c, { transaction, journalEntry: entry });
   });
-  // Operations Linking: Purchases
-  app.post('/api/purchases', async (c) => {
+  app.post('/api/purchases', requireRole(['admin', 'pharmacist']), async (c) => {
     const data = await c.req.json() as PurchaseOrder;
     const poId = data.id || crypto.randomUUID();
     const timestamp = Date.now();
-    // 1. Increase Stock
     for (const item of data.items) {
       const productEnt = new ProductEntity(c.env, item.productId);
       if (await productEnt.exists()) {
-        await productEnt.mutate(p => ({
-          ...p,
-          stockQuantity: p.stockQuantity + item.quantity,
-          costPrice: item.costPrice // Update last cost price
-        }));
+        await productEnt.mutate(p => ({ ...p, stockQuantity: p.stockQuantity + item.quantity, costPrice: item.costPrice }));
       }
     }
-    // 2. Create Journal Entry
-    const journalId = crypto.randomUUID();
     const entry: JournalEntry = {
-      id: journalId,
+      id: crypto.randomUUID(),
       date: timestamp,
       description: `فاتورة مشتريات من مورد`,
       referenceId: data.invoiceNumber || poId.slice(0,8),
@@ -141,8 +158,18 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const purchase = await PurchaseOrderEntity.create(c.env, { ...data, id: poId, timestamp });
     return ok(c, purchase);
   });
-  // Expenses & Linking
-  app.post('/api/expenses', async (c) => {
+  // Standard Entities (Viewer can READ, but Admin/Pharmacist can WRITE)
+  app.get('/api/products', async (c) => ok(c, await ProductEntity.list(c.env)));
+  app.post('/api/products', requireRole(['admin', 'pharmacist']), async (c) => ok(c, await ProductEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
+  app.delete('/api/products/:id', requireRole(['admin']), async (c) => ok(c, await ProductEntity.delete(c.env, c.req.param('id'))));
+  app.get('/api/customers', async (c) => ok(c, await CustomerEntity.list(c.env)));
+  app.post('/api/customers', requireRole(['admin', 'pharmacist']), async (c) => ok(c, await CustomerEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
+  app.delete('/api/customers/:id', requireRole(['admin']), async (c) => ok(c, await CustomerEntity.delete(c.env, c.req.param('id'))));
+  app.get('/api/suppliers', async (c) => ok(c, await SupplierEntity.list(c.env)));
+  app.get('/api/categories', async (c) => ok(c, await CategoryEntity.list(c.env)));
+  app.get('/api/alerts', async (c) => ok(c, await AlertEntity.list(c.env)));
+  app.get('/api/purchases', async (c) => ok(c, await PurchaseOrderEntity.list(c.env)));
+  app.post('/api/expenses', requireRole(['admin', 'pharmacist']), async (c) => {
     const data = await c.req.json() as Expense;
     const id = crypto.randomUUID();
     const timestamp = data.date || Date.now();
@@ -163,43 +190,5 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
     const exp = await ExpenseEntity.create(c.env, { ...data, id, date: timestamp });
     return ok(c, exp);
-  });
-  // Standard CRUD
-  app.get('/api/users', async (c) => ok(c, await UserEntity.list(c.env)));
-  app.get('/api/products', async (c) => ok(c, await ProductEntity.list(c.env)));
-  app.get('/api/accounts', async (c) => ok(c, await AccountEntity.list(c.env)));
-  app.get('/api/customers', async (c) => ok(c, await CustomerEntity.list(c.env)));
-  app.get('/api/suppliers', async (c) => ok(c, await SupplierEntity.list(c.env)));
-  app.get('/api/categories', async (c) => ok(c, await CategoryEntity.list(c.env)));
-  app.get('/api/ledger', async (c) => ok(c, await JournalEntryEntity.list(c.env)));
-  app.get('/api/alerts', async (c) => ok(c, await AlertEntity.list(c.env)));
-  app.get('/api/purchases', async (c) => ok(c, await PurchaseOrderEntity.list(c.env)));
-  app.post('/api/customers', async (c) => ok(c, await CustomerEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
-  app.post('/api/accounts', async (c) => ok(c, await AccountEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
-  app.post('/api/categories', async (c) => ok(c, await CategoryEntity.create(c.env, { ...await c.req.json(), id: crypto.randomUUID() })));
-  app.delete('/api/products/:id', async (c) => ok(c, await ProductEntity.delete(c.env, c.req.param('id'))));
-  app.delete('/api/alerts/:id', async (c) => ok(c, await AlertEntity.delete(c.env, c.req.param('id'))));
-  app.put('/api/alerts/:id', async (c) => {
-    const ent = new AlertEntity(c.env, c.req.param('id'));
-    await ent.patch(await c.req.json());
-    return ok(c, await ent.getState());
-  });
-  app.get('/api/trial-balance', async (c) => {
-    const accounts = await AccountEntity.list(c.env);
-    const entries = await JournalEntryEntity.list(c.env);
-    const items = accounts.items.map(acc => {
-      let debit = 0;
-      let credit = 0;
-      entries.items.forEach(e => {
-        e.items.forEach(i => {
-          if (i.accountId === acc.id) {
-            debit += i.debit;
-            credit += i.credit;
-          }
-        });
-      });
-      return { ...acc, totalDebit: debit, totalCredit: credit };
-    });
-    return ok(c, { items });
   });
 }

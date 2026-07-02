@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Transaction, SubscriptionInfo, BillingRecord } from '@shared/types';
+import type { Transaction, SubscriptionInfo, BillingRecord, User } from '@shared/types';
+import { MOCK_USERS } from '@shared/mock-data';
 interface PharmacySettings {
   name: string;
   address: string;
@@ -10,10 +11,11 @@ interface PharmacySettings {
   printInvoiceAuto: boolean;
 }
 interface AppState {
-  // Security
+  // Security & Identity
   isLocked: boolean;
   pin: string | null;
   loginLockEnabled: boolean;
+  currentUser: User;
   // Offline Data
   offlineQueue: Transaction[];
   isOnline: boolean;
@@ -26,6 +28,7 @@ interface AppState {
   setLocked: (locked: boolean) => void;
   setPin: (pin: string | null) => void;
   setLoginLockEnabled: (enabled: boolean) => void;
+  setCurrentUser: (user: User) => void;
   addToOfflineQueue: (transaction: Transaction) => void;
   clearOfflineQueue: () => void;
   setOnlineStatus: (status: boolean) => void;
@@ -39,6 +42,7 @@ export const useAppStore = create<AppState>()(
       isLocked: false,
       pin: null,
       loginLockEnabled: false,
+      currentUser: MOCK_USERS[0], // Default to Admin for demo
       offlineQueue: [],
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
       settings: {
@@ -68,6 +72,7 @@ export const useAppStore = create<AppState>()(
       setLocked: (locked) => set({ isLocked: locked }),
       setPin: (pin) => set({ pin }),
       setLoginLockEnabled: (enabled) => set({ loginLockEnabled: enabled }),
+      setCurrentUser: (user) => set({ currentUser: user }),
       addToOfflineQueue: (transaction) =>
         set((state) => ({ offlineQueue: [...state.offlineQueue, transaction] })),
       clearOfflineQueue: () => set({ offlineQueue: [] }),
@@ -86,6 +91,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         pin: state.pin,
         loginLockEnabled: state.loginLockEnabled,
+        currentUser: state.currentUser,
         offlineQueue: state.offlineQueue,
         settings: state.settings,
         subscription: state.subscription,

@@ -21,6 +21,11 @@ const expenseSchema = z.object({
   date: z.string().min(1, 'التاريخ مطلوب')
 });
 type ExpenseFormValues = z.output<typeof expenseSchema>;
+export interface ExpenseFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  expense?: Expense;
+}
 export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<ExpenseFormValues>({
@@ -62,17 +67,17 @@ export function ExpenseForm({ open, onOpenChange, expense }: ExpenseFormProps) {
               )} />
             </div>
             <FormField<ExpenseFormValues> control={form.control} name="amount" render={({ field }) => (
-              <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={(field.value ?? "").toString()} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold border-2" /></FormControl></FormItem>
+              <FormItem><FormLabel>المبلغ</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} type="number" step="0.01" value={String(field.value ?? "")} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold border-2" /></FormControl></FormItem>
             )} />
             <FormField<ExpenseFormValues> control={form.control} name="description" render={({ field }) => (
-              <FormItem><FormLabel>الوصف</FormLabel><FormControl><Input {...field} value={(field.value ?? "").toString()} className="h-12 text-right border-2" /></FormControl></FormItem>
+              <FormItem><FormLabel>الوصف</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} value={String(field.value ?? "")} onChange={field.onChange} className="h-12 text-right border-2" /></FormControl></FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
               <FormField<ExpenseFormValues> control={form.control} name="category" render={({ field }) => (
-                <FormItem><FormLabel>القسم</FormLabel><FormControl><Input {...field} value={(field.value ?? "").toString()} className="h-12 text-right border-2" /></FormControl></FormItem>
+                <FormItem><FormLabel>القسم</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} value={String(field.value ?? "")} onChange={field.onChange} className="h-12 text-right border-2" /></FormControl></FormItem>
               )} />
               <FormField<ExpenseFormValues> control={form.control} name="date" render={({ field }) => (
-                <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input type="date" {...field} value={(field.value ?? "").toString()} className="h-12 text-center border-2 font-bold" /></FormControl></FormItem>
+                <FormItem><FormLabel>التاريخ</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} type="date" value={String(field.value ?? "")} onChange={field.onChange} className="h-12 text-center border-2 font-bold" /></FormControl></FormItem>
               )} />
             </div>
             <DialogFooter className="mt-8"><Button type="submit" disabled={mutation.isPending} className="w-full h-14 bg-pharmav-primary font-bold">تسجيل العملية</Button></DialogFooter>

@@ -57,11 +57,11 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField<AccountFormValues> control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input {...field} value={field.value?.toString() ?? ""} className="h-12 text-right border-2" /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} value={String(field.value ?? "")} onChange={field.onChange} className="h-12 text-right border-2" /></FormControl><FormMessage /></FormItem>
             )} />
             <div className="grid grid-cols-2 gap-4">
               <FormField<AccountFormValues> control={form.control} name="code" render={({ field }) => (
-                <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input {...field} value={field.value?.toString() ?? ""} className="h-12 font-mono border-2" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} value={String(field.value ?? "")} onChange={field.onChange} className="h-12 font-mono border-2" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField<AccountFormValues> control={form.control} name="type" render={({ field }) => (
                 <FormItem><FormLabel>نوع الحساب</FormLabel>
@@ -71,7 +71,7 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
             </div>
             <FormField<AccountFormValues> control={form.control} name="balance" render={({ field }) => (
               <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} value={field.value?.toString() ?? "0"} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold text-xl border-2" /></FormControl>
+                <FormControl><Input name={field.name} ref={field.ref} onBlur={field.onBlur} type="number" step="0.01" value={String(field.value ?? "0")} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold text-xl border-2" /></FormControl>
               <FormMessage /></FormItem>
             )} />
             <DialogFooter className="mt-8"><Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 bg-pharmav-primary shadow-neon-blue">حفظ البيانات</Button></DialogFooter>

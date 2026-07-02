@@ -1,3 +1,4 @@
+export type Role = 'admin' | 'pharmacist' | 'viewer';
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -6,7 +7,7 @@ export interface ApiResponse<T = unknown> {
 export interface User {
   id: string;
   name: string;
-  role: 'admin' | 'pharmacist' | 'viewer';
+  role: Role;
 }
 export interface Category {
   id: string;

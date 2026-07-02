@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
@@ -9,7 +9,8 @@ import {
   Pencil,
   Trash2,
   Package2,
-  FileDown
+  FileDown,
+  ShieldAlert
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
@@ -30,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { api } from '@/lib/api-client';
+import { useAppStore } from '@/lib/offline-store';
 import type { Product } from '@shared/types';
 import { ProductForm } from '@/components/inventory/ProductForm';
 import { toast } from 'sonner';
@@ -39,6 +41,10 @@ export function InventoryPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
   const queryClient = useQueryClient();
+  const currentUser = useAppStore(s => s.currentUser);
+  const role = currentUser?.role || 'viewer';
+  const canWrite = role === 'admin' || role === 'pharmacist';
+  const canDelete = role === 'admin';
   const { data: productsData, isLoading } = useQuery<{ items: Product[] }>({
     queryKey: ['products'],
     queryFn: () => api<{ items: Product[] }>('/api/products')
@@ -48,7 +54,8 @@ export function InventoryPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('تم حذف المنتج بنجاح');
-    }
+    },
+    onError: (err: any) => toast.error(err.message || 'فشل في الحذف')
   });
   const products = productsData?.items ?? [];
   const filteredProducts = products.filter(p =>
@@ -74,6 +81,7 @@ export function InventoryPage() {
     toast.success('تم تصدير ملف Excel بنجاح');
   };
   const handleEdit = (product: Product) => {
+    if (!canWrite) return;
     setSelectedProduct(product);
     setIsFormOpen(true);
   };
@@ -89,11 +97,19 @@ export function InventoryPage() {
             <Button variant="outline" onClick={handleExportExcel} className="gap-2 h-11 px-5 border-2">
               <FileDown className="h-4 w-4" /> تصدير البيانات
             </Button>
-            <Button onClick={() => { setSelectedProduct(undefined); setIsFormOpen(true); }} className="gap-2 h-11 px-6 bg-pharmav-primary font-bold shadow-neon-blue">
-              <Plus className="h-4 w-4" /> إضافة دواء جديد
-            </Button>
+            {canWrite && (
+              <Button onClick={() => { setSelectedProduct(undefined); setIsFormOpen(true); }} className="gap-2 h-11 px-6 bg-pharmav-primary font-bold shadow-neon-blue">
+                <Plus className="h-4 w-4" /> إضافة دواء جديد
+              </Button>
+            )}
           </div>
         </div>
+        {role === 'viewer' && (
+          <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex items-center gap-3 flex-row-reverse text-blue-700 font-bold text-sm">
+            <ShieldAlert className="size-5" />
+            أنت في وضع العرض فقط. لا يمكنك تعديل أو إضافة بيانات.
+          </div>
+        )}
         <div className="flex flex-col md:flex-row gap-4 items-center bg-muted/30 p-6 rounded-2xl border border-border/60">
           <div className="relative w-full md:w-[450px]">
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -146,15 +162,23 @@ export function InventoryPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-left">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="text-right">
-                        <DropdownMenuItem onClick={() => handleEdit(p)}>تعديل البيانات</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(p.id)}>حذف المنتج</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {canWrite && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="text-right">
+                          <DropdownMenuItem onClick={() => handleEdit(p)} className="flex-row-reverse gap-2">
+                            <Pencil className="size-4" /> تعديل البيانات
+                          </DropdownMenuItem>
+                          {canDelete && (
+                            <DropdownMenuItem className="text-destructive flex-row-reverse gap-2" onClick={() => deleteMutation.mutate(p.id)}>
+                              <Trash2 className="size-4" /> حذف المنتج
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -162,7 +186,7 @@ export function InventoryPage() {
           </Table>
         </div>
         <div className="pt-12 text-center text-muted-foreground text-sm border-t">
-          <p>نظام فارمافولت v2.5 • تطوير م/ عبدالله طاهر مفرح (772093714) • حقوق الطبع 2026</p>
+          <p>نظام فارمافولت v2.5 • م/ عبدالله طاهر مفرح (772093714) • RBAC-ENABLED</p>
         </div>
       </div>
       <ProductForm open={isFormOpen} onOpenChange={setIsFormOpen} product={selectedProduct} />
