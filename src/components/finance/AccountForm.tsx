@@ -56,25 +56,91 @@ export function AccountForm({ open, onOpenChange, account }: AccountFormProps) {
         <DialogHeader><DialogTitle className="text-right font-display text-xl font-bold">{account ? 'تعديل الحساب' : 'إضافة حساب جديد'}</DialogTitle></DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FormField<AccountFormValues> control={form.control} name="name" render={({ field: { value, onChange, ...fieldProps } }) => (
-              <FormItem><FormLabel>اسم الحساب</FormLabel><FormControl><Input {...fieldProps} value={String(value ?? "")} onChange={onChange} className="h-12 text-right border-2" /></FormControl><FormMessage /></FormItem>
-            )} />
+            <FormField<AccountFormValues>
+              control={form.control}
+              name="name"
+              render={({ field: { value, onChange, ...fieldProps } }) => (
+                <FormItem>
+                  <FormLabel>اسم الحساب</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      value={String(value ?? "")}
+                      onChange={onChange}
+                      className="h-12 text-right border-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-2 gap-4">
-              <FormField<AccountFormValues> control={form.control} name="code" render={({ field: { value, onChange, ...fieldProps } }) => (
-                <FormItem><FormLabel>كود الحساب</FormLabel><FormControl><Input {...fieldProps} value={String(value ?? "")} onChange={onChange} className="h-12 font-mono border-2" /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField<AccountFormValues> control={form.control} name="type" render={({ field }) => (
-                <FormItem><FormLabel>نوع الحساب</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-12"><SelectValue /></SelectTrigger></FormControl><SelectContent>{Object.entries(TYPE_LABELS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
-                <FormMessage /></FormItem>
-              )} />
+              <FormField<AccountFormValues>
+                control={form.control}
+                name="code"
+                render={({ field: { value, onChange, ...fieldProps } }) => (
+                  <FormItem>
+                    <FormLabel>كود الحساب</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...fieldProps}
+                        value={String(value ?? "")}
+                        onChange={onChange}
+                        className="h-12 font-mono border-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField<AccountFormValues>
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>نوع الحساب</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-12">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(TYPE_LABELS).map(([k,v]) => (
+                          <SelectItem key={k} value={k}>{v}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField<AccountFormValues> control={form.control} name="balance" render={({ field: { value, onChange, ...fieldProps } }) => (
-              <FormItem><FormLabel>الرصيد الافتتاحي</FormLabel>
-                <FormControl><Input {...fieldProps} type="number" step="0.01" value={String(value ?? "0")} onChange={(e) => onChange(parseFloat(e.target.value) || 0)} className="h-12 text-left font-bold text-xl border-2" /></FormControl>
-              <FormMessage /></FormItem>
-            )} />
-            <DialogFooter className="mt-8"><Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 bg-pharmav-primary shadow-neon-blue">حفظ البيانات</Button></DialogFooter>
+            <FormField<AccountFormValues>
+              control={form.control}
+              name="balance"
+              render={({ field: { value, onChange, ...fieldProps } }) => (
+                <FormItem>
+                  <FormLabel>الرصيد الافتتاحي</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      type="number"
+                      step="0.01"
+                      value={String(value ?? "0")}
+                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                      className="h-12 text-left font-bold text-xl border-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-8">
+              <Button type="submit" disabled={mutation.isPending} className="w-full font-bold h-14 bg-pharmav-primary shadow-neon-blue">
+                حفظ البيانات
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
