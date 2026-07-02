@@ -1,6 +1,6 @@
 # Cloudflare Full-Stack Starter
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/qazxswedc7144-boop/pharmavault-pharmacy-2)
 
 A production-ready full-stack template combining React, TypeScript, Tailwind CSS, and Cloudflare Workers with Durable Objects for scalable stateful applications.
 
@@ -81,7 +81,7 @@ Deploy to Cloudflare Workers with a single command:
 bun run deploy
 ```
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/qazxswedc7144-boop/pharmavault-pharmacy-2)
 
 This builds the Vite assets and deploys the Worker (including Durable Object migrations) defined in `wrangler.jsonc`.
 
