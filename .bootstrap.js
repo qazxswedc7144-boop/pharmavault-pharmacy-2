@@ -307,6 +307,17 @@ function runSetupCommands() {
         "bun",
         "add",
         "xlsx"
+    ],
+    [
+        "bun",
+        "add",
+        "@tanstack/react-query",
+        "hono",
+        "zustand",
+        "lucide-react",
+        "framer-motion",
+        "clsx",
+        "tailwind-merge"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
