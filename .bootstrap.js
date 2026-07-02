@@ -318,6 +318,21 @@ function runSetupCommands() {
         "framer-motion",
         "clsx",
         "tailwind-merge"
+    ],
+    [
+        "bun",
+        "add",
+        "uuid",
+        "immer",
+        "input-otp",
+        "react-day-picker",
+        "react-resizable-panels",
+        "react-select",
+        "react-swipeable",
+        "react-use",
+        "vaul",
+        "zod",
+        "cloudflare"
     ]
 ];
     const ALLOWED = new Set(['npm', 'yarn', 'pnpm', 'bun']);
