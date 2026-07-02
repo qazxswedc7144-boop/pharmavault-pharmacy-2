@@ -8,7 +8,8 @@ import {
   FileText,
   Pencil,
   Trash2,
-  Package2
+  Package2,
+  FileDown
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
@@ -32,6 +33,7 @@ import { api } from '@/lib/api-client';
 import type { Product } from '@shared/types';
 import { ProductForm } from '@/components/inventory/ProductForm';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
 export function InventoryPage() {
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -45,21 +47,34 @@ export function InventoryPage() {
     mutationFn: (id: string) => api(`/api/products/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('تم حذف المنتج بنجاح من المخزون');
-    },
-    onError: () => toast.error('فشل في حذف المنتج، يرجى المحاولة لاحقاً')
+      toast.success('تم حذف المنتج بنجاح');
+    }
   });
   const products = productsData?.items ?? [];
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.sku.toLowerCase().includes(search.toLowerCase())
   );
+  const handleExportExcel = () => {
+    if (filteredProducts.length === 0) return toast.error('لا توجد بيانات لتصديرها');
+    const data = filteredProducts.map(p => ({
+      'الاسم': p.name,
+      'كود المنتج (SKU)': p.sku,
+      'الكمية المتوفرة': p.stockQuantity,
+      'الوحدة': p.unit,
+      'سعر التكلفة': p.costPrice,
+      'سعر البيع': p.price,
+      'تاريخ الانتهاء': p.expiryDate,
+      'رقم التشغيلة': p.batchNumber
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+    XLSX.writeFile(wb, `PharmaVault_Inventory_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success('تم تصدير ملف Excel بنجاح');
+  };
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
-    setIsFormOpen(true);
-  };
-  const handleAdd = () => {
-    setSelectedProduct(undefined);
     setIsFormOpen(true);
   };
   return (
@@ -71,10 +86,10 @@ export function InventoryPage() {
             <p className="text-muted-foreground mt-2 text-lg">إدارة بيانات الأدوية، مستويات المخزون، والتشغيلات.</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2 h-11 px-5 border-2">
-              <FileText className="h-4 w-4" /> تصدير البيانات
+            <Button variant="outline" onClick={handleExportExcel} className="gap-2 h-11 px-5 border-2">
+              <FileDown className="h-4 w-4" /> تصدير البيانات
             </Button>
-            <Button onClick={handleAdd} className="gap-2 h-11 px-6 bg-pharmav-primary font-bold shadow-neon-blue">
+            <Button onClick={() => { setSelectedProduct(undefined); setIsFormOpen(true); }} className="gap-2 h-11 px-6 bg-pharmav-primary font-bold shadow-neon-blue">
               <Plus className="h-4 w-4" /> إضافة دواء جديد
             </Button>
           </div>
@@ -88,12 +103,6 @@ export function InventoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-          <Button variant="ghost" className="gap-2 h-12 font-medium">
-            <Filter className="h-4 w-4" /> تصفية متقدمة
-          </Button>
-          <div className="mr-auto text-sm font-medium text-muted-foreground">
-            عرض {filteredProducts.length} دواء متاح
           </div>
         </div>
         <div className="rounded-3xl border bg-card overflow-hidden shadow-soft">
@@ -111,17 +120,7 @@ export function InventoryPage() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><div className="h-6 w-56 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-24 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-16 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-20 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-28 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-24 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-6 w-8 bg-muted animate-pulse rounded ml-auto" /></TableCell>
-                  </TableRow>
-                ))
+                Array.from({ length: 6 }).map((_, i) => <TableRow key={i}><TableCell colSpan={7}><div className="h-10 bg-muted animate-pulse rounded" /></TableCell></TableRow>)
               ) : filteredProducts.map((p) => (
                 <TableRow key={p.id} className="hover:bg-muted/30 transition-colors group border-b">
                   <TableCell className="font-medium py-4">
@@ -136,42 +135,24 @@ export function InventoryPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono">{p.sku}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 justify-end">
-                      <span className={p.stockQuantity <= p.minStockLevel ? "text-destructive font-bold text-lg" : "text-lg font-semibold"}>
-                        {p.stockQuantity}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{p.unit}</span>
-                    </div>
-                  </TableCell>
+                  <TableCell className="font-bold text-lg">{p.stockQuantity} {p.unit}</TableCell>
                   <TableCell className="font-bold text-lg">{p.price.toFixed(2)} ر.س</TableCell>
                   <TableCell className="text-muted-foreground">{p.expiryDate}</TableCell>
                   <TableCell>
                     {p.stockQuantity <= p.minStockLevel ? (
-                      <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 font-bold">نقص مخزون</Badge>
+                      <Badge variant="destructive" className="font-bold">نقص مخزون</Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 font-bold">متوفر</Badge>
+                      <Badge variant="outline" className="bg-green-500/10 text-green-600 border-none font-bold">متوفر</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-left">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-10 w-10">
-                          <MoreVertical className="h-5 w-5" />
-                        </Button>
+                        <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="text-right">
-                        <DropdownMenuItem onClick={() => handleEdit(p)} className="flex-row-reverse gap-2">
-                          <Pencil className="h-4 w-4" /> تعديل البيانات
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive flex-row-reverse gap-2"
-                          onClick={() => {
-                            if(window.confirm('هل أنت متأكد من رغبتك في حذف هذا الدواء نهائياً؟')) deleteMutation.mutate(p.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" /> حذف المنتج
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(p)}>تعديل البيانات</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(p.id)}>حذف المنتج</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -179,19 +160,12 @@ export function InventoryPage() {
               ))}
             </TableBody>
           </Table>
-          {!isLoading && filteredProducts.length === 0 && (
-            <div className="py-20 text-center text-muted-foreground">
-              <Package2 className="size-12 mx-auto opacity-20 mb-4" />
-              <p className="text-lg font-medium">لا توجد أدوية تطابق بحثك حالياً.</p>
-            </div>
-          )}
+        </div>
+        <div className="pt-12 text-center text-muted-foreground text-sm border-t">
+          <p>نظام فارمافولت v2.5 • تطوير م/ عبدالله طاهر مفرح (772093714) • حقوق الطبع 2026</p>
         </div>
       </div>
-      <ProductForm
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        product={selectedProduct}
-      />
+      <ProductForm open={isFormOpen} onOpenChange={setIsFormOpen} product={selectedProduct} />
     </AppLayout>
   );
 }

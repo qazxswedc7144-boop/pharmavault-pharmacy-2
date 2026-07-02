@@ -26,22 +26,14 @@ import { LedgerPage } from '@/pages/LedgerPage';
 import { TrialBalancePage } from '@/pages/TrialBalancePage';
 import { UsersPage } from '@/pages/UsersPage';
 import { CustomersPage } from '@/pages/CustomersPage';
+import { AboutPage } from '@/pages/AboutPage';
 import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
 declare global {
-  interface Window {
-    __reactRoot?: Root;
-  }
+  interface Window { __reactRoot?: Root; }
 }
 enableMapSet();
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 const router = createBrowserRouter([
   { path: "/", element: <HomePage />, errorElement: <RouteErrorBoundary /> },
   { path: "/dashboard", element: <DashboardPage />, errorElement: <RouteErrorBoundary /> },
@@ -62,6 +54,7 @@ const router = createBrowserRouter([
   { path: "/trial-balance", element: <TrialBalancePage />, errorElement: <RouteErrorBoundary /> },
   { path: "/users", element: <UsersPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/customers", element: <CustomersPage />, errorElement: <RouteErrorBoundary /> },
+  { path: "/about", element: <AboutPage />, errorElement: <RouteErrorBoundary /> },
 ]);
 export function OnlineStatusManager() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);
@@ -77,25 +70,16 @@ export function OnlineStatusManager() {
   }, [setOnlineStatus]);
   return null;
 }
-export function AppRoot() {
-  return (
-    <PinLock>
-      <OnlineStatusManager />
-      <RouterProvider router={router} />
-    </PinLock>
-  );
-}
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  if (!window.__reactRoot) {
-    window.__reactRoot = createRoot(rootElement);
-  }
+  if (!window.__reactRoot) window.__reactRoot = createRoot(rootElement);
   window.__reactRoot.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <AppRoot />
-        </ErrorBoundary>
+        <PinLock>
+          <OnlineStatusManager />
+          <RouterProvider router={router} />
+        </PinLock>
       </QueryClientProvider>
     </StrictMode>
   );

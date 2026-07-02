@@ -76,12 +76,12 @@ export const useAppStore = create<AppState>()(
         settings: { ...state.settings, ...newSettings }
       })),
       setSubscription: (subscription) => set({ subscription }),
-      addBillingRecord: (record) => set((state) => ({ 
-        billingHistory: [record, ...state.billingHistory] 
+      addBillingRecord: (record) => set((state) => ({
+        billingHistory: [record, ...state.billingHistory]
       })),
     }),
     {
-      name: 'pharmavault-storage',
+      name: 'pharmavault-storage-v2',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         pin: state.pin,

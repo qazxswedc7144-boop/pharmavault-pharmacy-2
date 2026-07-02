@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, Globe, Mail, ArrowLeft, Info, Users } from 'lucide-react';
+import { Pill, Globe, Mail, ArrowLeft, Info, Users, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 export function Footer() {
@@ -18,48 +18,27 @@ export function Footer() {
             <p className="text-base text-muted-foreground leading-relaxed text-pretty text-right">
               نحن نمكّن الصيدليات الحديثة من خلال حلول آمنة، فعالة، وبديهية لإدارة المخزون والمحاسبة المالية.
             </p>
-            <div className="flex gap-4">
-              <Globe className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
-              <Info className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
-              <Users className="h-5 w-5 text-muted-foreground hover:text-pharmav-primary cursor-pointer transition-colors" />
+            <div className="flex flex-col gap-2 mt-4 text-sm font-bold text-pharmav-primary">
+              <div className="flex items-center gap-2"><Phone className="size-4" /> 772093714</div>
+              <div className="flex items-center gap-2"><Users className="size-4" /> د/ عبدالله طاهر مفرح</div>
             </div>
           </div>
           <div className="text-right flex flex-col items-start">
             <h3 className="font-display font-bold text-lg mb-8">المنتج</h3>
             <ul className="space-y-4 text-muted-foreground w-full">
-              <li>
-                <Link to="/inventory" className="hover:text-pharmav-primary transition-colors flex items-center gap-2 group">
-                  <ArrowLeft className="size-3 opacity-0 group-hover:opacity-100 transition-all" />
-                  تتبع المخزون
-                </Link>
-              </li>
-              <li>
-                <Link to="/reports" className="hover:text-pharmav-primary transition-colors flex items-center gap-2 group">
-                  <ArrowLeft className="size-3 opacity-0 group-hover:opacity-100 transition-all" />
-                  التقارير المالية
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="hover:text-pharmav-primary transition-colors flex items-center gap-2 group">
-                  <ArrowLeft className="size-3 opacity-0 group-hover:opacity-100 transition-all" />
-                  خطط الأسعار
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard" className="hover:text-pharmav-primary transition-colors flex items-center gap-2 group">
-                  <ArrowLeft className="size-3 opacity-0 group-hover:opacity-100 transition-all" />
-                  لوحة التحكم
-                </Link>
-              </li>
+              <li><Link to="/inventory" className="hover:text-pharmav-primary transition-colors">تتبع المخزون</Link></li>
+              <li><Link to="/reports" className="hover:text-pharmav-primary transition-colors">التقارير المالية</Link></li>
+              <li><Link to="/pricing" className="hover:text-pharmav-primary transition-colors">خطط الأسعار</Link></li>
+              <li><Link to="/about" className="hover:text-pharmav-primary transition-colors font-bold">حول النظام</Link></li>
             </ul>
           </div>
           <div className="text-right flex flex-col items-start">
-            <h3 className="font-display font-bold text-lg mb-8">الشركة</h3>
+            <h3 className="font-display font-bold text-lg mb-8">المطور</h3>
             <ul className="space-y-4 text-muted-foreground w-full">
-              <li><Link to="#" className="hover:text-pharmav-primary transition-colors">من نحن</Link></li>
-              <li><Link to="#" className="hover:text-pharmav-primary transition-colors">تواصل معنا</Link></li>
-              <li><Link to="#" className="hover:text-pharmav-primary transition-colors">شروط الخدمة</Link></li>
-              <li><Link to="#" className="hover:text-pharmav-primary transition-colors">سياسة الخصوصية</Link></li>
+              <li className="font-bold text-foreground">د/ عبدالله طاهر مفرح</li>
+              <li>تواصل مباشر: 772093714</li>
+              <li>خدمات الدعم الفني 24/7</li>
+              <li>تخصيص الأنظمة البرمجية</li>
             </ul>
           </div>
           <div className="space-y-6 text-right flex flex-col items-start">
@@ -76,7 +55,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-20 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} فارمافولت للأنظمة التقنية. صُنع بعناية لخدمة قطاع الرعاية الصحية الحديث.</p>
+          <p>© 2026 فارمافولت للأنظمة التقنية. تطوير م/ عبدالله طاهر مفرح (772093714).</p>
         </div>
       </div>
     </footer>
