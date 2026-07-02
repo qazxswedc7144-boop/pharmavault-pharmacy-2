@@ -1,15 +1,14 @@
 import React, { useState, useMemo } from "react";
 import {
-  Home, ClipboardList, ShoppingCart, Truck, BarChart, Settings, Pill, Users, Layers, Wifi, WifiOff, BookOpen, Receipt, ChevronUp, Bell, Scale, FileSpreadsheet, Users2, HelpCircle, Code, LogOut, ShieldCheck, ChevronDown
+  Home, ClipboardList, ShoppingCart, Truck, BarChart, Pill, Users, BookOpen, ChevronDown, ShieldCheck, Users2, HelpCircle, Code, LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInput } from "@/components/ui/sidebar";
 import { useAppStore } from "@/lib/offline-store";
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import type { Role, User } from "@shared/types";
+import type { Role } from "@shared/types";
 export function AppSidebar(): JSX.Element {
   const location = useLocation();
   const currentUser = useAppStore(s => s.currentUser);
@@ -21,7 +20,7 @@ export function AppSidebar(): JSX.Element {
       { name: "المخزون", icon: <ClipboardList className="size-4" />, href: "/inventory", roles: ['admin', 'pharmacist', 'viewer'] },
       { name: "نقطة البيع", icon: <ShoppingCart className="size-4" />, href: "/pos", roles: ['admin', 'pharmacist'] },
       { name: "المشتريات", icon: <Truck className="size-4" />, href: "/purchases", roles: ['admin', 'pharmacist'] },
-      { name: "الحسابات المرجعية", icon: <Scale className="size-4" />, href: "/accounts", roles: ['admin'] },
+      { name: "الحسابات المرجعية", icon: <BarChart className="size-4" />, href: "/accounts", roles: ['admin'] },
       { name: "التقارير", icon: <BarChart className="size-4" />, href: "/reports", roles: ['admin'] },
       { name: "الموظفين", icon: <Users2 className="size-4" />, href: "/users", roles: ['admin'] },
       { name: "حول النظام", icon: <HelpCircle className="size-4" />, href: "/about", roles: ['admin', 'pharmacist', 'viewer'] },
@@ -72,11 +71,13 @@ export function AppSidebar(): JSX.Element {
             <DropdownMenuTrigger asChild>
               <button className="flex items-center justify-between w-full p-2 rounded-xl hover:bg-accent transition-colors flex-row-reverse">
                 <div className="flex items-center gap-3 flex-row-reverse">
-                  <Avatar className="size-8 border-2 border-pharmav-primary/20">
-                    <AvatarFallback className="bg-pharmav-primary text-white text-xs">
-                      {currentUser?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
+                  {currentUser && (
+                    <Avatar className="size-8 border-2 border-pharmav-primary/20">
+                      <AvatarFallback className="bg-pharmav-primary text-white text-xs">
+                        {currentUser.name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div className="text-right">
                     <p className="text-xs font-bold truncate max-w-[120px]">{currentUser?.name}</p>
                     <Badge variant="outline" className="text-[9px] h-4 py-0 bg-background capitalize">

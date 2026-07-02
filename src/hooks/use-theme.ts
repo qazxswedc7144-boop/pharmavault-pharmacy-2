@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 export function useTheme() {
   const [isDark, setIsDark] = useState(() => {
     try {
-      const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
+      if (typeof window === 'undefined') return false;
+      const savedTheme = localStorage.getItem('theme');
       if (savedTheme) return savedTheme === 'dark';
-      return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     } catch (e) {
       console.warn('Failed to access localStorage for theme', e);
       return false;
@@ -12,6 +13,7 @@ export function useTheme() {
   });
   useEffect(() => {
     try {
+      if (typeof window === 'undefined') return;
       const root = window.document.documentElement;
       if (isDark) {
         root.classList.add('dark');
@@ -24,7 +26,7 @@ export function useTheme() {
       console.error('Failed to update theme in DOM or localStorage', e);
     }
   }, [isDark]);
-  const toggleTheme = React.useCallback(() => {
+  const toggleTheme = useCallback(() => {
     setIsDark(prev => !prev);
   }, []);
   return { isDark, toggleTheme };
