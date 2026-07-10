@@ -1,6 +1,6 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
-import React, { StrictMode, useEffect } from 'react';
+import { StrictMode, useEffect } from 'react'; // تم حذف React غير المستخدم
 import { createRoot, type Root } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -28,10 +28,13 @@ import { CustomersPage } from '@/pages/CustomersPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
+
 declare global {
   interface Window { __reactRoot?: Root; }
 }
+
 enableMapSet();
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,6 +43,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 const router = createBrowserRouter([
   { path: "/", element: <HomePage />, errorElement: <RouteErrorBoundary /> },
   { path: "/dashboard", element: <DashboardPage />, errorElement: <RouteErrorBoundary /> },
@@ -62,24 +66,30 @@ const router = createBrowserRouter([
   { path: "/customers", element: <CustomersPage />, errorElement: <RouteErrorBoundary /> },
   { path: "/about", element: <AboutPage />, errorElement: <RouteErrorBoundary /> },
 ]);
+
 export function OnlineStatusManager() {
   const setOnlineStatus = useAppStore(s => s.setOnlineStatus);
   useEffect(() => {
     const handleOnline = () => setOnlineStatus(true);
     const handleOffline = () => setOnlineStatus(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    
+    // استخدام globalThis بدلاً من window
+    globalThis.addEventListener('online', handleOnline);
+    globalThis.addEventListener('offline', handleOffline);
+    
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      globalThis.removeEventListener('online', handleOnline);
+      globalThis.removeEventListener('offline', handleOffline);
     };
   }, [setOnlineStatus]);
   return null;
 }
+
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  if (!window.__reactRoot) window.__reactRoot = createRoot(rootElement);
-  window.__reactRoot.render(
+  // استخدام globalThis للوصول إلى الواجهة العامة
+  if (!globalThis.__reactRoot) globalThis.__reactRoot = createRoot(rootElement);
+  globalThis.__reactRoot.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <PinLock>
@@ -90,3 +100,4 @@ if (rootElement) {
     </StrictMode>
   );
 }
+
