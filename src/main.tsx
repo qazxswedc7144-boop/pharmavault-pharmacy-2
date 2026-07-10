@@ -30,7 +30,7 @@ import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
 
 declare global {
-  interface Window { __reactRoot?: Root; }
+  var __reactRoot: Root | undefined;
 }
 
 enableMapSet();
@@ -100,4 +100,3 @@ if (rootElement) {
     </StrictMode>
   );
 }
-
