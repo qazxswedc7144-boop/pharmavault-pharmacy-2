@@ -1,6 +1,6 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
-import { StrictMode, useEffect } from 'react'; // تم حذف React غير المستخدم
+import { StrictMode, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ import { PinLock } from '@/components/auth/PinLock';
 import { useAppStore } from '@/lib/offline-store';
 
 declare global {
+  // تعريف صحيح للمتغير ضمن النطاق العالمي
   var __reactRoot: Root | undefined;
 }
 
@@ -73,7 +74,6 @@ export function OnlineStatusManager() {
     const handleOnline = () => setOnlineStatus(true);
     const handleOffline = () => setOnlineStatus(false);
     
-    // استخدام globalThis بدلاً من window
     globalThis.addEventListener('online', handleOnline);
     globalThis.addEventListener('offline', handleOffline);
     
@@ -87,8 +87,11 @@ export function OnlineStatusManager() {
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  // استخدام globalThis للوصول إلى الواجهة العامة
-  if (!globalThis.__reactRoot) globalThis.__reactRoot = createRoot(rootElement);
+  // التحقق من وجود الجذر قبل إنشائه لمنع التكرار في وضع التطوير (Hot Reload)
+  if (!globalThis.__reactRoot) {
+    globalThis.__reactRoot = createRoot(rootElement);
+  }
+  
   globalThis.__reactRoot.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -100,3 +103,4 @@ if (rootElement) {
     </StrictMode>
   );
 }
+
